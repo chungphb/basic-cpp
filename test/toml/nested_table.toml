@@ -1,0 +1,8 @@
+[album]
+name = "1989"
+artist = "Taylor Swift"
+year = 2014
+[album.detail]
+genre = "Synth-pop"
+label = "Big Machine"
+producers = ["Max Martin", "Jack Antonoff", "Imogen Heap"]
