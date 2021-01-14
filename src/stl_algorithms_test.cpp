@@ -6,11 +6,13 @@
 
 void log(std::string_view txt, const std::vector<int>& vec) {
 	std::cout << txt << '\n';
-	for (const auto& elm : vec) {
-		std::cout << elm << ' ';
+	for (const auto& ele : vec) {
+		std::cout << ele << ' ';
 	}
 	std::cout << '\n';
 }
+
+// TEST PERMUTATION ALGORITHMS
 
 // make_heap, pop_heap, push_heap, sort_heap
 void test_heap() {
@@ -87,14 +89,14 @@ void test_partition() {
 	log("Before partition: ", vec);
 	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
 
-	std::partition(vec.begin(), vec.end(), [](const int& elm) {
-		return elm % 2;
+	std::partition(vec.begin(), vec.end(), [](const int& ele) {
+		return ele % 2;
 	});
 	log("After partition: ", vec);
 	// Result: 1 11 3 9 5 7 6 8 4 1 2 12
 
-	auto pp = std::partition_point(vec.begin(), vec.end(), [](const int& elm) {
-		return elm % 2;
+	auto pp = std::partition_point(vec.begin(), vec.end(), [](const int& ele) {
+		return ele % 2;
 	});
 
 	std::cout << "First half: ";
@@ -146,10 +148,92 @@ void test_other_permutation_algorithms() {
 	// Result: 12 11 10 9 8 7 6 5 4 3 2 1
 }
 
+// TEST PREFIXES AND POSTFIXES
+
+// stable_sort, stable_partition
+void test_stable() {
+	std::cout << "\n[TEST STABLE_*]\n";
+
+	struct interval {
+		int start;
+		int finish;
+		interval(int s, int f) : start{s}, finish{f} {}
+	};
+	auto i_log = [](std::string txt, const std::vector<interval>& vec) {
+		std::cout << txt << '\n';
+		for (const auto& ele : vec) {
+			std::cout << '(' << ele.start << ", " << ele.finish << ") ";
+		}
+		std::cout << '\n';
+	};
+	std::vector<interval> i_vec;
+	i_vec.emplace_back(1, 3);
+	i_vec.emplace_back(2, 4);
+	i_vec.emplace_back(1, 2);
+	i_vec.emplace_back(3, 3);
+	i_log("Before stable_sort: ", i_vec);
+	// Result: (1, 3) (2, 4) (1, 2) (3, 3)
+
+	std::stable_sort(i_vec.begin(), i_vec.end(), [](const interval& lhs, const interval& rhs) {
+		return lhs.start < rhs.start;
+	});
+	i_log("After stable_sort: ", i_vec);
+	// Result: (1, 3) (1, 2) (2, 4) (3, 3)
+
+	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	log("Before stable_partition: ", vec);
+	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
+
+	std::stable_partition(vec.begin(), vec.end(), [](const int& ele) {
+		return ele % 2;
+	});
+	log("After stable_partition: ", vec);
+	// Result: 1 3 5 7 9 11 2 4 6 8 10 12
+}
+
+// is_sorted, is_partitioned, is_heap
+void test_is() {
+	std::cout << "\n[TEST IS_*]\n";
+
+	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	std::cout << "Vector ";
+	std::copy(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "is " << (std::is_sorted(vec.begin(), vec.end()) ? "sorted.\n" : "not sorted.\n");
+
+	vec = {1, 3, 5, 7, 9, 11, 2, 4, 6, 8, 10, 12};
+	std::cout << "Vector ";
+	std::copy(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "is " << (std::is_partitioned(vec.begin(), vec.end(), [](const int& ele) {
+		return ele % 2;
+	}) ? "partitioned.\n" : "not partitioned.\n");
+
+	vec = {12, 11, 7, 9, 10, 6, 1, 8, 4, 2, 5, 3};
+	std::cout << "Vector ";
+	std::copy(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "is " << (std::is_heap(vec.begin(), vec.end()) ? "a heap.\n" : "not a heap.\n");
+}
+
+// is_sorted_until, is_heap_until
+void test_is_until() {
+	std::cout << "\n[TEST IS_*_UNTIL]\n";
+
+	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 12, 11, 10, 9, 8, 7};
+	std::cout << "Vector ";
+	std::copy(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "is sorted until " << (std::is_sorted_until(vec.begin(), vec.end()) - vec.begin()) << "th element.\n";
+
+	vec = {12, 10, 7, 9, 11, 6, 1, 8, 4, 2, 5, 3};
+	std::cout << "Vector ";
+	std::copy(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "is heap until " << (std::is_heap_until(vec.begin(), vec.end()) - vec.begin()) << "th element.\n";
+}
+
 int main(int argv, char** argc) {
 	test_heap();
 	test_sorting();
 	test_partition();
 	test_other_permutation_algorithms();
+	test_stable();
+	test_is();
+	test_is_until();
 }
-
