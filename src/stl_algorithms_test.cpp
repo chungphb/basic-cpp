@@ -381,6 +381,8 @@ void test_property_query_algorithms() {
 // find, adjacent_find, equal_range, lower_bound, upper_bound, search, find_end, find_first_of,
 // min_element, max_element, minmax_element
 void test_searching_algorithms() {
+	std::cout << "\n[TEST SEARCHING ALGORITHMS]\n";
+
 	// 1. Searching a value
 
 	std::vector<int> vec = { 1, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
@@ -461,6 +463,60 @@ void test_searching_algorithms() {
 	std::cout << "- Max element: " << *std::max_element(vec.begin(), vec.end()) << "\n";
 }
 
+// TEST QUERY ALGORITHMS
+
+// set_difference, set_union, set_intersection, set_symmetric_difference, includes, merge
+void test_set_algorithms() {
+	std::cout << "\n[TEST SET ALGORITHMS]\n";
+
+	std::set<int> set1 = {1, 2, 3, 4, 5, 6, 7, 8};
+	std::set<int> set2 = {6, 7, 8, 9, 10, 11, 12};
+	std::cout << "Set 1: ";
+	std::copy(set1.begin(), set1.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\nSet 2: ";
+	std::copy(set2.begin(), set2.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	std::vector<int> res;
+	std::set_difference(set1.begin(), set1.end(), set2.begin(), set2.end(), std::back_inserter(res));
+	std::cout << "- Set 1 \\ Set 2: ";
+	std::copy(res.begin(), res.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	res = {};
+	std::set_difference(set2.begin(), set2.end(), set1.begin(), set1.end(), std::back_inserter(res));
+	std::cout << "- Set 2 \\ Set 1: ";
+	std::copy(res.begin(), res.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	res = {};
+	std::set_union(set1.begin(), set1.end(), set2.begin(), set2.end(), std::back_inserter(res));
+	std::cout << "- Set 2 ^ Set 1: ";
+	std::copy(res.begin(), res.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	res = {};
+	std::set_intersection(set1.begin(), set1.end(), set2.begin(), set2.end(), std::back_inserter(res));
+	std::cout << "- Set 2 v Set 1: ";
+	std::copy(res.begin(), res.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	res = {};
+	std::set_symmetric_difference(set1.begin(), set1.end(), set2.begin(), set2.end(), std::back_inserter(res));
+	std::cout << "- Set 2 \\ Set 1 ^ Set 1 \\ Set 2: ";
+	std::copy(res.begin(), res.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	auto is_subset = std::includes(set1.begin(), set1.end(), set2.begin(), set2.end());
+	std::cout << "- Set 2 is a subset of Set 1: " << std::boolalpha << is_subset << "\n";
+
+	res = {};
+	std::merge(set1.begin(), set1.end(), set2.begin(), set2.end(), std::back_inserter(res));
+	std::cout << "- Set 1 + Set 2: ";
+	std::copy(res.begin(), res.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+}
+
 int main(int argv, char** argc) {
 	test_heap_algorithms();
 	test_sorting_algorithms();
@@ -472,4 +528,5 @@ int main(int argv, char** argc) {
 	test_value_query_algorithms();
 	test_property_query_algorithms();
 	test_searching_algorithms();
+	test_set_algorithms();
 }
