@@ -1,22 +1,24 @@
 #include <vector>
 #include <set>
 #include <algorithm>
+#include <numeric>
+#include <execution>
 #include <iostream>
 #include <random>
 
 void log(std::string_view txt, const std::vector<int>& vec) {
-	std::cout << txt << '\n';
+	std::cout << txt << "\n";
 	for (const auto& ele : vec) {
 		std::cout << ele << ' ';
 	}
-	std::cout << '\n';
+	std::cout << "\n";
 }
 
 // TEST PERMUTATION ALGORITHMS
 
 // make_heap, pop_heap, push_heap, sort_heap
-void test_heap() {
-	std::cout << "[TEST HEAP]\n";
+void test_heap_algorithms() {
+	std::cout << "[TEST HEAP ALGORITHMS]\n";
 
 	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	log("Before make_heap: ", vec);
@@ -45,8 +47,8 @@ void test_heap() {
 }
 
 // sort, partial_sort, nth_element, inplace_merge
-void test_sorting() {
-	std::cout << "\n[TEST SORTING]\n";
+void test_sorting_algorithms() {
+	std::cout << "\n[TEST SORTING ALGORITHMS]\n";
 
 	std::vector vec = {6, 5, 4, 3, 2, 1, 12, 11, 10, 9, 8, 7};
 	log("Before sort: ", vec);
@@ -69,7 +71,7 @@ void test_sorting() {
 	// Result: 6 12 5 11 4 10 3 9 2 8 1 7
 
 	std::nth_element(vec.begin(), vec.begin() + 1, vec.end());
-	std::cout << "The second smallest element is: " << vec[1] << '\n';
+	std::cout << "The second smallest element is: " << vec[1] << "\n";
 	// Result: 2
 
 	vec = {1, 3, 5, 7, 9, 11, 2, 4, 6, 8, 10, 12};
@@ -82,8 +84,8 @@ void test_sorting() {
 }
 
 // partition, partition_point
-void test_partition() {
-	std::cout << "\n[TEST PARTITION]\n";
+void test_partitioning_algorithms() {
+	std::cout << "\n[TEST PARTITIONING ALGORITHMS]\n";
 
 	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	log("Before partition: ", vec);
@@ -105,7 +107,7 @@ void test_partition() {
 
 	std::cout << "\nSecond half: ";
 	std::copy(pp, vec.end(), std::ostream_iterator<int>(std::cout, " "));
-	std::cout << '\n';
+	std::cout << "\n";
 	// Result: 6 8 4 10 2 12
 }
 
@@ -160,11 +162,11 @@ void test_stable() {
 		interval(int s, int f) : start{s}, finish{f} {}
 	};
 	auto i_log = [](std::string txt, const std::vector<interval>& vec) {
-		std::cout << txt << '\n';
+		std::cout << txt << "\n";
 		for (const auto& ele : vec) {
 			std::cout << '(' << ele.start << ", " << ele.finish << ") ";
 		}
-		std::cout << '\n';
+		std::cout << "\n";
 	};
 	std::vector<interval> i_vec;
 	i_vec.emplace_back(1, 3);
@@ -228,12 +230,107 @@ void test_is_until() {
 	std::cout << "is heap until " << (std::is_heap_until(vec.begin(), vec.end()) - vec.begin()) << "th element.\n";
 }
 
+// TEST QUERY ALGORITHMS
+
+// count, accumulate, (transform_)reduce, partial_sum, (transform_)inclusive_scan, (transform_)exclusive_scan
+// adjacent_difference, sample, inner_product
+void test_value_query_algorithms() {
+	std::cout << "\n[TEST VALUE QUERY ALGORITHMS]\n";
+
+	std::vector<int> vec = {1, 2, 3, 4, 1, 5, 1, 6, 7, 8, 9, 10};
+	std::cout << "Vector ";
+	std::copy(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	auto count = std::count(vec.begin(), vec.end(), 1);
+	std::cout << "- Number of elements equal 1: " << count << "\n";
+
+	auto sum = std::accumulate(vec.begin(), vec.end(), 0);
+	std::cout << "- Sum of all elements (accumulate): " << sum << "\n";
+
+	sum = std::reduce(vec.begin(), vec.end(), 0);
+	std::cout << "- Sum of all elements (reduce): " << sum << "\n";
+
+	auto sqr_sum = std::transform_reduce(
+		vec.begin(),
+		vec.end(),
+		0,
+		std::plus<int>{},
+		[](const int& ele) {
+			return ele * ele;
+		}
+	);
+	std::cout << "- Sum of squares (transform_reduce): " << sqr_sum << "\n";
+	
+	std::cout << "- Partial sum (partial_sum): ";
+	std::partial_sum(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+	
+	std::cout << "- Partial sum (inclusive_scan): ";
+	std::inclusive_scan(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	std::cout << "- Partial sum (exclusive_scan): ";
+	std::exclusive_scan(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "), 0);
+	std::cout << "\n";
+
+	std::cout << "- Partial sum of squares (transform_inclusive_scan): ";
+	std::transform_inclusive_scan(
+		vec.begin(),
+		vec.end(),
+		std::ostream_iterator<int>(std::cout, " "),
+		std::plus<int>{},
+		[](const int& ele) {
+			return ele * ele;
+		}
+	);
+	std::cout << "\n";
+
+	std::cout << "- Partial sum of squares (transform_exclusive_scan): ";
+	std::transform_exclusive_scan(
+		vec.begin(),
+		vec.end(),
+		std::ostream_iterator<int>(std::cout, " "),
+		0,
+		std::plus<int>{},
+		[](const int& ele) {
+			return ele * ele;
+		}
+	);
+	std::cout << "\n";
+
+	std::cout << "- Adjacent difference: ";
+	std::adjacent_difference(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	std::cout << "- Sample: ";
+	std::sample(
+		vec.begin(),
+		vec.end(), 
+		std::ostream_iterator<int>(std::cout, " "),
+		vec.size() / 2,
+		std::mt19937{std::random_device{}()}
+	);
+	std::cout << "\n";
+
+	std::vector<int> vec1 = {1, 2, 3, 4};
+	std::vector<int> vec2 = { 5, 6, 7, 8 };
+	std::cout << "\nVector 1: ";
+	std::copy(vec1.begin(), vec1.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\nVector 2: ";
+	std::copy(vec2.begin(), vec2.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+	auto prd = std::inner_product(vec1.begin(), vec1.end(), vec2.begin(), 0);
+	std::cout << "- Inner product: " << prd << "\n";
+}
+
 int main(int argv, char** argc) {
-	test_heap();
-	test_sorting();
-	test_partition();
+	test_heap_algorithms();
+	test_sorting_algorithms();
+	test_partitioning_algorithms();
 	test_other_permutation_algorithms();
 	test_stable();
 	test_is();
 	test_is_until();
+	test_value_query_algorithms();
 }
