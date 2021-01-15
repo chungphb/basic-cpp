@@ -324,6 +324,52 @@ void test_value_query_algorithms() {
 	std::cout << "- Inner product: " << prd << "\n";
 }
 
+// some_of, any_of, none_of, equal, is_permutation, lexicographical_compare, mismatch
+void test_property_query_algorithms() {
+	std::cout << "\n[TEST PROPERTY QUERY ALGORITHMS]\n";
+
+	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	std::cout << "Vector ";
+	std::copy(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	auto res = std::all_of(vec.begin(), vec.end(), [](const auto& ele) {
+		return ele > 0;
+	});
+	std::cout << "- Has all positive elements: " << std::boolalpha << res << "\n";
+
+	res = std::any_of(vec.begin(), vec.end(), [](const auto& ele) {
+		return ele % 2 == 1;
+	});
+	std::cout << "- Has some odd elements: " << std::boolalpha << res << "\n";
+
+	res = std::none_of(vec.begin(), vec.end(), [](const auto& ele) {
+		return ele % 2 == 0;
+	});
+	std::cout << "- Has no even elements: " << std::boolalpha << res << "\n";
+
+	std::vector<int> vec1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	std::vector<int> vec2 = {7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6};
+	std::cout << "\nVector 1: ";
+	std::copy(vec1.begin(), vec1.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\nVector 2: ";
+	std::copy(vec2.begin(), vec2.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+	
+	res = std::equal(vec1.begin(), vec1.end(), vec2.begin());
+	std::cout << "- Are equal: " << std::boolalpha << res << "\n";
+
+	res = std::is_permutation(vec1.begin(), vec1.end(), vec2.begin());
+	std::cout << "- Are permutations: " << std::boolalpha << res << "\n";
+
+	res = std::lexicographical_compare(vec1.begin(), vec1.end(), vec2.begin(), vec2.end());
+	std::cout << "- Vector 1 < Vector 2: " << std::boolalpha << res << "\n";
+
+	std::string str = "HelloqwertyolleH";
+	std::string mir = std::string(str.begin(), std::mismatch(str.begin(), str.end(), str.rbegin()).first);
+	std::cout << "\nThe mirror substring of \"" << str << "\" is \"" << mir << "\".\n";
+}
+
 int main(int argv, char** argc) {
 	test_heap_algorithms();
 	test_sorting_algorithms();
@@ -333,4 +379,5 @@ int main(int argv, char** argc) {
 	test_is();
 	test_is_until();
 	test_value_query_algorithms();
+	test_property_query_algorithms();
 }
