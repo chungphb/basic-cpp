@@ -232,10 +232,12 @@ void test_is_until() {
 
 // TEST QUERY ALGORITHMS
 
-// count, accumulate, (transform_)reduce, partial_sum, (transform_)inclusive_scan, (transform_)exclusive_scan
+// count, accumulate, (transform_)reduce, partial_sum, (transform_)inclusive_scan, (transform_)exclusive_scan,
 // adjacent_difference, sample, inner_product
 void test_value_query_algorithms() {
 	std::cout << "\n[TEST VALUE QUERY ALGORITHMS]\n";
+
+	// 1. On one range
 
 	std::vector<int> vec = {1, 2, 3, 4, 1, 5, 1, 6, 7, 8, 9, 10};
 	std::cout << "Vector ";
@@ -313,6 +315,8 @@ void test_value_query_algorithms() {
 	);
 	std::cout << "\n";
 
+	// 2. On two ranges
+
 	std::vector<int> vec1 = {1, 2, 3, 4};
 	std::vector<int> vec2 = { 5, 6, 7, 8 };
 	std::cout << "\nVector 1: ";
@@ -324,11 +328,13 @@ void test_value_query_algorithms() {
 	std::cout << "- Inner product: " << prd << "\n";
 }
 
-// some_of, any_of, none_of, equal, is_permutation, lexicographical_compare, mismatch
+// all_of, any_of, none_of, equal, is_permutation, lexicographical_compare, mismatch
 void test_property_query_algorithms() {
 	std::cout << "\n[TEST PROPERTY QUERY ALGORITHMS]\n";
 
-	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	// 1. On one range
+
+	std::vector<int> vec = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
 	std::cout << "Vector ";
 	std::copy(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
 	std::cout << "\n";
@@ -347,6 +353,8 @@ void test_property_query_algorithms() {
 		return ele % 2 == 0;
 	});
 	std::cout << "- Has no even elements: " << std::boolalpha << res << "\n";
+
+	// 2. On two ranges
 
 	std::vector<int> vec1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	std::vector<int> vec2 = {7, 8, 9, 10, 11, 12, 1, 2, 3, 4, 5, 6};
@@ -370,6 +378,89 @@ void test_property_query_algorithms() {
 	std::cout << "\nThe mirror substring of \"" << str << "\" is \"" << mir << "\".\n";
 }
 
+// find, adjacent_find, equal_range, lower_bound, upper_bound, search, find_end, find_first_of,
+// min_element, max_element, minmax_element
+void test_searching_algorithms() {
+	// 1. Searching a value
+
+	std::vector<int> vec = { 1, 2, 3, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+	std::cout << "Vector ";
+	std::copy(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	// 1.1. On unsorted ranges
+
+	auto it = std::find(vec.begin(), vec.end(), 4);
+	std::cout << "- Has at least one element equal to 4: " << std::boolalpha << (it != vec.end()) << "\n";
+	if (it != vec.end()) {
+		std::cout << "  At index " << std::distance(vec.begin(), it) << "\n";
+	}
+
+	it = std::adjacent_find(vec.begin(), vec.end(), std::greater<int>{});
+	std::cout << "- Is strictly increasing: " << std::boolalpha << (it != vec.end()) << "\n";
+
+	// 1.2. On sorted ranges
+
+	auto p_it = std::equal_range(vec.begin(), vec.end(), 3);
+	std::cout << "- Has at least two elements equal to 3: " << std::boolalpha << (p_it.second - p_it.first > 0) << "\n";
+	if (p_it.first != vec.end()) {
+		std::cout << "  From index " << std::distance(vec.begin(), p_it.first);
+		std::cout << " to index " << std::distance(vec.begin(), p_it.second) << "\n";
+	}
+
+	it = std::lower_bound(vec.begin(), vec.end(), 4);
+	std::cout << "- Has at least one element not less than 4: " << std::boolalpha << (it != vec.end()) << "\n";
+	if (it != vec.end()) {
+		std::cout << "  First element not less than 4 is " << *it << "\n";
+	}
+
+	it = std::upper_bound(vec.begin(), vec.end(), 4);
+	std::cout << "- Has at least one element greater than 4: " << std::boolalpha << (it != vec.end()) << "\n";
+	if (it != vec.end()) {
+		std::cout << "  First element greater than 4 is " << *it << "\n";
+	}
+
+	auto found = std::binary_search(vec.begin(), vec.end(), 4);
+	std::cout << "- Has at least one element equal to 4: " << std::boolalpha << found << "\n";
+
+	// 2. Searching a range
+
+	std::vector<int> vec1 = { 1, 2, 3, 4, 5, 6, 1, 2, 3, 7, 8, 9, 10, 11, 12 };
+	std::vector<int> vec2 = { 1, 2, 3 };
+	std::vector<int> vec3 = { 4, 7, 10 };
+	std::cout << "\nVector 1: ";
+	std::copy(vec1.begin(), vec1.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\nVector 2: ";
+	std::copy(vec2.begin(), vec2.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\nVector 3: ";
+	std::copy(vec3.begin(), vec3.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	it = std::search(vec1.begin(), vec1.end(), vec2.begin(), vec2.end());
+	std::cout << "- Vector 2 is a subrange of Vector 1: " << std::boolalpha << (it != vec1.end()) << "\n";
+	if (it != vec1.end()) {
+		std::cout << "  First appearance starts at index " << std::distance(vec1.begin(), it) << "\n";
+		it = std::find_end(vec1.begin(), vec1.end(), vec2.begin(), vec2.end());
+		std::cout << "  Last appearance starts at index " << std::distance(vec1.begin(), it) << "\n";
+	}
+
+	it = std::find_first_of(vec1.begin(), vec1.end(), vec3.begin(), vec3.end());
+	std::cout << "- Vector 1 contains at least one element of Vector 3: " << std::boolalpha << (it != vec1.end()) << "\n";
+	if (it != vec1.end()) {
+		std::cout << "  First element is " << *it << " at index " << std::distance(vec1.begin(), it) << "\n";
+	}
+
+	// 3. Searching a relative value
+
+	vec = {1, 3, 5, 7, 9, 11, 2, 4, 6, 8, 10, 12};
+	std::cout << "\nVector ";
+	std::copy(vec.begin(), vec.end(), std::ostream_iterator<int>(std::cout, " "));
+	std::cout << "\n";
+
+	std::cout << "- Min element: " << *std::min_element(vec.begin(), vec.end()) << "\n";
+	std::cout << "- Max element: " << *std::max_element(vec.begin(), vec.end()) << "\n";
+}
+
 int main(int argv, char** argc) {
 	test_heap_algorithms();
 	test_sorting_algorithms();
@@ -380,4 +471,5 @@ int main(int argv, char** argc) {
 	test_is_until();
 	test_value_query_algorithms();
 	test_property_query_algorithms();
+	test_searching_algorithms();
 }
