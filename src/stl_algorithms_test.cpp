@@ -5,6 +5,7 @@
 #include <execution>
 #include <iostream>
 #include <random>
+#include <memory>
 
 void log(std::string_view txt) {
 	std::cout << txt << "\n";
@@ -796,6 +797,113 @@ void test_for_each_and_transform() {
 	log("- Vector 2: ", vec2);
 }
 
+// TEST RAW MEMORY ALGORITHMS
+
+// uninitialized_fill, uninitialized_copy, uninitialized_move, unitialized_default_construct, unitialized_value_construct
+void test_raw_memory_algorithms() {
+	log("");
+	log("[TEST FOR_EACH AND TRANSFORM]");
+	
+	// uninitialized_fill
+
+	int* p;
+	std::size_t sz;
+	std::tie(p, sz) = std::get_temporary_buffer<int>(4); // sz might be smaller than 4
+	
+	std::cout << "Before unitialized_fill: ";
+	for (int* i = p; i != p + sz; i++) {
+		std::cout << *i << " ";
+	}
+	std::cout << "\n";
+
+	std::uninitialized_fill(p, p + sz, 4);
+	std::cout << "After unitialized_fill: ";
+	for (int* i = p; i != p + sz; i++) {
+		std::cout << *i << " ";
+	}
+	std::cout << "\n\n";
+	std::return_temporary_buffer(p);
+
+	// uninitialized_copy
+
+	std::vector<int> vec = {1, 2, 3, 4};
+	std::tie(p, sz) = std::get_temporary_buffer<int>(vec.size());
+	sz = std::min(sz, vec.size());
+	
+	std::cout << "Before unitialized_copy: ";
+	for (int* i = p; i != p + sz; i++) {
+		std::cout << *i << " ";
+	}
+	std::cout << "\n";
+
+	std::uninitialized_copy(vec.begin(), vec.begin() + sz, p);
+	std::cout << "After unitialized_copy: ";
+	for (int* i = p; i != p + sz; i++) {
+		std::cout << *i << " ";
+	}
+	std::cout << "\n\n";
+	std::return_temporary_buffer(p);
+
+	// unitialized_move
+
+	vec = {1, 2, 3, 4};
+	std::tie(p, sz) = std::get_temporary_buffer<int>(vec.size());
+	sz = std::min(sz, vec.size());
+
+	std::cout << "Before unitialized_move: ";
+	for (int* i = p; i != p + sz; i++) {
+		std::cout << *i << " ";
+	}
+	std::cout << "\n";
+
+	std::uninitialized_move(vec.begin(), vec.begin() + sz, p);
+	std::cout << "After unitialized_move: ";
+	for (int* i = p; i != p + sz; i++) {
+		std::cout << *i << " ";
+	}
+	std::cout << "\n\n";
+	std::return_temporary_buffer(p);
+
+	// unitialized_default_construct
+
+	constexpr int n = 4;
+	struct string {
+		std::string msg{"Default"};
+	};
+	alignas(alignof(string)) char arr[n * sizeof(string)];
+	try {
+		auto first = reinterpret_cast<string*>(arr);
+		auto last = first + n;
+		std::uninitialized_default_construct(first, last);
+		std::cout << "Array of strings (by uninitialized_default_construct): ";
+		for (auto ptr = first; ptr != last; ptr++) {
+			std::cout << ptr->msg << " ";
+		}
+		std::cout << "\n\n";
+		std::destroy(first, last);
+	}
+	catch (...) {
+		std::cout << "Exception\n";
+	}
+
+	// unitialized_value_construct
+
+	try {
+		auto first = reinterpret_cast<string*>(arr);
+		auto last = first + n;
+		std::uninitialized_value_construct(first, last);
+		std::cout << "Array of strings (by uninitialized_value_construct): ";
+		for (auto ptr = first; ptr != last; ptr++) {
+			std::cout << ptr->msg << " ";
+		}
+		std::cout << "\n\n";
+		std::destroy(first, last);
+	}
+	catch (...) {
+		std::cout << "Exception\n";
+	}
+}
+
 int main(int argv, char** argc) {
 	test_heap_algorithms();
 	test_sorting_algorithms();
@@ -814,4 +922,5 @@ int main(int argv, char** argc) {
 	test_copy();
 	test_if();
 	test_for_each_and_transform();
+	test_raw_memory_algorithms();
 }
