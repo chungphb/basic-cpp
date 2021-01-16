@@ -32,7 +32,7 @@ void test_heap_algorithms() {
 	log("[TEST HEAP ALGORITHMS]");
 
 	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-	log("Before make_heap: ", vec);
+	log("Original: ", vec);
 	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
 
 	std::make_heap(vec.begin(), vec.end());
@@ -63,7 +63,7 @@ void test_sorting_algorithms() {
 	log("[TEST SORTING ALGORITHMS]");
 
 	std::vector vec = {6, 5, 4, 3, 2, 1, 12, 11, 10, 9, 8, 7};
-	log("Before sort: ", vec);
+	log("Original: ", vec);
 	// Result: 6 5 4 3 2 1 12 11 10 9 8 7
 
 	std::sort(vec.begin(), vec.end());
@@ -71,7 +71,8 @@ void test_sorting_algorithms() {
 	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
 
 	vec = {12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
-	log("Before partial_sort ", vec);
+	log("");
+	log("Original: ", vec);
 	// Result: 12 11 10 9 8 7 6 5 4 3 2 1
 
 	std::partial_sort(vec.begin(), vec.begin() + 6, vec.end());
@@ -79,7 +80,8 @@ void test_sorting_algorithms() {
 	// Result: 1 2 3 4 5 6 12 11 10 9 8 7
 
 	vec = {6, 12, 5, 11, 4, 10, 3, 9, 2, 8, 1, 7};
-	log("Before nth_element: ", vec);
+	log("");
+	log("Original: ", vec);
 	// Result: 6 12 5 11 4 10 3 9 2 8 1 7
 
 	std::nth_element(vec.begin(), vec.begin() + 1, vec.end());
@@ -87,7 +89,8 @@ void test_sorting_algorithms() {
 	// Result: 2
 
 	vec = {1, 3, 5, 7, 9, 11, 2, 4, 6, 8, 10, 12};
-	log("Before inplace_merge: ", vec);
+	log("");
+	log("Original: ", vec);
 	// Result: 1 3 5 7 9 11 2 4 6 8 10 12
 
 	std::inplace_merge(vec.begin(), vec.begin() + 6, vec.end());
@@ -101,7 +104,7 @@ void test_partitioning_algorithms() {
 	log("[TEST PARTITIONING ALGORITHMS]");
 
 	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-	log("Before partition: ", vec);
+	log("Original: ", vec);
 	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
 
 	std::partition(vec.begin(), vec.end(), [](const int& ele) {
@@ -131,7 +134,7 @@ void test_other_permutation_algorithms() {
 	log("[TEST OTHER PERMUTATION ALGORITHMS]");
 
 	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-	log("Before reverse: ", vec);
+	log("Original: ", vec);
 	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
 	
 	std::reverse(vec.begin(), vec.end());
@@ -149,7 +152,8 @@ void test_other_permutation_algorithms() {
 	// Result: Anything possible
 
 	vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-	log("Before next_permutation: ", vec);
+	log("");
+	log("Original: ", vec);
 	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
 
 	std::next_permutation(vec.begin(), vec.end());
@@ -157,7 +161,8 @@ void test_other_permutation_algorithms() {
 	// Result: 1 2 3 4 5 6 7 8 9 10 12 11
 
 	vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-	log("Before prev_permutation: ", vec);
+	log("");
+	log("Original: ", vec);
 	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
 
 	std::prev_permutation(vec.begin(), vec.end());
@@ -191,7 +196,7 @@ void test_stable() {
 	interval_vec.emplace_back(2, 4);
 	interval_vec.emplace_back(1, 2);
 	interval_vec.emplace_back(3, 3);
-	log("Before stable_sort: ", interval_vec);
+	log("Original: ", interval_vec);
 	// Result: (1, 3) (2, 4) (1, 2) (3, 3)
 
 	std::stable_sort(interval_vec.begin(), interval_vec.end(), [](const interval& lhs, const interval& rhs) {
@@ -201,7 +206,8 @@ void test_stable() {
 	// Result: (1, 3) (1, 2) (2, 4) (3, 3)
 
 	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-	log("Before stable_partition: ", vec);
+	log("");
+	log("Original: ", vec);
 	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
 
 	std::stable_partition(vec.begin(), vec.end(), [](const int& ele) {
@@ -513,7 +519,7 @@ void test_copying_and_moving_algorithms() {
 	// 1. Copying
 
 	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
-	log("Before copy: ", vec);
+	log("Original: ", vec);
 	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
 
 	std::copy(vec.begin(), vec.begin() + vec.size() / 2, vec.begin() + vec.size() / 2);
@@ -522,7 +528,7 @@ void test_copying_and_moving_algorithms() {
 
 	vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	log("");
-	log("Before copy_backward: ", vec);
+	log("Original: ", vec);
 	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
 
 	std::copy_backward(vec.begin(), vec.begin() + vec.size() * 2 / 3, vec.end());
@@ -534,7 +540,7 @@ void test_copying_and_moving_algorithms() {
 	std::vector<int> vec1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	std::vector<int> vec2;
 	log("");
-	log("Before move:");
+	log("Original:");
 	log("- Vector 1: ", vec1);
 	log("- Vector 2: ", vec2);
 
@@ -546,7 +552,7 @@ void test_copying_and_moving_algorithms() {
 	vec1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	vec2 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
 	log("");
-	log("Before move_backward:");
+	log("Original:");
 	log("- Vector 1: ", vec1);
 	log("- Vector 2: ", vec2);
 
@@ -560,7 +566,7 @@ void test_copying_and_moving_algorithms() {
 	vec1 = {1, 2, 3, 4, 5, 6};
 	vec2 = {7, 8, 9, 10, 11, 12};
 	log("");
-	log("Before swap_ranges:");
+	log("Original:");
 	log("- Vector 1: ", vec1);
 	log("- Vector 2: ", vec2);
 
@@ -579,7 +585,7 @@ void test_value_modifying_algorithms() {
 
 	std::vector<int> vec;
 	vec.resize(12);
-	log("Before fill: ", vec);
+	log("Original: ", vec);
 	// Result: 0 0 0 0 0 0 0 0 0 0 0 0
 
 	std::fill(vec.begin(), vec.end(), -1);
@@ -612,7 +618,7 @@ void test_structure_changing_algorithms() {
 	log("[TEST STRUCTURE CHANGING ALGORITHMS]");
 
 	std::vector<int> vec = {1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12};
-	log("Before remove: ", vec);
+	log("Original: ", vec);
 	// Result: 1 1 2 2 3 4 5 6 7 8 9 9 10 11 12 12
 
 	auto it = std::remove(vec.begin(), vec.end(), 9);
@@ -636,7 +642,7 @@ void test_copy() {
 	std::vector<int> vec1 = {1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12};
 	std::vector<int> vec2;
 	std::vector<int> vec3;
-	log("Before remove_copy:");
+	log("Original:");
 	log("- Vector 1: ", vec1);
 	log("- Vector 2: ", vec2);
 
@@ -692,7 +698,7 @@ void test_if() {
 	log("[TEST *_IF]");
 
 	std::vector<int> vec = {1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12};
-	log("Vector ", vec);
+	log("Original: ", vec);
 
 	auto it = std::find_if(vec.begin(), vec.end(), [](const int& ele) {
 		return ele % 2 == 0;
@@ -727,7 +733,7 @@ void test_if() {
 	std::vector<int> vec1 = {1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12};
 	std::vector<int> vec2;
 	log("");
-	log("Before remove_copy_if:");
+	log("Original:");
 	log("- Vector 1: ", vec1);
 	log("- Vector 2: ", vec2);
 
@@ -741,7 +747,7 @@ void test_if() {
 	vec1 = {1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12};
 	vec2 = {};
 	log("");
-	log("Before replace_copy_if:");
+	log("Original:");
 	log("- Vector 1: ", vec1);
 	log("- Vector 2: ", vec2);
 
@@ -755,7 +761,7 @@ void test_if() {
 	vec1 = {1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12};
 	vec2 = {};
 	log("");
-	log("Before copy_if:");
+	log("Original:");
 	log("- Vector 1: ", vec1);
 	log("- Vector 2: ", vec2);
 
@@ -777,7 +783,7 @@ void test_for_each_and_transform() {
 	std::vector<int> vec1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	std::vector<int> vec2;
 
-	log("Before transform: ");
+	log("Original: ");
 	std::cout << "- Vector 1: ";
 	std::for_each(vec1.begin(), vec1.end(), [](const int& ele) {
 		std::cout << ele << " ";
@@ -803,7 +809,7 @@ void test_for_each_and_transform() {
 // unitialized_default_construct, unitialized_value_construct, destroy
 void test_raw_memory_algorithms() {
 	log("");
-	log("[TEST FOR_EACH AND TRANSFORM]");
+	log("[TEST RAW MEMORY ALGORITHMS]");
 	
 	// uninitialized_fill
 
@@ -811,7 +817,7 @@ void test_raw_memory_algorithms() {
 	std::size_t sz;
 	std::tie(p, sz) = std::get_temporary_buffer<int>(4); // sz might be smaller than 4
 	
-	std::cout << "Before unitialized_fill: ";
+	std::cout << "Original: ";
 	for (int* i = p; i != p + sz; i++) {
 		std::cout << *i << " ";
 	}
@@ -831,7 +837,7 @@ void test_raw_memory_algorithms() {
 	std::tie(p, sz) = std::get_temporary_buffer<int>(vec.size());
 	sz = std::min(sz, vec.size());
 	
-	std::cout << "Before unitialized_copy: ";
+	std::cout << "Original: ";
 	for (int* i = p; i != p + sz; i++) {
 		std::cout << *i << " ";
 	}
@@ -851,7 +857,7 @@ void test_raw_memory_algorithms() {
 	std::tie(p, sz) = std::get_temporary_buffer<int>(vec.size());
 	sz = std::min(sz, vec.size());
 
-	std::cout << "Before unitialized_move: ";
+	std::cout << "Original: ";
 	for (int* i = p; i != p + sz; i++) {
 		std::cout << *i << " ";
 	}
@@ -911,11 +917,11 @@ void test_raw_memory_algorithms() {
 // unitialized_default_construct_n, unitialized_value_construct_n, destroy_n
 void test_n() {
 	log("");
-	log("[TEST FOR_EACH AND TRANSFORM]");
+	log("[TEST *_N]");
 
 	std::vector<int> vec1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	std::vector<int> vec2;
-	log("Before copy_n:");
+	log("Original:");
 	log("- Vector 1: ", vec1);
 	log("- Vector 2: ", vec2);
 
@@ -927,7 +933,7 @@ void test_n() {
 	std::vector<int> vec;
 	vec.resize(12);
 	log("");
-	log("Before fill_n: ", vec);
+	log("Original: ", vec);
 
 	std::fill_n(vec.begin(), 12, -1);
 	log("After fill_n: ", vec);
