@@ -766,6 +766,36 @@ void test_if() {
 	log("- Vector 2: ", vec2);
 }
 
+// TEST FOR_EACH AND TRANSFORM
+
+// for_each, transform
+void test_for_each_and_transform() {
+	log("");
+	log("[TEST FOR_EACH AND TRANSFORM]");
+
+	std::vector<int> vec1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	std::vector<int> vec2;
+
+	log("Before transform: ");
+	std::cout << "- Vector 1: ";
+	std::for_each(vec1.begin(), vec1.end(), [](const int& ele) {
+		std::cout << ele << " ";
+	});
+	std::cout << "\n";
+	std::cout << "- Vector 2: ";
+	std::for_each(vec2.begin(), vec2.end(), [](const int& ele) {
+		std::cout << ele << " ";
+	});
+	std::cout << "\n";
+
+	std::transform(vec1.begin(), vec1.end(), std::back_inserter(vec2), [](const int& ele) {
+		return ele * ele;
+	});
+	log("After transform: ");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+}
+
 int main(int argv, char** argc) {
 	test_heap_algorithms();
 	test_sorting_algorithms();
@@ -783,4 +813,5 @@ int main(int argv, char** argc) {
 	test_structure_changing_algorithms();
 	test_copy();
 	test_if();
+	test_for_each_and_transform();
 }
