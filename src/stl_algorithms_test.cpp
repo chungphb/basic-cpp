@@ -69,9 +69,9 @@ void test_sorting_algorithms() {
 	log("After sort: ", vec);
 	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
 
-	vec = {6, 5, 4, 3, 2, 1, 12, 11, 10, 9, 8, 7};
+	vec = {12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1};
 	log("Before partial_sort ", vec);
-	// Result: 6 5 4 3 2 1 12 11 10 9 8 7
+	// Result: 12 11 10 9 8 7 6 5 4 3 2 1
 
 	std::partial_sort(vec.begin(), vec.begin() + 6, vec.end());
 	log("After partial_sort: ", vec);
@@ -625,6 +625,147 @@ void test_structure_changing_algorithms() {
 	// Result: 1 2 3 4 5 6 7 8 10 11 12
 }
 
+// TEST PREFIXES AND POSTFIXES (CONT.)
+
+// remove_copy, unique_copy, reverse_copy, rotate_copy, replace_copy, partition_copy, partial_sort_copy
+void test_copy() {
+	log("");
+	log("[TEST *_COPY]");
+
+	std::vector<int> vec1 = {1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12};
+	std::vector<int> vec2;
+	std::vector<int> vec3;
+	log("Before remove_copy:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	std::remove_copy(vec1.begin(), vec1.end(), std::back_inserter(vec2), 9);
+	log("After remove_copy:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	vec2 = {};
+	std::unique_copy(vec1.begin(), vec1.end(), std::back_inserter(vec2));
+	log("After unique_copy:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	vec2 = {};
+	std::reverse_copy(vec1.begin(), vec1.end(), std::back_inserter(vec2));
+	log("After reverse_copy:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	vec2 = {};
+	std::rotate_copy(vec1.begin(), vec1.begin() + vec1.size() / 2, vec1.end(), std::back_inserter(vec2));
+	log("After rotate_copy:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	vec2 = {};
+	std::replace_copy(vec1.begin(), vec1.end(), std::back_inserter(vec2), 1, -1);
+	log("After replace_copy:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	vec2 = {};
+	std::partition_copy(vec1.begin(), vec1.end(), std::back_inserter(vec2), std::back_inserter(vec3), [](const int& ele) {
+		return ele % 2 == 1;
+	});
+	log("After partition_copy:");
+	log("- Vector 1: ", vec1);
+	log("- Odd elements: ", vec2);
+	log("- Even elements: ", vec3);
+
+	vec2 = {};
+	vec2.resize(3);
+	std::partial_sort_copy(vec1.begin(), vec1.end(), vec2.begin(), vec2.end());
+	log("After partial_sort_copy:");
+	log("- Vector 1: ", vec1);
+	log("- First 3 smallest elements: ", vec2);
+}
+
+// find_if, find_if_not, count_if, remove_if, remove_copy_if, replace_if, replace_copy_if, copy_if
+void test_if() {
+	log("");
+	log("[TEST *_IF]");
+
+	std::vector<int> vec = {1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12};
+	log("Vector ", vec);
+
+	auto it = std::find_if(vec.begin(), vec.end(), [](const int& ele) {
+		return ele % 2 == 0;
+	});
+	if (it != vec.end()) {
+		log("- First even element: ", *it);
+	}
+
+	it = std::find_if_not(vec.begin(), vec.end(), [](const int& ele) {
+		return ele % 2 == 0;
+	});
+	if (it != vec.end()) {
+		log("- First odd element: ", *it);
+	}
+
+	auto count = std::count_if(vec.begin(), vec.end(), [](const int& ele) {
+		return ele % 2 == 0;
+	});
+	log("- Number of even elements: ", count);
+
+	it = std::remove_if(vec.begin(), vec.end(), [](const int& ele) {
+		return ele % 2 == 0;
+	});
+	vec.erase(it, vec.end());
+	log("After remove_if: ", vec);
+
+	std::replace_if(vec.begin(), vec.end(), [](const int& ele) {
+		return ele > 7;
+	}, 8);
+	log("After replace_if: ", vec);
+
+	std::vector<int> vec1 = {1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12};
+	std::vector<int> vec2;
+	log("");
+	log("Before remove_copy_if:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	std::remove_copy_if(vec1.begin(), vec1.end(), std::back_inserter(vec2), [](const int& ele) {
+		return ele % 2 == 0;
+	});
+	log("After remove_copy_if:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	vec1 = {1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12};
+	vec2 = {};
+	log("");
+	log("Before replace_copy_if:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	std::replace_copy_if(vec1.begin(), vec1.end(), std::back_inserter(vec2), [](const int& ele) {
+		return ele > 7;
+	}, 8);
+	log("After replace_copy_if:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	vec1 = {1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12};
+	vec2 = {};
+	log("");
+	log("Before copy_if:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	std::copy_if(vec1.begin(), vec1.end(), std::back_inserter(vec2), [](const int& ele) {
+		return ele % 2 == 0;
+	});
+	log("After copy_if:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+}
+
 int main(int argv, char** argc) {
 	test_heap_algorithms();
 	test_sorting_algorithms();
@@ -640,4 +781,6 @@ int main(int argv, char** argc) {
 	test_copying_and_moving_algorithms();
 	test_value_modifying_algorithms();
 	test_structure_changing_algorithms();
+	test_copy();
+	test_if();
 }
