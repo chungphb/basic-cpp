@@ -799,7 +799,8 @@ void test_for_each_and_transform() {
 
 // TEST RAW MEMORY ALGORITHMS
 
-// uninitialized_fill, uninitialized_copy, uninitialized_move, unitialized_default_construct, unitialized_value_construct
+// uninitialized_fill, uninitialized_copy, uninitialized_move, 
+// unitialized_default_construct, unitialized_value_construct, destroy
 void test_raw_memory_algorithms() {
 	log("");
 	log("[TEST FOR_EACH AND TRANSFORM]");
@@ -904,6 +905,45 @@ void test_raw_memory_algorithms() {
 	}
 }
 
+// TEST PREFIXES AND POSTFIXES (CONT.)
+
+// copy_n, fill_n, generate_n, search_n, uninitialized_fill_n, uninitialized_copy_n, uninitialized_move_n
+// unitialized_default_construct_n, unitialized_value_construct_n, destroy_n
+void test_n() {
+	log("");
+	log("[TEST FOR_EACH AND TRANSFORM]");
+
+	std::vector<int> vec1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	std::vector<int> vec2;
+	log("Before copy_n:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	std::copy_n(vec1.begin(), 5, std::back_inserter(vec2));
+	log("After copy_n:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	std::vector<int> vec;
+	vec.resize(12);
+	log("");
+	log("Before fill_n: ", vec);
+
+	std::fill_n(vec.begin(), 12, -1);
+	log("After fill_n: ", vec);
+
+	std::generate_n(vec.begin(), 12, [] {
+		std::random_device rd;
+		std::mt19937 mt{rd()};
+		std::uniform_int_distribution<int> uid(1, 12);
+		return uid(mt);
+	});
+	log("After generate_n: ", vec);
+
+	auto it = std::search_n(vec.begin(), vec.end(), 2, 1);
+	log("Have 2 consecutive ones: ", it != vec.end(), true);
+}
+
 int main(int argv, char** argc) {
 	test_heap_algorithms();
 	test_sorting_algorithms();
@@ -923,4 +963,5 @@ int main(int argv, char** argc) {
 	test_if();
 	test_for_each_and_transform();
 	test_raw_memory_algorithms();
+	test_n();
 }
