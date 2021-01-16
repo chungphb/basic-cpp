@@ -603,6 +603,28 @@ void test_value_modifying_algorithms() {
 	// Result: -1 2 3 4 5 6 7 8 9 10 11 12
 }
 
+// TEST STRUCTURE CHANGING ALGORITHMS
+
+// remove, unique
+void test_structure_changing_algorithms() {
+	log("");
+	log("[TEST STRUCTURE CHANGING ALGORITHMS]");
+
+	std::vector<int> vec = {1, 1, 2, 2, 3, 4, 5, 6, 7, 8, 9, 9, 10, 11, 12, 12};
+	log("Before remove: ", vec);
+	// Result: 1 1 2 2 3 4 5 6 7 8 9 9 10 11 12 12
+
+	auto it = std::remove(vec.begin(), vec.end(), 9);
+	vec.erase(it, vec.end());
+	log("After remove: ", vec);
+	// Result: 1 1 2 2 3 4 5 6 7 8 10 11 12 12
+
+	it = std::unique(vec.begin(), vec.end());
+	vec.erase(it, vec.end());
+	log("After unique: ", vec);
+	// Result: 1 2 3 4 5 6 7 8 10 11 12
+}
+
 int main(int argv, char** argc) {
 	test_heap_algorithms();
 	test_sorting_algorithms();
@@ -617,4 +639,5 @@ int main(int argv, char** argc) {
 	test_set_algorithms();
 	test_copying_and_moving_algorithms();
 	test_value_modifying_algorithms();
+	test_structure_changing_algorithms();
 }
