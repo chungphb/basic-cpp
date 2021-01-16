@@ -502,6 +502,73 @@ void test_set_algorithms() {
 	log("- Set 1 + Set 2: ", res);
 }
 
+// TEST COPYING AND MOVING ALGORITHMS
+
+// copy, copy_backward, move, move_backward, swap_ranges
+void test_copying_and_moving_algorithms() {
+	log("");
+	log("[TEST COPYING AND MOVING ALGORITHMS]");
+
+	// 1. Copying
+
+	std::vector<int> vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	log("Before copy: ", vec);
+	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
+
+	std::copy(vec.begin(), vec.begin() + vec.size() / 2, vec.begin() + vec.size() / 2);
+	log("After copy: ", vec);
+	// Result: 1 2 3 4 5 6 1 2 3 4 5 6
+
+	vec = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	log("");
+	log("Before copy_backward: ", vec);
+	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
+
+	std::copy_backward(vec.begin(), vec.begin() + vec.size() * 2 / 3, vec.end());
+	log("After copy_backward: ", vec);
+	// Result: 1 2 3 4 1 2 3 4 5 6 7 8
+
+	// 2. Moving
+
+	std::vector<int> vec1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	std::vector<int> vec2;
+	log("");
+	log("Before move:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	std::move(vec1.begin(), vec1.end(), std::back_inserter(vec2)); // std::move() didn't move the elements in this case
+	log("After move:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	vec1 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	vec2 = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16};
+	log("");
+	log("Before move_backward:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	std::move_backward(vec1.begin(), vec1.end(), vec2.end());
+	log("After move_backward:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	// 3. Swapping ranges
+
+	vec1 = {1, 2, 3, 4, 5, 6};
+	vec2 = {7, 8, 9, 10, 11, 12};
+	log("");
+	log("Before swap_ranges:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+
+	std::swap_ranges(vec1.begin(), vec1.end(), vec2.begin());
+	log("After swap_ranges:");
+	log("- Vector 1: ", vec1);
+	log("- Vector 2: ", vec2);
+}
+
 int main(int argv, char** argc) {
 	test_heap_algorithms();
 	test_sorting_algorithms();
@@ -514,4 +581,5 @@ int main(int argv, char** argc) {
 	test_property_query_algorithms();
 	test_searching_algorithms();
 	test_set_algorithms();
+	test_copying_and_moving_algorithms();
 }
