@@ -569,6 +569,40 @@ void test_copying_and_moving_algorithms() {
 	log("- Vector 2: ", vec2);
 }
 
+// TEST VALUE MODIFYING ALGORITHMS
+
+// fill, generate, iota, replace
+void test_value_modifying_algorithms() {
+	log("");
+	log("[TEST VALUE MODIFYING ALGORITHMS]");
+
+	std::vector<int> vec;
+	vec.resize(12);
+	log("Before fill: ", vec);
+	// Result: 0 0 0 0 0 0 0 0 0 0 0 0
+
+	std::fill(vec.begin(), vec.end(), -1);
+	log("After fill: ", vec);
+	// Result: -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+
+	std::generate(vec.begin(), vec.end(), [] {
+		std::random_device rd;
+		std::mt19937 mt{rd()};
+		std::uniform_int_distribution<int> uid(1, 12);
+		return uid(mt);
+	});
+	log("After generate: ", vec);
+	// Result: Anything possible
+
+	std::iota(vec.begin(), vec.end(), 1);
+	log("After iota: ", vec);
+	// Result: 1 2 3 4 5 6 7 8 9 10 11 12
+
+	std::replace(vec.begin(), vec.end(), 1, -1);
+	log("After replace: ", vec);
+	// Result: -1 2 3 4 5 6 7 8 9 10 11 12
+}
+
 int main(int argv, char** argc) {
 	test_heap_algorithms();
 	test_sorting_algorithms();
@@ -582,4 +616,5 @@ int main(int argv, char** argc) {
 	test_searching_algorithms();
 	test_set_algorithms();
 	test_copying_and_moving_algorithms();
+	test_value_modifying_algorithms();
 }
