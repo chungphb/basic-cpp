@@ -19,6 +19,8 @@
 #include <range/v3/range/conversion.hpp>
 #include <range/v3/view/for_each.hpp>
 #include <range/v3/view/repeat_n.hpp>
+#include <range/v3/action/sort.hpp>
+#include <range/v3/action/unique.hpp>
 #include <iostream>
 #include <vector>
 #include <map>
@@ -166,6 +168,18 @@ void test_8() {
 	std::cout << "\n";
 }
 
+// TEST ACTIONS
+
+// Sort and remove non-unique elements from a container
+void test_9() {
+	std::vector<int> vec{2, 1, 5, 4, 6, 7, 2, 3, 8, 2, 1, 9, 10, 7, 11, 12, 4, 8, 8, 6, 5, 2, 4, 3, 1, 9, 11, 10, 12};
+	std::cout << "Vector " << ranges::views::all(vec) << "\n";
+	vec |= ranges::actions::sort;
+	std::cout << "- After sorting: " << ranges::views::all(vec) << "\n";
+	vec |= ranges::actions::unique;
+	std::cout << "- After removing non-unique elements: " << ranges::views::all(vec) << "\n";
+}
+
 int main(int argc, char** argv) {
 	test_1();
 	test_2();
@@ -175,4 +189,5 @@ int main(int argc, char** argv) {
 	test_6();
 	test_7();
 	test_8();
+	test_9();
 }
