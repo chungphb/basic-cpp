@@ -814,8 +814,9 @@ void test_raw_memory_algorithms() {
 	// uninitialized_fill
 
 	int* p;
-	std::size_t sz;
-	std::tie(p, sz) = std::get_temporary_buffer<int>(4); // sz might be smaller than 4
+	std::size_t sz = 4;
+	p = new int[sz];
+	/// std::tie(p, sz) = std::get_temporary_buffer<int>(4); // sz might be smaller than 4
 	
 	std::cout << "Original: ";
 	for (int* i = p; i != p + sz; i++) {
@@ -829,13 +830,15 @@ void test_raw_memory_algorithms() {
 		std::cout << *i << " ";
 	}
 	std::cout << "\n\n";
-	std::return_temporary_buffer(p);
+	delete[] p;
+	/// std::return_temporary_buffer(p);
 
 	// uninitialized_copy
 
 	std::vector<int> vec = {1, 2, 3, 4};
-	std::tie(p, sz) = std::get_temporary_buffer<int>(vec.size());
-	sz = std::min(sz, vec.size());
+	sz = vec.size();
+	p = new int[sz];
+	/// std::tie(p, sz) = std::get_temporary_buffer<int>(vec.size());
 	
 	std::cout << "Original: ";
 	for (int* i = p; i != p + sz; i++) {
@@ -849,13 +852,15 @@ void test_raw_memory_algorithms() {
 		std::cout << *i << " ";
 	}
 	std::cout << "\n\n";
-	std::return_temporary_buffer(p);
+	delete[] p;
+	/// std::return_temporary_buffer(p);
 
 	// unitialized_move
 
 	vec = {1, 2, 3, 4};
-	std::tie(p, sz) = std::get_temporary_buffer<int>(vec.size());
-	sz = std::min(sz, vec.size());
+	sz = vec.size();
+	p = new int[sz];
+	/// std::tie(p, sz) = std::get_temporary_buffer<int>(vec.size());
 
 	std::cout << "Original: ";
 	for (int* i = p; i != p + sz; i++) {
@@ -869,7 +874,8 @@ void test_raw_memory_algorithms() {
 		std::cout << *i << " ";
 	}
 	std::cout << "\n\n";
-	std::return_temporary_buffer(p);
+	delete[] p;
+	/// std::return_temporary_buffer(p);
 
 	// unitialized_default_construct
 
