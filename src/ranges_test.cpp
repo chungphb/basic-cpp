@@ -11,6 +11,14 @@
 #include <range/v3/algorithm/is_sorted.hpp>
 #include <range/v3/algorithm/is_partitioned.hpp>
 #include <range/v3/range/access.hpp>
+#include <range/v3/view/filter.hpp>
+#include <range/v3/view/transform.hpp>
+#include <range/v3/view/iota.hpp>
+#include <range/v3/view/take.hpp>
+#include <range/v3/numeric/accumulate.hpp>
+#include <range/v3/range/conversion.hpp>
+#include <range/v3/view/for_each.hpp>
+#include <range/v3/view/repeat_n.hpp>
 #include <iostream>
 #include <vector>
 #include <map>
@@ -114,10 +122,57 @@ void test_5() {
 	std::cout << "\n";
 }
 
+// TEST VIEWS
+
+// Filter and transform
+void test_6() {
+	std::vector<int> vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+	std::cout << "Vector " << ranges::views::all(vec) << "\n";
+	auto is_even = [](int val) {
+		return val % 2 == 0;
+	};
+	auto sqr = [](int val) {
+		return val * val;
+	};
+	auto rng = vec | ranges::views::filter(is_even) | ranges::views::transform(sqr);
+	std::cout << "- Square of even elements: " << rng << "\n";
+	std::cout << "\n";
+}
+
+// Generate ints and accumulate
+void test_7() {
+	auto sqr = [](int val) {
+		return val * val;
+	};
+	int sum = ranges::accumulate(
+		ranges::views::ints(1, ranges::unreachable) | 
+		ranges::views::transform(sqr) | 
+		ranges::views::take(12),
+		0
+	);
+	std::cout << "1^2 + 2^2 + ... + 10^2 + 11^2 + 12^2 = " << sum << "\n";
+	std::cout << "\n";
+}
+
+// Convert a range comprehension to a vector
+void test_8() {
+	auto vec = ranges::views::for_each(
+		ranges::views::ints(1, 13),
+		[](int i) {
+			return ranges::yield_from(ranges::views::repeat_n(i, i));
+		}
+	) | ranges::to<std::vector>();
+	std::cout << "Generated vector: " << ranges::views::all(vec) << "\n";
+	std::cout << "\n";
+}
+
 int main(int argc, char** argv) {
 	test_1();
 	test_2();
 	test_3();
 	test_4();
 	test_5();
+	test_6();
+	test_7();
+	test_8();
 }
