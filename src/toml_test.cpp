@@ -1,37 +1,34 @@
+#define BOOST_TEST_MODULE toml test
+#include <boost/test/included/unit_test.hpp>
+
 #include <toml/toml.h>
 #include <iostream>
 
-void test_table(std::string file) {
-	std::cout << "[TEST TABLE]\n";
+BOOST_AUTO_TEST_CASE(test_table) {
+	std::string file = "table.toml";
 	std::ifstream ifs(file);
 	toml::ParseResult pr = toml::parse(ifs);
-	if (!pr.valid()) {
-		std::cerr << pr.errorReason << "\n";
-		return;
-	}
+	BOOST_REQUIRE_MESSAGE(pr.valid(), pr.errorReason);
 	const toml::Value& val = pr.value;
 	const toml::Value* name = val.find("album.name");
 	if (name && name->is<std::string>()) {
-		std::cout << name->as<std::string>() << "\n";
+		BOOST_TEST_MESSAGE(name->as<std::string>());
 	}
 	const toml::Value* artist = val.find("album.artist");
 	if (artist && artist->is<std::string>()) {
-		std::cout << artist->as<std::string>() << "\n";
+		BOOST_TEST_MESSAGE(artist->as<std::string>());
 	}
 	const toml::Value* year = val.find("album.year");
 	if (year && year->is<int>()) {
-		std::cout << year->as<int>() << "\n";
+		BOOST_TEST_MESSAGE(year->as<int>());
 	}
 }
 
-void test_array_table(std::string file) {
-	std::cout << "\n[TEST ARRAY TABLE]\n";
+BOOST_AUTO_TEST_CASE(test_array_table) {
+	std::string file = "array_table.toml";
 	std::ifstream ifs(file);
 	toml::ParseResult pr = toml::parse(ifs);
-	if (!pr.valid()) {
-		std::cerr << pr.errorReason << "\n";
-		return;
-	}
+	BOOST_REQUIRE_MESSAGE(pr.valid(), pr.errorReason);
 	const toml::Value& val = pr.value;
 	const toml::Value* res = val.find("album");
 	if (!res || !(res->is<toml::Array>())) {
@@ -41,7 +38,7 @@ void test_array_table(std::string file) {
 	for (const toml::Value& album : albums) {
 		const toml::Value* name = album.find("name");
 		if (name && name->is<std::string>()) {
-			std::cout << name->as<std::string>() << "\n";
+			BOOST_TEST_MESSAGE(name->as<std::string>());
 		}
 		const toml::Value* res = album.find("singles");
 		if (!res || !(res->is<toml::Array>())) {
@@ -50,42 +47,39 @@ void test_array_table(std::string file) {
 		const toml::Array& singles = res->as<toml::Array>();
 		for (const toml::Value& single : singles) {
 			if (single.is<std::string>()) {
-				std::cout << "\t" << single.as<std::string>() << "\n";
+				BOOST_TEST_MESSAGE("\t" << single.as<std::string>());
 			}
 		}
 	}
 }
 
-void test_nested_table(std::string file) {
-	std::cout << "\n[TEST NESTED TABLE]\n";
+BOOST_AUTO_TEST_CASE(test_nested_table) {
+	std::string file = "nested_table.toml";
 	std::ifstream ifs(file);
 	toml::ParseResult pr = toml::parse(ifs);
-	if (!pr.valid()) {
-		std::cerr << pr.errorReason << "\n";
-		return;
-	}
+	BOOST_REQUIRE_MESSAGE(pr.valid(), pr.errorReason);
 	const toml::Value& val = pr.value;
 	const toml::Value* name = val.find("album.name");
 	if (name && name->is<std::string>()) {
-		std::cout << name->as<std::string>() << "\n";
+		BOOST_TEST_MESSAGE(name->as<std::string>());
 	}
 	const toml::Value* artist = val.find("album.artist");
 	if (artist && artist->is<std::string>()) {
-		std::cout << artist->as<std::string>() << "\n";
+		BOOST_TEST_MESSAGE(artist->as<std::string>());
 	}
 	const toml::Value* year = val.find("album.year");
 	if (year && year->is<int>()) {
-		std::cout << year->as<int>() << "\n";
+		BOOST_TEST_MESSAGE(year->as<int>());
 	}
 	const toml::Value* detail = val.find("album.detail");
 	if (detail) {
 		const toml::Value* genre = detail->find("genre");
 		if (genre && genre->is<std::string>()) {
-			std::cout << genre->as<std::string>() << "\n";
+			BOOST_TEST_MESSAGE(genre->as<std::string>());
 		}
 		const toml::Value* label = detail->find("label");
 		if (label && label->is<std::string>()) {
-			std::cout << label->as<std::string>() << "\n";
+			BOOST_TEST_MESSAGE(label->as<std::string>());
 		}
 		const toml::Value* res = detail->find("producers");
 		if (!res || !(res->is<toml::Array>())) {
@@ -93,13 +87,7 @@ void test_nested_table(std::string file) {
 		}
 		const toml::Array& producers = res->as<toml::Array>();
 		for (const toml::Value& producer : producers) {
-			std::cout << producer.as<std::string>() << "\n";
+			BOOST_TEST_MESSAGE(producer.as<std::string>());
 		}
 	}
-}
-
-int main(int argc, char** argv) {
-	test_table("table.toml");
-	test_array_table("array_table.toml");
-	test_nested_table("nested_table.toml");
 }
