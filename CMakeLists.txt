@@ -5,6 +5,10 @@ project(basic_cpp VERSION 1.0)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
+set(Boost_INCLUDE_DIR "C:/local/boost_1_75_0")
+find_package(Boost COMPONENTS thread REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
+
 add_executable(stl_algorithms_test src/stl_algorithms_test.cpp)
 
 add_executable(cpp17_test src/cpp17_test.cpp)
