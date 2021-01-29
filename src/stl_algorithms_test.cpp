@@ -1,6 +1,5 @@
 #define BOOST_TEST_MODULE stl algorithms test
 #include <boost/test/included/unit_test.hpp>
-#include <boost/test/framework.hpp>
 
 #include <vector>
 #include <set>
@@ -11,15 +10,7 @@
 #include <random>
 #include <memory>
 
-struct TestMarker {
-	TestMarker() {
-		std::cout << "\033[1m\033[32m>>>>>>>> START TEST CASE: " << boost::unit_test::framework::current_test_case().p_name << "\033[0m\n";
-	}
-	~TestMarker() {
-		std::cout << "\033[1m\033[31m>>>>>>>> FINISH TEST CASE: " << boost::unit_test::framework::current_test_case().p_name << "\033[0m\n\n";
-	}
-};
-#define TEST_MARKER() TestMarker testMarker
+#include "test_util.h"
 
 void log(std::string_view txt) {
 	std::cout << txt << "\n";

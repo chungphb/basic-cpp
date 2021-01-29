@@ -4,7 +4,10 @@
 #include <toml/toml.h>
 #include <iostream>
 
+#include "test_util.h"
+
 BOOST_AUTO_TEST_CASE(test_table) {
+	TEST_MARKER();
 	std::string file = "table.toml";
 	std::ifstream ifs(file);
 	toml::ParseResult pr = toml::parse(ifs);
@@ -25,6 +28,7 @@ BOOST_AUTO_TEST_CASE(test_table) {
 }
 
 BOOST_AUTO_TEST_CASE(test_array_table) {
+	TEST_MARKER();
 	std::string file = "array_table.toml";
 	std::ifstream ifs(file);
 	toml::ParseResult pr = toml::parse(ifs);
@@ -54,6 +58,7 @@ BOOST_AUTO_TEST_CASE(test_array_table) {
 }
 
 BOOST_AUTO_TEST_CASE(test_nested_table) {
+	TEST_MARKER();
 	std::string file = "nested_table.toml";
 	std::ifstream ifs(file);
 	toml::ParseResult pr = toml::parse(ifs);
