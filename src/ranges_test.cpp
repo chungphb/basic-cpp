@@ -21,20 +21,26 @@
 #include <range/v3/view/repeat_n.hpp>
 #include <range/v3/action/sort.hpp>
 #include <range/v3/action/unique.hpp>
+
+#define BOOST_TEST_MODULE ranges test
+#include <boost/test/included/unit_test.hpp>
+
 #include <iostream>
 #include <vector>
 #include <map>
 
+#include "test_util.h"
+
 // TEST ALGORITHMS
 
-// Test for_each
-void test_1() {
+BOOST_AUTO_TEST_CASE(test_for_each) {
+	TEST_MARKER();
 	std::vector<int> vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	auto print = [](const int& val) {
 		std::cout << val * val << " ";
 	};
 	std::cout << "Vector " << ranges::views::all(vec) << "\n";
-	std::cout << "- Square vector: ";
+	std::cout << "Square vector: ";
 	ranges::for_each(vec, print);
 	std::cout << "\n";
 	std::map<int, int> map;
@@ -44,13 +50,13 @@ void test_1() {
 	auto printm = [](const std::pair<int, int>& val) {
 		std::cout << "(" << val.first << ", " << val.second << ") ";
 	};
-	std::cout << "- Square map: ";
+	std::cout << "Square map: ";
 	ranges::for_each(map, printm);
-	std::cout << "\n\n";
+	std::cout << "\n";
 }
 
-// Test any_of, all_of, none_of
-void test_2() {
+BOOST_AUTO_TEST_CASE(test_any_of_vs_all_of_vs_none_of) {
+	TEST_MARKER();
 	std::vector<int> vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	auto is_even = [](const int& val) {
 		return val % 2 == 0;
@@ -60,11 +66,10 @@ void test_2() {
 	std::cout << "- Has at least one even element: " << ranges::any_of(vec, is_even) << "\n";
 	std::cout << "- Has all even elements: " << ranges::all_of(vec, is_even) << "\n";
 	std::cout << "- Has all odd elements: " << ranges::none_of(vec, is_even) << "\n";
-	std::cout << "\n";
 }
 
-// Test count, count_if
-void test_3() {
+BOOST_AUTO_TEST_CASE(test_count_vs_count_if) {
+	TEST_MARKER();
 	std::vector<int> vec{1, 1, 1, 2, 1, 3, 1, 4, 1, 5, 1, 6};
 	auto is_even = [](const int& val) {
 		return val % 2 == 0;
@@ -73,11 +78,10 @@ void test_3() {
 	std::cout << "Vector " << ranges::views::all(vec) << "\n";
 	std::cout << "- Number of elements: " << ranges::count(vec, 1) << "\n";
 	std::cout << "- Number of even elements: " << ranges::count_if(vec, is_even) << "\n";
-	std::cout << "\n";
 }
 
-// Test find, find_if, find_if_not
-void test_4() {
+BOOST_AUTO_TEST_CASE(test_find_vs_find_if_vs_find_if_not) {
+	TEST_MARKER();
 	std::vector<int> vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	auto is_even = [](const int& val) {
 		return val % 2 == 0;
@@ -93,7 +97,7 @@ void test_4() {
 	{
 		auto it = ranges::find(vec, 0);
 		if (it == ranges::end(vec)) {
-			std::cout << "- Not have 0\n";
+			std::cout << "- Not have element 0\n";
 		}
 	}
 	{
@@ -108,11 +112,10 @@ void test_4() {
 			std::cout << "- The first odd element is " << *it << "\n";
 		}
 	}
-	std::cout << "\n";
 }
 
-// Test is_sorted, is_partitioned
-void test_5() {
+BOOST_AUTO_TEST_CASE(test_is_sorted_vs_is_partitioned) {
+	TEST_MARKER();
 	std::vector<int> vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	auto is_even = [](const int& val) {
 		return val % 2 == 0;
@@ -121,13 +124,12 @@ void test_5() {
 	std::cout << "Vector " << ranges::views::all(vec) << " is sorted: " << ranges::is_sorted(vec) << "\n";
 	vec = {2, 4, 6, 8, 10, 12, 1, 3, 5, 7, 9, 11};
 	std::cout << "Vector " << ranges::views::all(vec) << " is partitioned: " << ranges::is_partitioned(vec, is_even) << "\n";
-	std::cout << "\n";
 }
 
 // TEST VIEWS
 
-// Filter and transform
-void test_6() {
+BOOST_AUTO_TEST_CASE(filter_and_transform) {
+	TEST_MARKER();
 	std::vector<int> vec{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
 	std::cout << "Vector " << ranges::views::all(vec) << "\n";
 	auto is_even = [](int val) {
@@ -137,12 +139,11 @@ void test_6() {
 		return val * val;
 	};
 	auto rng = vec | ranges::views::filter(is_even) | ranges::views::transform(sqr);
-	std::cout << "- Square of even elements: " << rng << "\n";
-	std::cout << "\n";
+	std::cout << "Square of even elements: " << rng << "\n";
 }
 
-// Generate ints and accumulate
-void test_7() {
+BOOST_AUTO_TEST_CASE(generate_ints_and_accumulate) {
+	TEST_MARKER();
 	auto sqr = [](int val) {
 		return val * val;
 	};
@@ -153,11 +154,10 @@ void test_7() {
 		0
 	);
 	std::cout << "1^2 + 2^2 + ... + 10^2 + 11^2 + 12^2 = " << sum << "\n";
-	std::cout << "\n";
 }
 
-// Convert a range comprehension to a vector
-void test_8() {
+BOOST_AUTO_TEST_CASE(convert_a_range_comprehension_to_a_vector) {
+	TEST_MARKER();
 	auto vec = ranges::views::for_each(
 		ranges::views::ints(1, 13),
 		[](int i) {
@@ -165,29 +165,16 @@ void test_8() {
 		}
 	) | ranges::to<std::vector>();
 	std::cout << "Generated vector: " << ranges::views::all(vec) << "\n";
-	std::cout << "\n";
 }
 
 // TEST ACTIONS
 
-// Sort and remove non-unique elements from a container
-void test_9() {
+BOOST_AUTO_TEST_CASE(sort_and_remove_non_unique_elements) {
+	TEST_MARKER();
 	std::vector<int> vec{2, 1, 5, 4, 6, 7, 2, 3, 8, 2, 1, 9, 10, 7, 11, 12, 4, 8, 8, 6, 5, 2, 4, 3, 1, 9, 11, 10, 12};
 	std::cout << "Vector " << ranges::views::all(vec) << "\n";
 	vec |= ranges::actions::sort;
-	std::cout << "- After sorting: " << ranges::views::all(vec) << "\n";
+	std::cout << "After sorting: " << ranges::views::all(vec) << "\n";
 	vec |= ranges::actions::unique;
-	std::cout << "- After removing non-unique elements: " << ranges::views::all(vec) << "\n";
-}
-
-int main(int argc, char** argv) {
-	test_1();
-	test_2();
-	test_3();
-	test_4();
-	test_5();
-	test_6();
-	test_7();
-	test_8();
-	test_9();
+	std::cout << "After removing non-unique elements: " << ranges::views::all(vec) << "\n";
 }
