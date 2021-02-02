@@ -33,6 +33,7 @@ BOOST_AUTO_TEST_CASE(test_base_hook) {
 
 BOOST_AUTO_TEST_CASE(test_multiple_base_hooks) {
 	TEST_MARKER();
+
 	using namespace boost::intrusive;
 	struct tag_1;
 	struct tag_2;
@@ -56,6 +57,7 @@ BOOST_AUTO_TEST_CASE(test_multiple_base_hooks) {
 
 BOOST_AUTO_TEST_CASE(test_member_hook) {
 	TEST_MARKER();
+
 	using namespace boost::intrusive;
 	struct foo {
 		list_member_hook<> hook;
@@ -72,6 +74,7 @@ BOOST_AUTO_TEST_CASE(test_member_hook) {
 
 BOOST_AUTO_TEST_CASE(test_multiple_member_hooks) {
 	TEST_MARKER();
+
 	using namespace boost::intrusive;
 	struct foo {
 		list_member_hook<> hook_1;
@@ -89,5 +92,28 @@ BOOST_AUTO_TEST_CASE(test_multiple_member_hooks) {
 	fl2.push_back(f);
 
 	BOOST_CHECK(&f == &fl1.front());
+	BOOST_CHECK(&f == &fl2.front());
+}
+
+// 3. Using both hooks
+
+BOOST_AUTO_TEST_CASE(test_both_hooks) {
+	TEST_MARKER();
+
+	using namespace boost::intrusive;
+	struct foo : public list_base_hook<> {
+		list_member_hook<> hook;
+	};
+	using foo_list = list<foo>;
+	using member_hook_option = member_hook<foo, list_member_hook<>, &foo::hook>;
+	using foo_list_2 = list<foo, member_hook_option>;
+
+	foo f;
+	foo_list fl;
+	fl.push_back(f);
+	foo_list_2 fl2;
+	fl2.push_back(f);
+
+	BOOST_CHECK(&f == &fl.front());
 	BOOST_CHECK(&f == &fl2.front());
 }
