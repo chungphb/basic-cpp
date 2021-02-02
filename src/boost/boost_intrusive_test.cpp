@@ -7,7 +7,7 @@
 
 #include "test_util.h"
 
-// HOW TO USE BOOST.TEST
+// HOW TO USE BOOST.INSTRUSIVE
 
 // 1. Using base hooks
 
@@ -116,4 +116,52 @@ BOOST_AUTO_TEST_CASE(test_both_hooks) {
 
 	BOOST_CHECK(&f == &fl.front());
 	BOOST_CHECK(&f == &fl2.front());
+}
+
+// WHEN TO USE BOOST.INTRUSIVE
+
+using namespace boost::intrusive;
+struct base : public list_base_hook<> {
+	using object_list = list<base>;
+	static object_list ol;
+	base() {
+		ol.push_back(*this);
+	}
+	virtual ~base() {
+		ol.erase(ol.s_iterator_to(*this));
+	}
+	virtual void func() {
+		std::cout << "base\n";
+	}
+};
+
+base::object_list base::ol;
+
+struct derived_0 : public base {
+	int val = 0;
+	void func() {
+		std::cout << "derived_0\n";
+	}
+};
+
+struct derived_1 : public base {
+	int val = 0;
+	void func() {
+		std::cout << "derived_1\n";
+	}
+};
+
+void func_all() {
+	auto e = base::ol.end();
+	for (auto i = base::ol.begin(); i != e; i++) {
+		i->func();
+	}
+}
+
+BOOST_AUTO_TEST_CASE(test_storing_base_and_derived_objects_in_the_same_container) {
+	TEST_MARKER();
+	base b;
+	derived_0 d0;
+	derived_1 d1;
+	func_all();
 }
