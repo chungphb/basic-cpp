@@ -165,3 +165,38 @@ BOOST_AUTO_TEST_CASE(test_storing_base_and_derived_objects_in_the_same_container
 	derived_1 d1;
 	func_all();
 }
+
+// SAFE HOOKS
+
+BOOST_AUTO_TEST_CASE(test_safe_hooks) {
+	TEST_MARKER();
+
+	using namespace boost::intrusive;
+	struct foo : public list_base_hook<link_mode<safe_link>> {};
+	using foo_list = list<foo>;
+
+	foo f;
+	BOOST_CHECK(!f.is_linked());
+	foo_list fl;
+	fl.push_back(f);
+	BOOST_CHECK(f.is_linked());
+}
+
+// AUTO-UNLINK HOOKS
+
+BOOST_AUTO_TEST_CASE(test_auto_unlink_hooks) {
+	TEST_MARKER();
+
+	using namespace boost::intrusive;
+	struct foo : public list_base_hook<link_mode<auto_unlink>> {};
+	using foo_list = list<foo, constant_time_size<false>>;
+
+	foo f;
+	BOOST_CHECK(!f.is_linked());
+	foo_list fl;
+	fl.push_back(f);
+	BOOST_CHECK(f.is_linked());
+	f.unlink();
+	BOOST_CHECK(!f.is_linked());
+	BOOST_CHECK(fl.empty());
+}
