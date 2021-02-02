@@ -2,8 +2,10 @@
 #include <boost/test/included/unit_test.hpp>
 
 #include <boost/intrusive/list.hpp>
+#include <boost/intrusive/slist.hpp>
 
 #include <list>
+#include <vector>
 
 #include "test_util.h"
 
@@ -199,4 +201,45 @@ BOOST_AUTO_TEST_CASE(test_auto_unlink_hooks) {
 	f.unlink();
 	BOOST_CHECK(!f.is_linked());
 	BOOST_CHECK(fl.empty());
+}
+
+// SLIST
+
+BOOST_AUTO_TEST_CASE(test_slist) {
+	TEST_MARKER();
+
+	using namespace boost::intrusive;
+	struct foo : public slist_base_hook<> {
+		int val;
+		slist_member_hook<> hook;
+		foo(int v) : val{v} {}
+	};
+	using base_slist = slist<foo>;
+	using member_hook_option = member_hook<foo, slist_member_hook<>, &foo::hook>;
+	using member_slist = slist<foo, member_hook_option>;
+	using vec_it = std::vector<foo>::iterator;
+	using vec_rit = std::vector<foo>::reverse_iterator;
+
+	std::vector<foo> v;
+	for (int i = 0; i < 100; i++) {
+		v.push_back(foo{i});
+	}
+	base_slist bsl;
+	member_slist msl;;
+	/// Reverse order in the base hook list
+	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++) {
+		bsl.push_front(*it);
+	}
+	/// Keep order (by reversing twice) in the member hook ist
+	for (base_slist::iterator bit{bsl.begin()}, bitend{bsl.end()}; bit != bitend; bit++) {
+		msl.push_front(*bit);
+	}
+	auto bit = bsl.begin();
+	auto mit = msl.begin();
+	for (vec_rit rit{v.rbegin()}, ritend{v.rend()}; rit != ritend; rit++, bit++) {
+		BOOST_CHECK(&*rit == &*bit);
+	}
+	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++, mit++) {
+		BOOST_CHECK(&*it == &*mit);
+	}
 }
