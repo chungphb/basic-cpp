@@ -3,6 +3,7 @@
 
 #include <boost/intrusive/list.hpp>
 #include <boost/intrusive/slist.hpp>
+#include <boost/intrusive/set.hpp>
 
 #include <list>
 #include <vector>
@@ -226,17 +227,66 @@ BOOST_AUTO_TEST_CASE(test_slist) {
 	}
 	base_slist bsl;
 	member_slist msl;;
-	/// Reverse order in the base hook list
+	/// Reverse the order in the base hook list
 	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++) {
 		bsl.push_front(*it);
 	}
-	/// Keep order (by reversing twice) in the member hook ist
+	/// Keep the order (by reversing twice) in the member hook list
 	for (base_slist::iterator bit{bsl.begin()}, bitend{bsl.end()}; bit != bitend; bit++) {
 		msl.push_front(*bit);
 	}
 	auto bit = bsl.begin();
 	auto mit = msl.begin();
 	for (vec_rit rit{v.rbegin()}, ritend{v.rend()}; rit != ritend; rit++, bit++) {
+		BOOST_CHECK(&*rit == &*bit);
+	}
+	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++, mit++) {
+		BOOST_CHECK(&*it == &*mit);
+	}
+}
+
+// LIST
+
+// SET, MULTISET, RBTREE
+
+struct foo : public set_base_hook<> {
+	int val;
+	set_member_hook<> hook;
+	foo(int v) : val{v} {}
+	friend bool operator<(const foo& lhs, const foo& rhs) {
+		return lhs.val < rhs.val;
+	}
+	friend bool operator>(const foo& lhs, const foo& rhs) {
+		return lhs.val > rhs.val;
+	}
+	friend bool operator==(const foo& lhs, const foo& rhs) {
+		return lhs.val == rhs.val;
+	}
+};
+
+BOOST_AUTO_TEST_CASE(test_set_vs_multiset_vs_btree) {
+	TEST_MARKER();
+
+	using namespace boost::intrusive;
+	using base_set = set<foo, compare<std::greater<foo>>>;
+	using member_hook_option = member_hook<foo, set_member_hook<>, &foo::hook>;
+	using member_set = set<foo, member_hook_option>;
+	using vec_it = std::vector<foo>::iterator;
+	using vec_rit = std::vector<foo>::reverse_iterator;
+
+	std::vector<foo> v;
+	for (int i = 0; i < 100; i++) {
+		v.push_back(foo{i});
+	}
+	base_set bs;
+	member_set ms;
+	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++) {
+		bs.insert(*it);
+		ms.insert(*it);
+	}
+	auto bit = bs.begin();
+	auto mit = ms.begin();
+		for (vec_rit rit{v.rbegin()}, ritend{v.rend()}; rit != ritend; rit++, bit++) {
 		BOOST_CHECK(&*rit == &*bit);
 	}
 	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++, mit++) {
