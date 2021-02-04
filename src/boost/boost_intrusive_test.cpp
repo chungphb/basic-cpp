@@ -4,6 +4,7 @@
 #include <boost/intrusive/list.hpp>
 #include <boost/intrusive/slist.hpp>
 #include <boost/intrusive/set.hpp>
+#include <boost/intrusive/unordered_set.hpp>
 
 #include <list>
 #include <vector>
@@ -249,6 +250,8 @@ BOOST_AUTO_TEST_CASE(test_slist) {
 
 // SET, MULTISET, RBTREE
 
+namespace test_set_vs_multiset_vs_btree_ns {
+
 struct foo : public set_base_hook<> {
 	int val;
 	set_member_hook<> hook;
@@ -264,9 +267,12 @@ struct foo : public set_base_hook<> {
 	}
 };
 
+}
+
 BOOST_AUTO_TEST_CASE(test_set_vs_multiset_vs_btree) {
 	TEST_MARKER();
 
+	using namespace test_set_vs_multiset_vs_btree_ns;
 	using namespace boost::intrusive;
 	using base_set = set<foo, compare<std::greater<foo>>>;
 	using member_hook_option = member_hook<foo, set_member_hook<>, &foo::hook>;
@@ -291,5 +297,97 @@ BOOST_AUTO_TEST_CASE(test_set_vs_multiset_vs_btree) {
 	}
 	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++, mit++) {
 		BOOST_CHECK(&*it == &*mit);
+	}
+}
+
+// UNORDERED_SET, UNORDERED_MULTISET
+
+namespace test_unordered_set_vs_unordered_multiset_ns {
+
+struct foo : public unordered_set_base_hook<> {
+	int val;
+	unordered_set_member_hook<> hook;
+	foo(int v) : val{v} {}
+	friend bool operator==(const foo& lhs, const foo& rhs) {
+		return lhs.val == rhs.val;
+	}
+	friend std::size_t hash_value(const foo& f) {
+		return std::size_t(f.val);
+	}
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_unordered_set_vs_unordered_multiset) {
+	TEST_MARKER();
+
+	using namespace test_unordered_set_vs_unordered_multiset_ns;
+	using namespace boost::intrusive;
+	using base_unordered_set = unordered_set<foo>;
+	using member_hook_option = member_hook<foo, unordered_set_member_hook<>, &foo::hook>;
+	using member_unordered_multiset = unordered_multiset<foo, member_hook_option>;
+	using vec_it = std::vector<foo>::iterator;
+
+	std::vector<foo> v;
+	for (int i = 0; i < 100; i++) {
+		v.push_back(foo{i});
+	}
+	std::vector<foo> v_2{v};
+	base_unordered_set::bucket_type base_buckets[100];
+	member_unordered_multiset::bucket_type member_buckets[200];
+	base_unordered_set bus{base_unordered_set::bucket_traits{base_buckets, 100}};
+	member_unordered_multiset mus{member_unordered_multiset::bucket_traits{member_buckets, 200}};
+	for (vec_it it{v.begin()}, itend{v.end()}, it_2{v_2.begin()}; it != itend; it++, it_2++) {
+		bus.insert(*it);
+		mus.insert(*it);
+		mus.insert(*it_2);
+	}
+	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++) {
+		BOOST_CHECK(bus.count(*it) == 1);
+		BOOST_CHECK(mus.count(*it) == 2);
+	}
+}
+
+namespace test_unordered_set_vs_unordered_multiset_ns {
+
+using base_hook_option = base_hook<unordered_set_base_hook<>>;
+using bucket_type = unordered_bucket<base_hook_option>::type;
+using bucket_ptr = unordered_bucket_ptr<base_hook_option>::type;
+
+struct custom_bucket_traits {
+	static const int n_buckets = 100;
+	custom_bucket_traits(bucket_ptr p) : ptr{p} {}
+	bucket_ptr bucket_begin() const {
+		return ptr;
+	}
+	std::size_t bucket_count() const {
+		return n_buckets;
+	}
+private:
+	bucket_ptr ptr;
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_custom_bucket_traits) {
+	TEST_MARKER();
+
+	using namespace test_unordered_set_vs_unordered_multiset_ns;
+	using namespace boost::intrusive;
+	using foo_unordered_set = unordered_set<foo, bucket_traits<custom_bucket_traits>>;
+	using vec_it = std::vector<foo>::iterator;
+
+	std::vector<foo> v;
+	for (int i = 0; i < 100; i++) {
+		v.push_back(foo{i});
+	}
+	bucket_type buckets[custom_bucket_traits::n_buckets];
+	custom_bucket_traits btraits{buckets};
+	foo_unordered_set fus{btraits};
+	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++) {
+		fus.insert(*it);
+	}
+	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++) {
+		BOOST_CHECK(fus.count(*it) == 1);
 	}
 }
