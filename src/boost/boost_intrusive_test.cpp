@@ -391,3 +391,50 @@ BOOST_AUTO_TEST_CASE(test_custom_bucket_traits) {
 		BOOST_CHECK(fus.count(*it) == 1);
 	}
 }
+
+
+// MAP, MULTIMAP-LIKE INTERFACE
+
+BOOST_AUTO_TEST_CASE(test_map_vs_multimap_interface) {
+	TEST_MARKER();
+
+	using namespace boost::intrusive;
+	struct foo : public set_base_hook<>, unordered_set_base_hook<> {
+		int key;
+		int val;
+		explicit foo(int k, int v) : key{k}, val{v} {}
+	};
+	struct foo_key_f {
+		using type = int;
+		const type& operator()(const foo& f) const {
+			return f.key;
+		}
+	};
+	using foo_map = set<foo, key_of_value<foo_key_f>>;
+	using foo_unordered_map = unordered_set<foo, key_of_value<foo_key_f>>;
+	BOOST_STATIC_ASSERT(boost::is_same<foo_map::key_type, int>::value);
+	BOOST_STATIC_ASSERT(boost::is_same<foo_unordered_map::key_type, int>::value);
+	std::vector<foo> v;
+	for (int i = 0; i < 100; i++) {
+		v.push_back(foo{i, i});
+	}
+	foo_map fm{v.begin(), v.end()};
+	foo_unordered_map::bucket_type buckets[100];
+	foo_unordered_map fum{v.begin(), v.end(), foo_unordered_map::bucket_traits{buckets, 100}};
+	for (int key = 0; key < 100; key++) {
+		BOOST_CHECK(fm.find(key) != fm.end());
+		BOOST_CHECK(fum.find(key) != fum.end());
+		BOOST_CHECK(fm.lower_bound(key) != fm.end());
+		BOOST_CHECK(++fm.lower_bound(key) == fm.upper_bound(key));
+		BOOST_CHECK(fm.equal_range(key).first != fm.equal_range(key).second);
+		BOOST_CHECK(fum.equal_range(key).first != fum.equal_range(key).second);
+	}
+	for (int key = 0; key < 100; key++) {
+		BOOST_CHECK(fm.count(key) == 1);
+		BOOST_CHECK(fum.count(key) == 1);
+		BOOST_CHECK(fm.erase(key) == 1);
+		BOOST_CHECK(fum.erase(key) == 1);
+	}
+	BOOST_CHECK(fm.empty());
+	BOOST_CHECK(fum.empty());
+}
