@@ -8,6 +8,7 @@
 
 #include <list>
 #include <vector>
+#include <cstring>
 
 #include "test_util.h"
 
@@ -437,4 +438,129 @@ BOOST_AUTO_TEST_CASE(test_map_vs_multimap_interface) {
 	}
 	BOOST_CHECK(fm.empty());
 	BOOST_CHECK(fum.empty());
+}
+
+// AVL_SET, AVL_MULTISET, AVLTREE:			https://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/avl_set_multiset.html
+
+// SPLAY_SET, SPLAY_MULTISET, SPLAY_TREE:	https://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/splay_set_multiset.html
+
+// SG_SET, SG_MULTISET, SGTREE:				https://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/sg_set_multiset.html
+
+// TREAP_SET, TREAP_MULTISET, TREAP:		https://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/treap_set_multiset.html
+
+// ADVANCED LOOKUP AND INSERTION FUNCTIONS
+
+namespace test_advanced_lookup_and_insertion_functions_ns {
+
+struct str_hasher {
+	std::size_t operator()(const char* str) {
+		std::size_t seed = 0;
+		for (; *str; str++) {
+			boost::hash_combine(seed, *str);
+		}
+		return seed;
+	}
+};
+
+struct foo : public set_base_hook<>, unordered_set_base_hook<> {
+	foo(const char* k, int v) : key{k}, val{v} {}
+	const std::string& get_key() const {
+		return key;
+	}
+	int get_value() const {
+		return val;
+	}
+	friend bool operator<(const foo& lhs, const foo& rhs) {
+		return lhs.key < rhs.key;
+	}
+	friend bool operator==(const foo& lhs, const foo& rhs) {
+		return lhs.key == rhs.key;
+	}
+	friend std::size_t hash_value(const foo& f) {
+		return str_hasher()(f.key.c_str());
+	}
+private:
+	std::string key;
+	int val;
+};
+
+using foo_set = set<foo>;
+using foo_uset = unordered_set<foo>;
+ 
+/// Search funtions
+
+foo* get_from_set(const char* key, foo_set& fs) {
+	/// Can't build foo without passing its value
+	/// auto it = fs.find(foo{key});
+	/// return it != fs.end() ? &*it : nullptr;
+	return nullptr;
+}
+
+foo* get_from_uset(const char* key, foo_uset& fus) {
+	/// Can't build foo without passing its value
+	/// auto it = fus.find(foo{key});
+	/// return it != fus.end() ? &*it : nullptr;
+	return nullptr;
+}
+
+/// Optimized search functions
+
+struct str_foo_cmp {
+	bool operator()(const char* key, const foo& f) const {
+		return std::strcmp(key, f.get_key().c_str()) < 0;
+	}
+	bool operator()(const foo& f, const char* key) const {
+		return std::strcmp(f.get_key().c_str(), key) < 0;
+	}
+};
+
+struct str_foo_eql {
+	bool operator()(const char* key, const foo& f) const {
+		return std::strcmp(key, f.get_key().c_str()) == 0;
+	}
+	bool operator()(const foo& f, const char* key) const {
+		return std::strcmp(f.get_key().c_str(), key) == 0;
+	}
+};
+
+foo* get_from_set_optimized(const char* key, foo_set& fs) {
+	auto it = fs.find(key, str_foo_cmp());
+	return it != fs.end() ? &*it : nullptr;
+}
+
+foo* get_from_uset_optimized(const char* key, foo_uset& fus) {
+	auto it = fus.find(key, str_hasher(), str_foo_eql());
+	return it != fus.end() ? &*it : nullptr;
+}
+
+}
+
+BOOST_AUTO_TEST_CASE(test_advanced_lookup) {
+	TEST_MARKER();
+
+	using namespace test_advanced_lookup_and_insertion_functions_ns;
+	using namespace boost::intrusive;
+	using vec_it = std::vector<foo>::iterator;
+
+	std::vector<std::string> keys;
+	for (int i = 0; i < 100; i++) {
+		keys.emplace_back("str" + std::to_string(i));
+	}
+	std::vector<foo> v;
+	for (int i = 0; i < 100; i++) {
+		v.push_back(foo{keys[i].c_str(), i});
+	}
+	foo_set fs;
+	foo_uset::bucket_type buckets[100];
+	foo_uset fus{foo_uset::bucket_traits{buckets, 100}};
+	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++) {
+		fs.insert(*it);
+		fus.insert(*it);
+	}
+	for (int i = 0; i < 100; i++) {
+		auto* f = get_from_set_optimized(keys[i].c_str(), fs);
+		BOOST_CHECK(f && f->get_value() == i);
+		f = get_from_uset_optimized(keys[i].c_str(), fus);
+		BOOST_CHECK(f && f->get_value() == i);
+	}
 }
