@@ -440,13 +440,13 @@ BOOST_AUTO_TEST_CASE(test_map_vs_multimap_interface) {
 	BOOST_CHECK(fum.empty());
 }
 
-// AVL_SET, AVL_MULTISET, AVLTREE:			https://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/avl_set_multiset.html
+// AVL_SET, AVL_MULTISET, AVLTREE: https://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/avl_set_multiset.html
 
-// SPLAY_SET, SPLAY_MULTISET, SPLAY_TREE:	https://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/splay_set_multiset.html
+// SPLAY_SET, SPLAY_MULTISET, SPLAY_TREE: https://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/splay_set_multiset.html
 
-// SG_SET, SG_MULTISET, SGTREE:				https://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/sg_set_multiset.html
+// SG_SET, SG_MULTISET, SGTREE: https://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/sg_set_multiset.html
 
-// TREAP_SET, TREAP_MULTISET, TREAP:		https://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/treap_set_multiset.html
+// TREAP_SET, TREAP_MULTISET, TREAP: https://www.boost.org/doc/libs/1_64_0/doc/html/intrusive/treap_set_multiset.html
 
 // ADVANCED LOOKUP AND INSERTION FUNCTIONS
 
@@ -487,7 +487,7 @@ private:
 using foo_set = set<foo>;
 using foo_uset = unordered_set<foo>;
  
-/// Search funtions
+/// Search functions
 
 foo* get_from_set(const char* key, foo_set& fs) {
 	/// Can't build foo without passing its value
@@ -563,4 +563,75 @@ BOOST_AUTO_TEST_CASE(test_advanced_lookup) {
 		f = get_from_uset_optimized(keys[i].c_str(), fus);
 		BOOST_CHECK(f && f->get_value() == i);
 	}
+}
+
+namespace test_advanced_lookup_and_insertion_functions_ns {
+
+/// Insertion functions
+
+bool insert_to_set(const char* key, int val, foo_set& fs) {
+	foo* f = new foo{key, val};
+	auto success = fs.insert(*f).second;
+	if (!success) {
+		delete f;
+	}
+	return success;
+}
+
+bool insert_to_uset(const char* key, int val, foo_uset& fus) {
+	foo* f = new foo{key, val};
+	auto success = fus.insert(*f).second;
+	if (!success) {
+		delete f;
+	}
+	return success;
+}
+
+/// Optimized insertion functions
+
+bool insert_to_set_optimized(const char* key, int val, foo_set& fs) {
+	foo_set::insert_commit_data insert_data;
+	bool success = fs.insert_check(key, str_foo_cmp(), insert_data).second;
+	if (success) {
+		fs.insert_commit(*new foo{key, val}, insert_data);
+	}
+	return success;
+}
+
+bool insert_to_uset_optimized(const char* key, int val, foo_uset& fus) {
+	foo_uset::insert_commit_data insert_data;
+	bool success = fus.insert_check(key, str_hasher(), str_foo_eql(), insert_data).second;
+	if (success) {
+		fus.insert_commit(*new foo{key, val}, insert_data);
+	}
+	return success;
+}
+
+}
+
+BOOST_AUTO_TEST_CASE(test_advanced_insertion) {
+	TEST_MARKER();
+
+	using namespace test_advanced_lookup_and_insertion_functions_ns;
+	using namespace boost::intrusive;
+	using vec_it = std::vector<foo>::iterator;
+
+	std::vector<std::string> keys;
+	for (int i = 0; i < 100; i++) {
+		keys.emplace_back("str" + std::to_string(i));
+	}
+	foo_set fs;
+	foo_uset::bucket_type buckets[100];
+	foo_uset fus{foo_uset::bucket_traits{buckets, 100}};
+	for (int i = 0; i < 100; i++) {
+		BOOST_CHECK(insert_to_set_optimized(keys[i].c_str(), i, fs));
+		BOOST_CHECK(insert_to_uset_optimized(keys[i].c_str(), i, fus));
+	}
+	for (int i = 0; i < 100; i++) {
+		auto* f = get_from_set_optimized(keys[i].c_str(), fs);
+		BOOST_CHECK(f && f->get_value() == i);
+		f = get_from_uset_optimized(keys[i].c_str(), fus);
+		BOOST_CHECK(f && f->get_value() == i);
+	}
+	/// Causes memory leaks
 }
