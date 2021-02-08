@@ -635,3 +635,70 @@ BOOST_AUTO_TEST_CASE(test_advanced_insertion) {
 	}
 	/// Causes memory leaks
 }
+
+namespace test_positional_insertion_functions_ns {
+	
+struct foo : public set_base_hook<> {
+public:
+	foo(int k) : key{k} {}
+	friend bool operator<(const foo& lhs, const foo& rhs) {
+		return lhs.key < rhs.key;
+	}
+	friend bool operator>(const foo& lhs, const foo& rhs) {
+		return lhs.key > rhs.key;
+	}
+private:
+	int key;
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_positional_insertion) {
+	TEST_MARKER();
+
+	using namespace test_positional_insertion_functions_ns;
+	using namespace boost::intrusive;
+
+	std::vector<foo> v;
+	for (int i = 0; i < 100; i++) {
+		v.push_back(foo{i});
+	}
+	/// Uses push_back instead of insert because v is already sorted
+	{
+		using foo_set = set<foo>;
+		foo_set fs;
+		for (int i = 0; i < 100; i++) {
+			fs.push_back(v[i]);
+		}
+		foo_set::const_iterator nxt_it{fs.begin()}, cur_it{nxt_it++};
+		for (int i = 0; i < 99; i++, cur_it++, nxt_it++) {
+			BOOST_CHECK(*cur_it < *nxt_it);
+		}
+	}
+	/// Uses push_front instead of insert because v is already sorted
+	{
+		using foo_set = set<foo, compare<std::greater<foo>>>;
+		foo_set fs;
+		for (int i = 0; i < 100; i++) {
+			fs.push_front(v[i]);
+		}
+		foo_set::const_iterator nxt_it{fs.begin()}, cur_it{nxt_it++};
+		for (int i = 0; i < 99; i++, cur_it++, nxt_it++) {
+			BOOST_CHECK(*cur_it > *nxt_it);
+		}
+	}
+	/// Uses insert_before instead of insert because v is already sorted
+	{
+		using foo_set = set<foo>;
+		foo_set fs;
+		fs.insert_before(fs.begin(), v[0]);
+		foo_set::const_iterator cur_pos = fs.insert_before(fs.end(), v[99]);
+		for (int i = 1; i < 99; i++) {
+			fs.insert_before(cur_pos, v[i]);
+		}
+		foo_set::const_iterator nxt_it{fs.begin()}, cur_it{nxt_it++};
+		for (int i = 0; i < 99; i++, cur_it++, nxt_it++) {
+			BOOST_CHECK(*cur_it < *nxt_it);
+		}
+	}
+}
