@@ -633,7 +633,13 @@ BOOST_AUTO_TEST_CASE(test_advanced_insertion) {
 		f = get_from_uset_optimized(keys[i].c_str(), fus);
 		BOOST_CHECK(f && f->get_value() == i);
 	}
-	/// Causes memory leaks
+	struct disposer {
+		void operator()(foo* f) {
+			delete f;
+		}
+	};
+	fs.clear_and_dispose(disposer());
+	fus.clear_and_dispose(disposer());
 }
 
 namespace test_positional_insertion_functions_ns {
@@ -701,4 +707,37 @@ BOOST_AUTO_TEST_CASE(test_positional_insertion) {
 			BOOST_CHECK(*cur_it < *nxt_it);
 		}
 	}
+}
+
+BOOST_AUTO_TEST_CASE(test_erasing_and_disposing_values_from_containers) {
+	TEST_MARKER();
+
+	using namespace boost::intrusive;
+	struct foo : public list_base_hook<> {
+		int val;
+		foo(int v) : val{v} {}
+	};
+	using foo_list = list<foo>;
+	struct is_even {
+		bool operator()(const foo& f) {
+			return f.val % 2 == 0;
+		}
+	};
+	struct disposer {
+		void operator()(foo* f) {
+			delete f;
+		}
+	};
+
+	foo_list fl;
+	try {
+		for (int i = 0; i < 100; i++) {
+			fl.push_back(*new foo{i});
+		}
+		fl.remove_and_dispose_if(is_even(), disposer());
+	}
+	catch (...) {
+		fl.clear_and_dispose(disposer());
+	}
+	fl.erase_and_dispose(fl.begin(), fl.end(), disposer());
 }
