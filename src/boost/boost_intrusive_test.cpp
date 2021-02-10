@@ -5,6 +5,7 @@
 #include <boost/intrusive/slist.hpp>
 #include <boost/intrusive/set.hpp>
 #include <boost/intrusive/unordered_set.hpp>
+#include <boost/intrusive/parent_from_member.hpp>
 
 #include <list>
 #include <vector>
@@ -784,4 +785,58 @@ BOOST_AUTO_TEST_CASE(test_cloning_containers) {
 	cloned_fl.clone_from(fl, cloner(), disposer());
 	BOOST_CHECK(cloned_fl == fl);
 	cloned_fl.clear_and_dispose(disposer());
+}
+
+// FUNCTION HOOKS
+
+namespace test_function_hooks_ns {
+
+struct foo {
+	int val;
+	struct inner_foo {
+		int val;
+		list_member_hook<> hook;
+	} inner;
+};
+
+struct functor {
+	using hook_type = list_member_hook<>;
+	using hook_ptr = hook_type*;
+	using const_hook_ptr = const hook_type*;
+	using value_type = foo;
+	using pointer = value_type*;
+	using const_pointer = const value_type*;
+	static hook_ptr to_hook_ptr(value_type& value) {
+		return &value.inner.hook;
+	}
+	static const_hook_ptr to_hook_ptr(const value_type& value) {
+		return &value.inner.hook;
+	}
+	static pointer to_value_ptr(hook_ptr n) {
+		return get_parent_from_member<foo>(
+			get_parent_from_member<foo::inner_foo>(n, &foo::inner_foo::hook),
+			&foo::inner
+		);
+	}
+	static const_pointer to_value_ptr(const_hook_ptr n) {
+		return get_parent_from_member<foo>(
+			get_parent_from_member<foo::inner_foo>(n, &foo::inner_foo::hook),
+			&foo::inner
+		);
+	}
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_function_hooks) {
+	TEST_MARKER();
+
+	using namespace test_function_hooks_ns;
+	using namespace boost::intrusive;
+	using foo_list = list<foo, function_hook<functor>>;
+	
+	foo f;
+	foo_list fl;
+	fl.push_back(f);
+	BOOST_CHECK(&f == &fl.front());
 }
