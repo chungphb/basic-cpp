@@ -709,6 +709,8 @@ BOOST_AUTO_TEST_CASE(test_positional_insertion) {
 	}
 }
 
+// ERASING AND DISPOSING VALUES FROM CONTAINERS
+
 BOOST_AUTO_TEST_CASE(test_erasing_and_disposing_values_from_containers) {
 	TEST_MARKER();
 
@@ -740,4 +742,46 @@ BOOST_AUTO_TEST_CASE(test_erasing_and_disposing_values_from_containers) {
 		fl.clear_and_dispose(disposer());
 	}
 	fl.erase_and_dispose(fl.begin(), fl.end(), disposer());
+}
+
+// CLONING CONTAINERS
+
+namespace test_cloning_containers_ns {
+
+struct foo : public list_base_hook<> {
+	int val;
+	foo(int v) : val{v} {}
+	friend bool operator==(const foo& lhs, const foo& rhs) {
+		return lhs.val == rhs.val;
+	}
+};
+
+}
+BOOST_AUTO_TEST_CASE(test_cloning_containers) {
+	TEST_MARKER();
+
+	using namespace test_cloning_containers_ns;
+	using namespace boost::intrusive;
+	using foo_list = list<foo>;
+	struct cloner {
+		foo* operator()(const foo& f) {
+			return new foo{f};
+		}
+	};
+	struct disposer {
+		void operator()(foo* f) {
+			return delete f;
+		}
+	};
+
+	std::vector<foo> v;
+	for (int i = 0; i < 100; i++) {
+		v.emplace_back(i);
+	}
+	foo_list fl;
+	fl.insert(fl.end(), v.begin(), v.end());
+	foo_list cloned_fl;
+	cloned_fl.clone_from(fl, cloner(), disposer());
+	BOOST_CHECK(cloned_fl == fl);
+	cloned_fl.clear_and_dispose(disposer());
 }
