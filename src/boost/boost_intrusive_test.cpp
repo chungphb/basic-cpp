@@ -840,3 +840,87 @@ BOOST_AUTO_TEST_CASE(test_function_hooks) {
 	fl.push_back(f);
 	BOOST_CHECK(&f == &fl.front());
 }
+
+// RECURSIVE CONTAINERS
+
+BOOST_AUTO_TEST_CASE(test_recursive_containers_with_base_hooks) {
+	TEST_MARKER();
+
+	using namespace boost::intrusive;
+	struct foo : public list_base_hook<> {
+		/// Must specify the hook type to avoid early instantiation
+		list<foo, base_hook<list_base_hook<>>> foo_children;
+		foo() : list_base_hook<>(), foo_children() {}
+	};
+	/// Must specify the hook type to avoid early instantiation
+	using foo_list = list<foo, base_hook<list_base_hook<>>>;
+
+	foo f, f_2;
+	foo_list fl;
+	fl.insert(fl.begin(), f);
+	fl.begin()->foo_children.insert(fl.begin()->foo_children.begin(), f_2);
+	BOOST_CHECK(&f == &fl.front());
+	BOOST_CHECK(&f_2 == &fl.front().foo_children.front());
+	fl.front().foo_children.clear();
+	fl.clear();
+}
+
+namespace test_recursive_containers_ns {
+
+struct foo;
+
+struct functor {
+	using hook_type = list_member_hook<>;
+	using hook_ptr = hook_type*;
+	using const_hook_ptr = const hook_type*;
+	using value_type = foo;
+	using pointer = value_type*;
+	using const_pointer = const value_type*;
+	static hook_ptr to_hook_ptr(value_type&);
+	static const_hook_ptr to_hook_ptr(const value_type&);
+	static pointer to_value_ptr(hook_ptr);
+	static const_pointer to_value_ptr(const_hook_ptr);
+};
+
+struct foo {
+	list_member_hook<> hook;
+	/// Must use function_hook instead of member_hook to avoid early instantiation
+	list<foo, function_hook<functor>> foo_children;
+	foo() : hook(), foo_children() {}
+};
+
+inline functor::hook_ptr functor::to_hook_ptr(value_type& value) {
+	return &value.hook;
+}
+
+inline functor::const_hook_ptr functor::to_hook_ptr(const value_type& value) {
+	return &value.hook;
+}
+
+inline functor::pointer functor::to_value_ptr(hook_ptr n) {
+	return get_parent_from_member<foo>(n, &foo::hook);
+}
+
+inline functor::const_pointer functor::to_value_ptr(const_hook_ptr n) {
+	return get_parent_from_member<foo>(n, &foo::hook);
+}
+
+}
+
+BOOST_AUTO_TEST_CASE(test_recursive_containers_with_member_hooks) {
+	TEST_MARKER();
+
+	using namespace test_recursive_containers_ns;
+	using namespace boost::intrusive;
+	/// Must use function_hook instead of member_hook to avoid early instantiation
+	using foo_list = list<foo, function_hook<functor>>;
+
+	foo f, f_2;
+	foo_list fl;
+	fl.insert(fl.begin(), f);
+	fl.begin()->foo_children.insert(fl.begin()->foo_children.begin(), f_2);
+	BOOST_CHECK(&f == &fl.front());
+	BOOST_CHECK(&f_2 == &fl.front().foo_children.front());
+	fl.front().foo_children.clear();
+	fl.clear();
+}
