@@ -6,6 +6,7 @@
 #include <boost/intrusive/set.hpp>
 #include <boost/intrusive/unordered_set.hpp>
 #include <boost/intrusive/parent_from_member.hpp>
+#include <boost/intrusive/any_hook.hpp>
 
 #include <list>
 #include <vector>
@@ -992,5 +993,43 @@ BOOST_AUTO_TEST_CASE(test_obtaining_iterators_from_values) {
 		foo_unordered_set::iterator usit = fus.find(v[i]);
 		BOOST_CHECK(fus.iterator_to(v[i]) == usit);
 		BOOST_CHECK(*fus.local_iterator_to(v[i]) == *usit && *fus.s_local_iterator_to(v[i]) == *usit);
+	}
+}
+
+// ANY HOOKS
+
+BOOST_AUTO_TEST_CASE(test_any_hooks) {
+	TEST_MARKER();
+
+	using namespace boost::intrusive;
+	struct foo : public any_base_hook<> {
+		int val;
+		any_member_hook<> hook;
+		foo(int v) : val{v} {}
+	};
+	using base_slist_option = any_to_slist_hook<base_hook<any_base_hook<>>>;
+	using foo_slist = slist<foo, base_slist_option>;
+	using member_list_option = any_to_list_hook<member_hook<foo, any_member_hook<>, &foo::hook>>;
+	using foo_list = list<foo, member_list_option>;
+	using vector_it = std::vector<foo>::iterator;
+	using vector_rit = std::vector<foo>::reverse_iterator;
+
+	std::vector<foo> v;
+	for (int i = 0; i < 100; i++) {
+		v.emplace_back(i);
+	}
+	foo_slist fsl;
+	foo_list fl;
+	for (vector_it it{v.begin()}, itend{v.end()}; it != itend; it++) {
+		fsl.push_front(*it);
+		fl.push_back(*it);
+	}
+
+	foo_slist::iterator slit{fsl.begin()};
+	foo_list::reverse_iterator lit{fl.rbegin()};
+	vector_rit vit{v.rbegin()}, vitend{v.rend()};
+	for (; vit != vitend; vit++, slit++, lit++) {
+		BOOST_CHECK(&*vit == &*slit);
+		BOOST_CHECK(&*vit == &*lit);
 	}
 }
