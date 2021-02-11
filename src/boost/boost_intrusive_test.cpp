@@ -238,6 +238,7 @@ BOOST_AUTO_TEST_CASE(test_slist) {
 	for (base_slist::iterator bit{bsl.begin()}, bitend{bsl.end()}; bit != bitend; bit++) {
 		msl.push_front(*bit);
 	}
+
 	auto bit = bsl.begin();
 	auto mit = msl.begin();
 	for (vec_rit rit{v.rbegin()}, ritend{v.rend()}; rit != ritend; rit++, bit++) {
@@ -292,9 +293,10 @@ BOOST_AUTO_TEST_CASE(test_set_vs_multiset_vs_btree) {
 		bs.insert(*it);
 		ms.insert(*it);
 	}
+
 	auto bit = bs.begin();
 	auto mit = ms.begin();
-		for (vec_rit rit{v.rbegin()}, ritend{v.rend()}; rit != ritend; rit++, bit++) {
+	for (vec_rit rit{v.rbegin()}, ritend{v.rend()}; rit != ritend; rit++, bit++) {
 		BOOST_CHECK(&*rit == &*bit);
 	}
 	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++, mit++) {
@@ -344,6 +346,7 @@ BOOST_AUTO_TEST_CASE(test_unordered_set_vs_unordered_multiset) {
 		mus.insert(*it);
 		mus.insert(*it_2);
 	}
+
 	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++) {
 		BOOST_CHECK(bus.count(*it) == 1);
 		BOOST_CHECK(mus.count(*it) == 2);
@@ -389,6 +392,7 @@ BOOST_AUTO_TEST_CASE(test_custom_bucket_traits) {
 	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++) {
 		fus.insert(*it);
 	}
+
 	for (vec_it it{v.begin()}, itend{v.end()}; it != itend; it++) {
 		BOOST_CHECK(fus.count(*it) == 1);
 	}
@@ -423,6 +427,7 @@ BOOST_AUTO_TEST_CASE(test_map_vs_multimap_interface) {
 	foo_map fm{v.begin(), v.end()};
 	foo_unordered_map::bucket_type buckets[100];
 	foo_unordered_map fum{v.begin(), v.end(), foo_unordered_map::bucket_traits{buckets, 100}};
+
 	for (int key = 0; key < 100; key++) {
 		BOOST_CHECK(fm.find(key) != fm.end());
 		BOOST_CHECK(fum.find(key) != fum.end());
@@ -558,6 +563,7 @@ BOOST_AUTO_TEST_CASE(test_advanced_lookup) {
 		fs.insert(*it);
 		fus.insert(*it);
 	}
+
 	for (int i = 0; i < 100; i++) {
 		auto* f = get_from_set_optimized(keys[i].c_str(), fs);
 		BOOST_CHECK(f && f->get_value() == i);
@@ -624,6 +630,7 @@ BOOST_AUTO_TEST_CASE(test_advanced_insertion) {
 	foo_set fs;
 	foo_uset::bucket_type buckets[100];
 	foo_uset fus{foo_uset::bucket_traits{buckets, 100}};
+
 	for (int i = 0; i < 100; i++) {
 		BOOST_CHECK(insert_to_set_optimized(keys[i].c_str(), i, fs));
 		BOOST_CHECK(insert_to_uset_optimized(keys[i].c_str(), i, fus));
@@ -634,6 +641,7 @@ BOOST_AUTO_TEST_CASE(test_advanced_insertion) {
 		f = get_from_uset_optimized(keys[i].c_str(), fus);
 		BOOST_CHECK(f && f->get_value() == i);
 	}
+
 	struct disposer {
 		void operator()(foo* f) {
 			delete f;
@@ -783,7 +791,9 @@ BOOST_AUTO_TEST_CASE(test_cloning_containers) {
 	fl.insert(fl.end(), v.begin(), v.end());
 	foo_list cloned_fl;
 	cloned_fl.clone_from(fl, cloner(), disposer());
+
 	BOOST_CHECK(cloned_fl == fl);
+
 	cloned_fl.clear_and_dispose(disposer());
 }
 
@@ -838,6 +848,7 @@ BOOST_AUTO_TEST_CASE(test_function_hooks) {
 	foo f;
 	foo_list fl;
 	fl.push_back(f);
+
 	BOOST_CHECK(&f == &fl.front());
 }
 
@@ -859,8 +870,10 @@ BOOST_AUTO_TEST_CASE(test_recursive_containers_with_base_hooks) {
 	foo_list fl;
 	fl.insert(fl.begin(), f);
 	fl.begin()->foo_children.insert(fl.begin()->foo_children.begin(), f_2);
+
 	BOOST_CHECK(&f == &fl.front());
 	BOOST_CHECK(&f_2 == &fl.front().foo_children.front());
+
 	fl.front().foo_children.clear();
 	fl.clear();
 }
@@ -919,8 +932,65 @@ BOOST_AUTO_TEST_CASE(test_recursive_containers_with_member_hooks) {
 	foo_list fl;
 	fl.insert(fl.begin(), f);
 	fl.begin()->foo_children.insert(fl.begin()->foo_children.begin(), f_2);
+
 	BOOST_CHECK(&f == &fl.front());
 	BOOST_CHECK(&f_2 == &fl.front().foo_children.front());
+
 	fl.front().foo_children.clear();
 	fl.clear();
+}
+
+// USING SMART POINTERS WITH CONTAINERS
+
+// OBTAINING ITERATORS FROM VALUES
+
+namespace test_obtaining_iterators_from_values_ns {
+
+struct foo {
+	int val;
+	list_member_hook<> l_hook;
+	unordered_set_member_hook<> us_hook;
+	foo(int v) : val{v} {}
+	friend bool operator==(const foo& lhs, const foo& rhs) {
+		return lhs.val == rhs.val;
+	}
+	friend bool operator!=(const foo& lhs, const foo& rhs) {
+		return lhs.val != rhs.val;
+	}
+	friend std::size_t hash_value(const foo& f) {
+		return boost::hash<int>()(f.val);
+	}
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_obtaining_iterators_from_values) {
+	TEST_MARKER();
+
+	using namespace test_obtaining_iterators_from_values_ns;
+	using namespace boost::intrusive;
+	using l_member_hook_options = member_hook<foo, list_member_hook<>, &foo::l_hook>;
+	using foo_list = list<foo, l_member_hook_options>;
+	using us_member_hook_options = member_hook<foo, unordered_set_member_hook<>, &foo::us_hook>;
+	using foo_unordered_set = unordered_set<foo, us_member_hook_options>;
+
+	std::vector<foo> v;
+	for (int i = 0; i < 100; i++) {
+		v.emplace_back(i);
+	}
+	foo_list fl;
+	fl.insert(fl.end(), v.begin(), v.end());
+	foo_unordered_set::bucket_type buckets[100];
+	foo_unordered_set fus{foo_unordered_set::bucket_traits{buckets, 100}};
+	fus.insert(v.begin(), v.end());
+
+	foo_list::iterator lit{fl.begin()};
+	for (int i = 0; i < 100; i++, lit++) {
+		BOOST_CHECK(fl.iterator_to(v[i]) == lit && fl.s_iterator_to(v[i]) == lit);
+	}
+	for (int i = 0; i < 100; i++) {
+		foo_unordered_set::iterator usit = fus.find(v[i]);
+		BOOST_CHECK(fus.iterator_to(v[i]) == usit);
+		BOOST_CHECK(*fus.local_iterator_to(v[i]) == *usit && *fus.s_local_iterator_to(v[i]) == *usit);
+	}
 }
