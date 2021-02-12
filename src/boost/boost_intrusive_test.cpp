@@ -10,6 +10,9 @@
 #include <boost/intrusive/circular_slist_algorithms.hpp>
 #include <boost/intrusive/circular_list_algorithms.hpp>
 #include <boost/intrusive/rbtree_algorithms.hpp>
+#include <boost/intrusive/pointer_traits.hpp>
+#include <boost/intrusive/link_mode.hpp>
+#include <boost/intrusive/derivation_value_traits.hpp>
 
 #include <list>
 #include <vector>
@@ -1216,3 +1219,263 @@ BOOST_AUTO_TEST_CASE(test_red_black_tree_algorithms) {
 // 5. Intrusive avl tree algorithms
 
 // 6. Intrusive treap algorithms
+
+// VALUETRAITS
+
+namespace test_value_traits_ns {
+
+namespace bi = boost::intrusive;
+
+struct legacy_value {
+	int id;
+	legacy_value* next;
+	legacy_value* prev;
+};
+
+struct legacy_node_traits {
+	using node = legacy_value;
+	using node_ptr = legacy_value*;
+	using const_node_ptr = const legacy_value*;
+	static node_ptr get_next(const_node_ptr n) {
+		return n->next;
+	}
+	static void set_next(node_ptr n, node_ptr next) {
+		n->next = next;
+	}
+	static node_ptr get_previous(const_node_ptr n) {
+		return n->prev;
+	}
+	static void set_previous(node_ptr n, node_ptr prev) {
+		n->prev = prev;
+	}
+};
+
+struct legacy_value_traits {
+	using node_traits = legacy_node_traits;
+	using node_ptr = legacy_node_traits::node_ptr;
+	using const_node_ptr = legacy_node_traits::const_node_ptr;
+	using value_type = legacy_value;
+	using pointer = legacy_value*;
+	using const_pointer = const legacy_value*;
+	static const bi::link_mode_type link_mode = bi::normal_link;
+	static node_ptr to_node_ptr(value_type& value) {
+		return node_ptr{&value};
+	}
+	static const_node_ptr to_node_ptr(const value_type& value) {
+		return const_node_ptr{&value};
+	}
+	static pointer to_value_ptr(node_ptr n) {
+		return pointer{n};
+	}
+	static const_pointer to_value_ptr(const_node_ptr n) {
+		return const_pointer{n};
+	}
+};
+
+using trivial_legacy_value_traits = bi::trivial_value_traits<legacy_node_traits, bi::normal_link>;
+
+using value_traits_option = bi::value_traits<legacy_value_traits>;
+using trivial_value_traits_option = bi::value_traits<trivial_legacy_value_traits>;
+
+using legacy_list = bi::list<legacy_value, value_traits_option>;
+using legacy_slist = bi::slist<legacy_value, value_traits_option>;
+using trivial_legacy_list = bi::list<legacy_value, trivial_value_traits_option>;
+using trivial_legacy_slist = bi::slist<legacy_value, trivial_value_traits_option>;
+
+template <typename list>
+void test_list() {
+	using vect = std::vector<legacy_value>;
+	vect lv_vec;
+	for (int i = 0; i < 100; i++) {
+		legacy_value lv;
+		lv.id = i;
+		lv_vec.push_back(lv);
+	}
+	list lv_list{lv_vec.begin(), lv_vec.end()};
+	typename vect::const_iterator vit{lv_vec.begin()}, vitend{lv_vec.end()};
+	typename list::const_iterator lit{lv_list.begin()};
+	for (; vit != vitend; vit++, lit++) {
+		BOOST_CHECK(&*vit == &*lit);
+	}
+}
+
+}
+
+BOOST_AUTO_TEST_CASE(test_trivial_value_traits) {
+	TEST_MARKER();
+	
+	using namespace test_value_traits_ns;
+
+	test_list<legacy_list>();
+	test_list<legacy_slist>();
+	test_list<trivial_legacy_list>();
+	test_list<trivial_legacy_slist>();
+}
+
+namespace test_value_traits_ns {
+	
+struct simple_node {
+	simple_node* next;
+	simple_node* prev;
+};
+
+struct base_1 {};
+
+struct base_2 {};
+
+struct value_1 : public base_1, simple_node {
+	int id;
+};
+
+struct value_2 : public base_1, base_2, simple_node {
+	float id;
+};
+
+struct simple_node_traits {
+	using node = simple_node;
+	using node_ptr = simple_node*;
+	using const_node_ptr = const simple_node*;
+	static node_ptr get_next(const_node_ptr n) {
+		return n->next;
+	}
+	static void set_next(node_ptr n, node_ptr next) {
+		n->next = next;
+	}
+	static node_ptr get_previous(const_node_ptr n) {
+		return n->prev;
+	}
+	static void set_previous(node_ptr n, node_ptr prev) {
+		n->prev = prev;
+	}
+};
+
+template <typename value_t>
+struct simple_value_traits {
+	using node_traits = simple_node_traits;
+	using node_ptr = simple_node_traits::node_ptr;
+	using const_node_ptr = simple_node_traits::const_node_ptr;
+	using value_type = value_t;
+	using pointer = value_t*;
+	using const_pointer = const value_t*;
+	static const bi::link_mode_type link_mode = bi::normal_link;
+	static node_ptr to_node_ptr(value_type& value) {
+		return node_ptr{&value};
+	}
+	static const_node_ptr to_node_ptr(const value_type& value) {
+		return const_node_ptr{&value};
+	}
+	static pointer to_value_ptr(node_ptr n) {
+		return static_cast<pointer>(n);
+	}
+	static const_pointer to_value_ptr(const_node_ptr n) {
+		return static_cast<const_pointer>(n);
+	}
+};
+
+struct derivation_value_1 : public base_1, simple_node {
+	int id;
+	simple_node n;
+};
+
+struct derivation_value_2 : public base_1, base_2, simple_node {
+	float id;
+	simple_node n;
+};
+
+using derivation_simple_value_traits_1 = bi::derivation_value_traits<derivation_value_1, simple_node_traits, bi::normal_link>;
+using derivation_simple_value_traits_2 = bi::derivation_value_traits<derivation_value_2, simple_node_traits, bi::normal_link>;
+
+using simple_value_traits_option_1 = bi::value_traits<simple_value_traits<value_1>>;
+using simple_value_traits_option_2 = bi::value_traits<simple_value_traits<value_2>>;
+using derivation_simple_value_traits_option_1 = bi::value_traits<derivation_simple_value_traits_1>;
+using derivation_simple_value_traits_option_2 = bi::value_traits<derivation_simple_value_traits_2>;
+
+using simple_list_1 = bi::list<value_1, simple_value_traits_option_1>;
+using simple_list_2 = bi::list<value_2, simple_value_traits_option_2>;
+using derivation_simple_list_1 = bi::list<derivation_value_1, derivation_simple_value_traits_option_1>;
+using derivation_simple_list_2 = bi::list<derivation_value_2, derivation_simple_value_traits_option_2>;
+
+}
+
+BOOST_AUTO_TEST_CASE(test_derivation_value_traits) {
+	TEST_MARKER();
+
+	using namespace test_value_traits_ns;
+
+	value_1 v_1;
+	simple_list_1 sl_1;
+	sl_1.push_back(v_1);
+	BOOST_CHECK(&v_1 == &sl_1.front());
+
+	derivation_value_1 dv_1;
+	derivation_simple_list_1 dsl_1;
+	dsl_1.push_back(dv_1);
+	BOOST_CHECK(&dv_1 == &dsl_1.front());
+
+	value_2 v_2;
+	simple_list_2 sl_2;
+	sl_2.push_back(v_2);
+	BOOST_CHECK(&v_2 == &sl_2.front());
+
+	derivation_value_2 dv_2;
+	derivation_simple_list_2 dsl_2;
+	dsl_2.push_back(dv_2);
+	BOOST_CHECK(&dv_2 == &dsl_2.front());
+}
+
+namespace test_value_traits_ns {
+
+using id_t = int;
+
+struct stateful_value_traits {
+	using node_traits = bi::list_node_traits<void*>;
+	using node = node_traits::node;
+	using node_ptr = node*;
+	using const_node_ptr = const node*;
+	using value_type = id_t;
+	using pointer = id_t*;
+	using const_pointer = const id_t*;
+	static const bi::link_mode_type link_mode = bi::normal_link;
+	stateful_value_traits(pointer i, node_ptr n) : ids{i}, nodes{n} {}
+	node_ptr to_node_ptr(value_type& value) const {
+		return this->nodes + (&value - this->ids);
+	}
+	const_node_ptr to_node_ptr(const value_type& value) const {
+		return this->nodes + (&value - this->ids);
+	}
+	pointer to_value_ptr(node_ptr n) const {
+		return this->ids + (n - this->nodes);
+	}
+	const_pointer to_value_ptr(const_node_ptr n) const {
+		return this->ids + (n - this->nodes);
+	}
+private:
+	pointer ids;
+	node_ptr nodes;
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_stateful_value_traits) {
+	TEST_MARKER();
+
+	using namespace test_value_traits_ns;
+	using namespace boost::intrusive;
+	using list = list<id_t, value_traits<stateful_value_traits>>;
+
+	id_t ids[100];
+	list_node_traits<void*>::node nodes[100];
+	for (int i = 0; i < 100; i++) {
+		ids[i] = i;
+	}
+	list l{stateful_value_traits{ids, nodes}};
+	for (auto& id : ids) {
+		l.push_back(id);
+	}
+
+	list::const_iterator it{l.cbegin()}, itend{l.cend()};
+	id_t* id{&ids[0]};
+	for (; it != itend; it++, id++) {
+		BOOST_CHECK(&*it == &*id);
+	}
+}
