@@ -7,6 +7,9 @@
 #include <boost/intrusive/unordered_set.hpp>
 #include <boost/intrusive/parent_from_member.hpp>
 #include <boost/intrusive/any_hook.hpp>
+#include <boost/intrusive/circular_slist_algorithms.hpp>
+#include <boost/intrusive/circular_list_algorithms.hpp>
+#include <boost/intrusive/rbtree_algorithms.hpp>
 
 #include <list>
 #include <vector>
@@ -1033,3 +1036,183 @@ BOOST_AUTO_TEST_CASE(test_any_hooks) {
 		BOOST_CHECK(&*vit == &*lit);
 	}
 }
+
+// NODETRAITS
+
+// 1. Intrusive singly linked list algorithms
+
+namespace test_circular_slist_algorithms_ns {
+
+struct my_node {
+	my_node* next;
+};
+
+struct my_slist_node_traits {
+	using node = my_node;
+	using node_ptr = my_node*;
+	using const_node_ptr = const my_node*;
+	static node_ptr get_next(const_node_ptr n) {
+		return n->next;
+	}
+	static void set_next(node_ptr n, node_ptr next) {
+		n->next = next;
+	}
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_circular_slist_algorithms) {
+	TEST_MARKER();
+
+	using namespace test_circular_slist_algorithms_ns;
+	using algo = boost::intrusive::circular_slist_algorithms<my_slist_node_traits>;
+
+	my_node node_1, node_2, node_3;
+	algo::init_header(&node_1);
+	BOOST_CHECK(algo::count(&node_1) == 1);
+	algo::link_after(&node_1, &node_2);
+	BOOST_CHECK(algo::count(&node_1) == 2);
+	BOOST_CHECK(&*algo::get_previous_node(&node_1) == &node_2);
+	BOOST_CHECK(&*algo::get_previous_node(&node_2) == &node_1);
+	algo::link_after(&node_1, &node_3);
+	BOOST_CHECK(algo::count(&node_1) == 3);
+	BOOST_CHECK(&*algo::get_previous_node(&node_1) == &node_2);
+	BOOST_CHECK(&*algo::get_previous_node(&node_2) == &node_3);
+	BOOST_CHECK(&*algo::get_previous_node(&node_3) == &node_1);
+	algo::unlink_after(&node_1);
+	BOOST_CHECK(algo::count(&node_1) == 2);
+	algo::unlink(&node_2);
+	BOOST_CHECK(algo::count(&node_1) == 1);
+}
+
+// 2. Intrusive doubly linked list algorithms
+
+namespace test_circular_list_algorithms_ns {
+
+struct my_node {
+	my_node* next;
+	my_node* prev;
+};
+
+struct my_list_node_traits {
+	using node = my_node;
+	using node_ptr = my_node*;
+	using const_node_ptr = const my_node*;
+	static node_ptr get_next(const_node_ptr n) {
+		return n->next;
+	}
+	static void set_next(node_ptr n, node_ptr next) {
+		n->next = next;
+	}
+	static node_ptr get_previous(const_node_ptr n) {
+		return n->prev;
+	}
+	static void set_previous(node_ptr n, node_ptr prev) {
+		n->prev = prev;
+	}
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_circular_list_algorithms) {
+	TEST_MARKER();
+
+	using namespace test_circular_list_algorithms_ns;
+	using algo = boost::intrusive::circular_list_algorithms<my_list_node_traits>;
+
+	my_node node_1, node_2, node_3;
+	algo::init_header(&node_1);
+	BOOST_CHECK(algo::count(&node_1) == 1);
+	algo::link_before(&node_1, &node_2);
+	BOOST_CHECK(algo::count(&node_1) == 2);
+	algo::link_after(&node_2, &node_3);
+	BOOST_CHECK(algo::count(&node_1) == 3);
+	algo::unlink(&node_3);
+	BOOST_CHECK(algo::count(&node_1) == 2);
+	algo::unlink(&node_2);
+	BOOST_CHECK(algo::count(&node_1) == 1);
+	algo::unlink(&node_1);
+	BOOST_CHECK(algo::count(&node_1) == 1);
+}
+
+// 3. Intrusive red-black tree algorithms
+
+namespace test_red_black_tree_algorithms_ns {
+
+struct my_node {
+	my_node* parent;
+	my_node* left;
+	my_node* right;
+	int color;
+	int val;
+	my_node(int v) : val{v} {}
+};
+
+struct my_rbtree_node_traits {
+	using node = my_node;
+	using node_ptr = my_node*;
+	using const_node_ptr = const my_node*;
+	using color = int;
+	static node_ptr get_parent(const_node_ptr n) {
+		return n->parent;
+	}
+	static void set_parent(node_ptr n, node_ptr parent) {
+		n->parent = parent;
+	}
+	static node_ptr get_left(const_node_ptr n) {
+		return n->left;
+	}
+	static void set_left(node_ptr n, node_ptr left) {
+		n->left = left;
+	}
+	static node_ptr get_right(const_node_ptr n) {
+		return n->right;
+	}
+	static void set_right(node_ptr n, node_ptr right) {
+		n->right = right;
+	}
+	static color get_color(const_node_ptr n) {
+		return n->color;
+	}
+	static void set_color(node_ptr n, color c) {
+		n->color = c;
+	}
+	static color black() {
+		return color{0};
+	}
+	static color red() {
+		return color{1};
+	}
+};
+
+struct node_ptr_compare {
+	bool operator()(const my_node* lhs, const my_node* rhs) {
+		return lhs->val < rhs->val;
+	}
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_red_black_tree_algorithms) {
+	TEST_MARKER();
+
+	using namespace test_red_black_tree_algorithms_ns;
+	using algo = boost::intrusive::rbtree_algorithms<my_rbtree_node_traits>;
+
+	my_node node_1{1}, node_2{2}, node_3{3};
+	algo::init_header(&node_1);
+	algo::insert_equal_upper_bound(&node_1, &node_2, node_ptr_compare());
+	algo::insert_equal_lower_bound(&node_1, &node_3, node_ptr_compare());
+	
+	BOOST_CHECK(node_1.left == &node_2);
+	BOOST_CHECK(algo::next_node(node_1.left) == &node_3);
+
+	algo::unlink(&node_2);
+	algo::erase(&node_1, &node_3);
+}
+
+// 4. Intrusive splay tree algorithms
+
+// 5. Intrusive avl tree algorithms
+
+// 6. Intrusive treap algorithms
