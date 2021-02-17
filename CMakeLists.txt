@@ -10,23 +10,36 @@ include_directories(${Boost_INCLUDE_DIR})
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
 
-# STL
+# 1. TECHNIQUES
 
-add_executable(stl_algorithms_test src/stl/stl_algorithms_test.cpp)
+# 1.1. TEMPLATE METAPROGRAMMING (TMP)
 
-add_executable(cpp17_test src/stl/cpp17_test.cpp)
+# 1.1.1. MODERN C++ DESIGN: GENERIC PROGRAMMING AND DESIGN PATTERNS APPLIED
+# Link: https://g.co/kgs/NaxxkE
 
-# BOOST
+add_executable(from_modern_cpp_design src/techniques/tmp/from_modern_cpp_design)
 
-add_executable(boost_intrusive_test src/boost/boost_intrusive_test.cpp)
+# 2. LIBS
 
-# OTHERS
+# 2.1. STL
 
-add_executable(ranges_test src/others/ranges_test.cpp)
+add_executable(stl_algorithms_test src/libs/stl/stl_algorithms_test.cpp)
+
+add_executable(cpp17_test src/libs/stl/cpp17_test.cpp)
+
+# 2.2. BOOST
+
+add_executable(boost_intrusive_test src/libs/boost/boost_intrusive_test.cpp)
+
+# 2.3. OTHERS
+
+# 2.3.1. RANGE-V3
+add_executable(ranges_test src/libs/others/ranges_test.cpp)
 target_include_directories(ranges_test PRIVATE "${CMAKE_SOURCE_DIR}/modules/range-v3/include")
 target_link_directories(ranges_test INTERFACE range-v3)
 
-add_executable(toml_test src/others/toml_test.cpp)
+# 2.3.2. TINYTOML
+add_executable(toml_test src/libs/others/toml_test.cpp)
 target_include_directories(toml_test PRIVATE "${CMAKE_SOURCE_DIR}/modules/tinytoml/include")
 
 add_subdirectory(modules)
