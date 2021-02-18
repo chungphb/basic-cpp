@@ -169,3 +169,42 @@ BOOST_AUTO_TEST_CASE(test_passing_strong_types_by_reference) {
 	BOOST_CHECK(val_1 == 2);
 	BOOST_CHECK(val_2 == 2);
 }
+
+// Strong lambdas
+// Link: https://www.fluentcpp.com/2017/02/20/strong-lambdas-strong-generic-types/
+
+namespace test_strong_lambdas_ns {
+
+using namespace test_strong_types_ns;
+
+template <typename function>
+using strong_lambda_1 = strong_type<function, struct strong_lambda_1_parameter>;
+
+template <typename function>
+using strong_lambda_2 = strong_type<function, struct strong_lambda_2_parameter>;
+
+// Since we don't know exactly what the type of the lambda we pass to strong_type is, we need a function to deduce it   
+template <template <typename t> class generic_type_name, typename t>
+generic_type_name<t> make_named(const t& val) {
+	return generic_type_name<t>{val};
+}
+
+template <typename function_1, typename function_2>
+void f(strong_lambda_1<function_1> f_1, strong_lambda_2<function_2> f_2) {
+	f_1.get()();
+	f_2.get()();
+}
+
+}
+
+BOOST_AUTO_TEST_CASE(test_strong_lambdas) {
+	TEST_MARKER();
+
+	using namespace test_strong_lambdas_ns;
+
+	f(make_named<strong_lambda_1>([] {
+		std::cout << "Lambda 1\n";
+	}), make_named<strong_lambda_2>([] {
+		std::cout << "Lambda 2\n";
+	}));
+}
