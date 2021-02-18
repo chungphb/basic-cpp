@@ -208,3 +208,69 @@ BOOST_AUTO_TEST_CASE(test_strong_lambdas) {
 		std::cout << "Lambda 2\n";
 	}));
 }
+
+// Performance
+// Link: https://www.fluentcpp.com/2017/05/05/news-strong-types-are-free/
+
+// Inheriting the underlying type's functionality
+// Link: https://www.fluentcpp.com/2017/05/23/strong-types-inheriting-functionalities-from-underlying/
+
+namespace test_inheriting_the_underlying_types_functionality_ns {
+
+template <typename t, typename parameter, template<typename> class... funcs>
+struct strong_type : funcs<strong_type<t, parameter, funcs...>>... {
+public:
+	explicit strong_type(const t& v) : val{v} {}
+	t& get() {
+		return val;
+	}
+	const t& get() const {
+		return val;
+	}
+private:
+	t val;
+};
+
+template <typename t, template <typename> class crtpType>
+struct crtp {
+	t& underlying() {
+		return static_cast<t&>(*this);
+	}
+	const t& underlying() const {
+		return static_cast<const t&>(*this);
+	}
+};
+
+template <typename t>
+struct addable : crtp<t, addable> {
+	t operator+(const t& other) {
+		return t(this->underlying().get() + other.get());
+	}
+};
+
+template <typename t>
+struct printable : crtp<t, printable> {
+	void print(std::ostream& os) const {
+		os << this->underlying().get();
+	}
+};
+
+template <typename t, typename parameter, template<typename> class... funcs>
+std::ostream& operator<<(std::ostream& os, const strong_type<t, parameter, funcs...>& obj) {
+	obj.print(os);
+	return os;
+}
+
+}
+
+BOOST_AUTO_TEST_CASE(test_inheriting_the_underlying_types_functionality) {
+	TEST_MARKER();
+
+	using namespace test_inheriting_the_underlying_types_functionality_ns;
+	using length_t = strong_type<double, struct length_parameter, addable, printable>;
+
+	length_t l_1{1};
+	length_t l_2{1};
+	length_t l = l_1 + l_2;
+	std::cout << l_1 << " + " << l_2 << " = " << l << "\n";
+}
