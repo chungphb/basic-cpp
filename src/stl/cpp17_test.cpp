@@ -5,6 +5,8 @@
 #include <random>
 #include <vector>
 #include <type_traits>
+#include <functional>
+#include <ratio>
 
 #include "test_util.h"
 
@@ -212,10 +214,10 @@ BOOST_AUTO_TEST_CASE(test_strong_lambdas) {
 // Performance
 // Link: https://www.fluentcpp.com/2017/05/05/news-strong-types-are-free/
 
-// Inheriting the underlying type's functionality
+// Inheriting the underlying type's functionalities
 // Link: https://www.fluentcpp.com/2017/05/23/strong-types-inheriting-functionalities-from-underlying/
 
-namespace test_inheriting_the_underlying_types_functionality_ns {
+namespace test_inheriting_the_underlying_types_functionalities_ns {
 
 template <typename t, typename parameter, template<typename> class... funcs>
 struct strong_type : funcs<strong_type<t, parameter, funcs...>>... {
@@ -263,14 +265,110 @@ std::ostream& operator<<(std::ostream& os, const strong_type<t, parameter, funcs
 
 }
 
-BOOST_AUTO_TEST_CASE(test_inheriting_the_underlying_types_functionality) {
+BOOST_AUTO_TEST_CASE(test_inheriting_the_underlying_types_functionalities) {
 	TEST_MARKER();
 
-	using namespace test_inheriting_the_underlying_types_functionality_ns;
+	using namespace test_inheriting_the_underlying_types_functionalities_ns;
 	using length_t = strong_type<double, struct length_parameter, addable, printable>;
 
 	length_t l_1{1};
 	length_t l_2{1};
 	length_t l = l_1 + l_2;
 	std::cout << l_1 << " + " << l_2 << " = " << l << "\n";
+}
+
+// Strong types conversions
+// Link: https://www.fluentcpp.com/2017/05/26/strong-types-conversions/
+
+namespace test_strong_types_conversions_ns {
+
+template <typename t, t(*from)(t), t(*to)(t)>
+struct convert {
+	static t convertFrom(t v) {
+		return from(v);
+	}
+	static t convertTo(t v) {
+		return to(v);
+	}
+};
+
+template <typename t, typename parameter, typename converter, template<typename> class... funcs>
+struct strong_type_impl : funcs<strong_type_impl<t, parameter, converter, funcs...>>... {
+public:
+	explicit strong_type_impl(const t& v) : val{v} {}
+	template<typename t_ = t>
+	explicit strong_type_impl(t&& v, typename std::enable_if<!std::is_reference<t_>{}, std::nullptr_t>::type = nullptr) : val{std::move(v)} {}
+	t& get() {
+		return val;
+	}
+	const t& get() const {
+		return val;
+	}
+	using underlying_type = t;
+	template <typename converter_2>
+	operator strong_type_impl<t, parameter, converter_2, funcs...>() const {
+		return strong_type_impl<t, parameter, converter_2, funcs...>(converter_2::convertFrom(converter::convertTo(get())));
+	}
+	template <t(*f)(t), t(*g)(t)>
+	struct compose {
+		static t func(t v) {
+			return f(g(v));
+		}
+	};
+	template <typename converter_1, typename converter_2>
+	using compose_converter = convert<t, compose<converter_1::convertFrom, converter_2::convertFrom>::func, compose<converter_1::convertTo, converter_2::convertTo>::func>;
+	template <typename converter_2>
+	using get_convertible = strong_type_impl<t, parameter, compose_converter<converter, converter_2>, funcs...>;
+private:
+	t val;
+};
+
+template <typename t, typename ratio>
+struct convert_with_ratio {
+	static t convertFrom(t v) {
+		return v * ratio::den / ratio::num;
+	}
+	static t convertTo(t v) {
+		return v * ratio::num / ratio::den;
+	}
+};
+
+template <typename t, typename parameter, template <typename> class... funcs>
+using strong_type = strong_type_impl<t, parameter, convert_with_ratio<t, std::ratio<1>>, funcs...>;
+
+template <typename strong_type, typename ratio>
+using multiple_of = typename strong_type::template get_convertible<convert_with_ratio<typename strong_type::underlying_type, ratio>>;
+
+template <typename strong_type, typename converter>
+using convertible_to = typename strong_type::template get_convertible<converter>;
+
+template <template <typename t> class strong_type, typename t>
+strong_type<t> make_named(const t& v) {
+	return strong_type<t>(v);
+}
+
+namespace ns = test_inheriting_the_underlying_types_functionalities_ns;
+
+using meter = strong_type<double, struct meter_tag, ns::addable>;
+meter operator"" _meter(unsigned long long v) {
+	return meter(v);
+};
+
+using kilometer = multiple_of<meter, std::kilo>;
+kilometer operator"" _kilometer(unsigned long long v) {
+	return kilometer(v);
+};
+
+void print(meter m) {
+	std::cout << m.get() << "m\n";
+}
+
+}
+
+BOOST_AUTO_TEST_CASE(test_strong_types_conversions) {
+	TEST_MARKER();
+
+	using namespace test_strong_types_conversions_ns;
+	
+	print(1_kilometer + 500_meter);
 }
