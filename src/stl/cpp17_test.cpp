@@ -295,6 +295,7 @@ struct convert {
 template <typename t, typename parameter, typename converter, template<typename> class... funcs>
 struct strong_type_impl : funcs<strong_type_impl<t, parameter, converter, funcs...>>... {
 public:
+	strong_type_impl() = default;
 	explicit strong_type_impl(const t& v) : val{v} {}
 	template<typename t_ = t>
 	explicit strong_type_impl(t&& v, typename std::enable_if<!std::is_reference<t_>{}, std::nullptr_t>::type = nullptr) : val{std::move(v)} {}
@@ -371,4 +372,62 @@ BOOST_AUTO_TEST_CASE(test_strong_types_conversions) {
 	using namespace test_strong_types_conversions_ns;
 	
 	print(1_kilometer + 500_meter);
+}
+
+// Implementing a hash function for strong types
+// Link: https://www.fluentcpp.com/2017/05/30/implementing-a-hash-function-for-strong-types/
+
+namespace std {
+	
+namespace ns = test_strong_types_conversions_ns;
+
+template <typename t, typename parameter, typename converter, template<typename> class... funcs>
+struct hash<ns::strong_type_impl<t, parameter, converter, funcs...>> {
+	using strong_type = ns::strong_type_impl<t, parameter, converter, funcs...>;
+	using check_if_hashable = typename std::enable_if<strong_type::is_hashable, void>::type;
+	size_t operator()(const strong_type& val) const {
+		return std::hash<t>()(val.get());
+	}
+};
+
+}
+
+namespace test_implementing_a_hash_function_for_strong_types_ns {
+
+namespace ns = test_strong_types_conversions_ns;
+
+template <typename t, template <typename> class crtpType>
+struct crtp {
+	t& underlying() {
+		return static_cast<t&>(*this);
+	}
+	const t& underlying() const {
+		return static_cast<const t&>(*this);
+	}
+};
+
+template <typename t>
+struct comparable : public crtp<t, comparable> {
+	friend bool operator==(const comparable<t>& lhs, const t& rhs) {
+		return lhs.underlying().get() == rhs.get();
+	}
+};
+
+template <typename t>
+struct hashable {
+	static constexpr bool is_hashable = true;
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_implementing_a_hash_function_for_strong_types) {
+	TEST_MARKER();
+
+	using namespace test_implementing_a_hash_function_for_strong_types_ns;
+	using namespace test_strong_types_conversions_ns;
+
+	using key_t = strong_type<int, struct key_paramater, comparable, hashable>;
+	using value_t = strong_type<int, struct value_parameter>;
+	std::unordered_map<key_t, value_t> map{{key_t{1}, value_t{1}}, {key_t{2}, value_t{2}}};
+	std::cout << map[key_t{1}].get() << "\n";
 }
