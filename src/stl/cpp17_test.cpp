@@ -431,3 +431,95 @@ BOOST_AUTO_TEST_CASE(test_implementing_a_hash_function_for_strong_types) {
 	std::unordered_map<key_t, value_t> map{{key_t{1}, value_t{1}}, {key_t{2}, value_t{2}}};
 	std::cout << map[key_t{1}].get() << "\n";
 }
+
+// Calling functions and methods on strong types
+// Link: https://www.fluentcpp.com/2017/11/07/calling-functions-methods-strong-types/
+
+namespace test_calling_functions_and_methods_on_strong_types_ns {
+
+namespace ns = test_strong_types_conversions_ns;
+
+template <typename t, template <typename> class crtpType>
+struct crtp {
+	t& underlying() {
+		return static_cast<t&>(*this);
+	}
+	const t& underlying() const {
+		return static_cast<const t&>(*this);
+	}
+};
+
+// Function callable
+
+template <typename strong_type>
+struct function_callable;
+
+template <typename t, typename parameter, typename converter, template<typename> class... funcs>
+struct function_callable<ns::strong_type_impl<t, parameter, converter, funcs...>> : public crtp<ns::strong_type_impl<t, parameter, converter, funcs...>, function_callable> {
+	operator t&() {
+		return this->underlying().get();
+	}
+
+	operator const t&() const {
+		return this->underlying().get();
+	}
+};
+
+// Method callbale
+
+template <typename strong_type>
+struct method_callable;
+
+template <typename t, typename parameter, typename converter, template<typename> class... funcs>
+struct method_callable<ns::strong_type_impl<t, parameter, converter, funcs...>> : public crtp<ns::strong_type_impl<t, parameter, converter, funcs...>, method_callable> {
+	t* operator->() {
+		return std::addressof(this->underlying().get());
+	}
+
+	const t* operator->() const {
+		return std::addressof(this->underlying().get());
+	}
+};
+
+// Callable
+
+template <typename strong_type>
+struct callable : function_callable<strong_type>, method_callable<strong_type> {};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_calling_functions_and_methods_on_strong_types) {
+	TEST_MARKER();
+
+	using namespace test_calling_functions_and_methods_on_strong_types_ns;
+	using namespace test_strong_types_conversions_ns;
+
+	// Test calling functions
+
+	using id_t = strong_type<int, struct id_tag, function_callable>;
+	auto incr = [](int& val) {
+		val++;
+	};
+	auto func = [&incr](id_t& id) {
+		incr(id);
+		std::cout << id << "\n";
+	};
+	id_t id{0};
+	func(id);
+
+	// Test calling methods
+
+	struct foo {
+	public:
+		foo(int v) : val{v} {}
+		void func() {
+			std::cout << val << "\n";
+		}
+	private:
+		int val;
+	};
+	using strong_foo = strong_type<foo, struct strong_foo_tag, method_callable>;
+	foo f{1};
+	strong_foo sf{f};
+	sf->func();
+}
