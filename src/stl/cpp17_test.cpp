@@ -523,3 +523,49 @@ BOOST_AUTO_TEST_CASE(test_calling_functions_and_methods_on_strong_types) {
 	strong_foo sf{f};
 	sf->func();
 }
+
+// Strong types implicit conversions
+// Link: https://www.fluentcpp.com/2018/01/05/making-strong-types-implicitly-convertible/
+
+namespace test_strong_types_implicit_conversions_ns {
+
+namespace ns = test_strong_types_conversions_ns;
+
+template <typename t, template <typename> class crtpType>
+struct crtp {
+	t& underlying() {
+		return static_cast<t&>(*this);
+	}
+	const t& underlying() const {
+		return static_cast<const t&>(*this);
+	}
+};
+
+template <typename dst_t>
+struct implicitly_convertible_to {
+	template <typename src_t>
+	struct impl : crtp<src_t, impl> {
+		operator dst_t() const {
+			return this->underlying().get();
+		}
+	};
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_strong_types_implicit_conversions) {
+	TEST_MARKER();
+
+	using namespace test_strong_types_implicit_conversions_ns;
+	using namespace test_strong_types_conversions_ns;
+
+	using id_t = strong_type<int, struct id_tag, implicitly_convertible_to<long>::impl>;
+	auto print = [](long val) {
+		std::cout << val << "\n";
+	};
+	auto func = [&print](id_t& id) {
+		print(id);
+	};
+	id_t id{1};
+	func(id);
+}
