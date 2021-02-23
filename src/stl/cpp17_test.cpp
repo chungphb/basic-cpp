@@ -569,3 +569,85 @@ BOOST_AUTO_TEST_CASE(test_strong_types_implicit_conversions) {
 	id_t id{1};
 	func(id);
 }
+
+// CRTP (CURIOUSLY RECURRING TEMPLATE PATTERN)
+
+// Example
+// Link: https://www.fluentcpp.com/2017/05/12/curiously-recurring-template-pattern/
+
+namespace test_crtp_example_ns {
+
+template <typename t>
+struct base {
+public:
+	void func() {
+		std::cout << "Hello from base!\n";
+		t& derived_obj = static_cast<t&>(*this);
+		derived_obj.func_2();
+	}
+private:
+	// Prevents two classes deriving from the same base crtp class
+	base() {}
+	friend t;
+};
+
+struct derived : public base<derived> {
+public:
+	void func_2() {
+		std::cout << "Hello from derived!\n";
+	}
+};
+
+// struct derived_2 : public base<derived> {}; /// Failed
+
+}
+
+BOOST_AUTO_TEST_CASE(test_crtp_example) {
+	TEST_MARKER();
+	using namespace test_crtp_example_ns;
+	derived derived_obj;
+	derived_obj.func();
+}
+
+// Usage
+// Link: https://www.fluentcpp.com/2017/05/16/what-the-crtp-brings-to-code/
+
+namespace test_crtp_usage_ns {
+	
+template <typename t>
+struct addable {
+	t operator+(t other) {
+		t& underlying = static_cast<t&>(*this);
+		return underlying.get_value() + other.get_value();
+	}
+};
+
+template <typename t>
+struct printable {
+	void print() {
+		t& underlying = static_cast<t&>(*this);
+		std::cout << underlying.get_value() << "\n";
+	}
+};
+
+struct foo : public addable<foo>, printable<foo> {
+	foo(double v) : val{v} {}
+	double get_value() {
+		return val;
+	}
+	void set_value(double v) {
+		val = v;
+	}
+private:
+	double val;
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_crtp_usage) {
+	TEST_MARKER();
+	using namespace test_crtp_usage_ns;
+	foo f_1{1}, f_2{2};
+	foo f = f_1 + f_2;
+	f.print();
+}
