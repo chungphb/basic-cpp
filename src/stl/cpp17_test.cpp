@@ -651,3 +651,71 @@ BOOST_AUTO_TEST_CASE(test_crtp_usage) {
 	foo f = f_1 + f_2;
 	f.print();
 }
+
+// Implementation
+// Link: https://www.fluentcpp.com/2017/05/19/crtp-helper/
+
+namespace test_crtp_implementation_ns {
+
+template <typename t, template<typename> class crtp_type>
+struct crtp {
+public:
+	t& underlying() {
+		return static_cast<t&>(*this);
+	}
+	const t& underlying() const {
+		return static_cast<const t&>(*this);
+	}
+private:
+	crtp() {}
+	friend crtp_type<t>;
+};
+
+template <typename t>
+struct addable : crtp<t, addable> {
+public:
+	t operator+(const t& other) {
+		return t(this->underlying().get_value() + other.get_value());
+	}
+private:
+	addable() {}
+	friend t;
+};
+
+template <typename t>
+struct printable : crtp<t, printable> {
+public:
+	void print() {
+		std::cout << this->underlying().get_value() << "\n";
+	}
+private:
+	printable() {}
+	friend t;
+};
+
+struct foo : public addable<foo>, public printable<foo> {
+public:
+	foo() = default;
+	foo(double v) : val{v} {}
+	double& get_value() {
+		return val;
+	}
+	const double& get_value() const {
+		return val;
+	}
+	void set_value(double v) {
+		val = v;
+	}
+private:
+	double val;
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_crtp_implementation) {
+	TEST_MARKER();
+	using namespace test_crtp_implementation_ns;
+	foo f_1{1}, f_2{2};
+	foo f = f_1 + f_2;
+	f.print();
+}
