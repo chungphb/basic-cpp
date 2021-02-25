@@ -719,3 +719,35 @@ BOOST_AUTO_TEST_CASE(test_crtp_implementation) {
 	foo f = f_1 + f_2;
 	f.print();
 }
+
+// SFINAE (SUBSTITUTION FAILURE IS NOT AN ERROR)
+
+// Example & Usage
+// Link: https://www.fluentcpp.com/2018/05/15/make-sfinae-pretty-1-what-value-sfinae-brings-to-code/
+
+namespace test_sfinae_usage_ns {
+
+template <typename t>
+struct foo {
+public:
+	void func(const t&) {
+		std::cout << "lvalue\n";
+	}
+	template <typename t_ = t>
+	void func(t&&, typename std::enable_if<!std::is_reference<t_>{}, std::nullptr_t>::type = nullptr) {
+		std::cout << "rvalue\n";
+	}
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_sfinae_usage) {
+	TEST_MARKER();
+	using namespace test_sfinae_usage_ns;
+	foo<int> f;
+	int val = 1;
+	f.func(val);
+	f.func(1);
+	foo<int&> f_ref;
+	f_ref.func(val);
+}
