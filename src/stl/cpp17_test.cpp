@@ -751,3 +751,35 @@ BOOST_AUTO_TEST_CASE(test_sfinae_usage) {
 	foo<int&> f_ref;
 	f_ref.func(val);
 }
+
+// Implementation
+// Link: https://www.fluentcpp.com/2018/05/18/make-sfinae-pretty-2-hidden-beauty-sfinae/
+
+namespace test_sfinae_implementation_ns {
+
+template <typename t>
+using is_not_reference = std::enable_if_t<!std::is_reference_v<t>>;
+
+template <typename t>
+struct foo {
+public:
+	void func(const t&) {
+		std::cout << "lvalue\n";
+	}
+	template <typename t_ = t, typename = is_not_reference<t_>>
+	void func(t&&) {
+		std::cout << "rvalue\n";
+	}
+};
+}
+
+BOOST_AUTO_TEST_CASE(test_sfinae_implementation) {
+	TEST_MARKER();
+	using namespace test_sfinae_implementation_ns;
+	foo<int> f;
+	int val = 1;
+	f.func(val);
+	f.func(1);
+	foo<int&> f_ref;
+	f_ref.func(val);
+}
