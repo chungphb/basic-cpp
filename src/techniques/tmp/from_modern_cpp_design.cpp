@@ -7,6 +7,10 @@ void print(std::string_view str) {
 	std::cout << str << "\n";
 }
 
+void print(long val) {
+	std::cout << val << "\n";
+}
+
 // 1. POLICY-BASED CLASS DESIGN
 
 // 1.1. GENERAL FORM
@@ -265,4 +269,279 @@ BOOST_AUTO_TEST_CASE(test_compatible_and_incompatible_policies) {
 	my_host_1 host_1;
 	my_host_2 host_2{host_1}; // legal conversion
 	// my_host_1 host_3{host_2}; /// illegal conversion
+}
+
+// 2. TECHNIQUES
+
+// 2.1. COMPILE-TIME ASSERTIONS
+
+namespace test_techniques_ns {
+
+template<bool> struct compile_time_checker {
+	compile_time_checker(...);
+};
+
+template<> struct compile_time_checker<false> {};
+
+#define STATIC_CHECK(expr, msg) \
+{ \
+	class ERROR_##msg {}; \
+	(void)sizeof(compile_time_checker<expr>(ERROR_##msg{})); \
+}
+
+}
+
+BOOST_AUTO_TEST_CASE(test_compile_time_assertions) {
+	TEST_MARKER();
+
+	using namespace test_techniques_ns;
+
+	STATIC_CHECK(1 + 1 == 2, WRONG_RESULT);
+	// STATIC_CHECK(1 + 1 == 3, WRONG_RESULT);
+}
+
+// 2.2. PARTIAL TEMPLATE SPECIALIZATION
+
+namespace test_techniques_ns {
+
+template <class t, class u>
+struct foo {
+	void fun() {
+		print("foo<t, u>");
+	}
+};
+
+struct t_1 {};
+
+struct t_2 {};
+
+struct u_1 {};
+
+struct u_2 {};
+ 
+template <>
+struct foo<t_1, u_1> {
+	void fun() {
+		print("foo<t_1, u_1>");
+	}
+};
+ 
+template <class t>
+struct foo<t, u_1> {
+	void fun() {
+		print("foo<t, u_1>");
+	}
+};
+
+struct tt_a {};
+
+struct tt_b {};
+
+template <class tt>
+struct t_3 {};
+
+template <class tt>
+struct foo<t_3<tt>, u_1> {
+	void fun() {
+		print("foo<t_3, u_1>");
+	}
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_partial_template_specialization) {
+	TEST_MARKER();
+
+	using namespace test_techniques_ns;
+
+	foo<t_1, u_1> f_11;
+	f_11.fun();
+	foo<t_1, u_2> f_12;
+	f_12.fun();
+
+	foo<t_2, u_1> f_21;
+	f_21.fun();
+	foo<t_2, u_2> f_22;
+	f_22.fun();
+
+	foo<t_3<tt_a>, u_1> f_3a1;
+	f_3a1.fun();
+	foo<t_3<tt_a>, u_2> f_3a2;
+	f_3a2.fun();
+	foo<t_3<tt_b>, u_1> f_3b1;
+	f_3b1.fun();
+	foo<t_3<tt_b>, u_2> f_3b2;
+	f_3b2.fun();
+}
+
+// 2.3. LOCAL CLASSES
+
+namespace test_techniques_ns {
+
+struct adapter {
+	virtual void fun() = 0;
+};
+
+template <class obj_t, class par_t>
+adapter* make_adapter(const obj_t& obj, const par_t& arg) {
+	class local : public adapter {
+	public:
+		local(const obj_t& obj, const par_t& arg) : _obj{obj}, _arg{arg} {}
+		virtual void fun() {
+			_obj.fun(_arg);
+		}
+	private:
+		obj_t _obj;
+		par_t _arg;
+	};
+	return new local(obj, arg);
+}
+
+struct foo_arg {
+	int var;
+};
+
+struct foo_obj {
+	void fun(foo_arg arg) {
+		print(arg.var);
+	}
+};
+
+}
+
+BOOST_AUTO_TEST_CASE(test_local_classes) {
+	TEST_MARKER();
+
+	using namespace test_techniques_ns;
+
+	foo_obj fo;
+	foo_arg fa;
+	fa.var = 1;
+	adapter* f_adapter = make_adapter(fo, fa);
+	f_adapter->fun();
+	delete f_adapter;
+}
+
+// 2.4. MAPPING INTEGRAL CONSTANTS TO TYPES
+
+namespace test_techniques_ns {
+namespace test_mapping_integral_constants_to_types_ns {
+
+// Technique
+
+template <int v>
+struct int2type {
+	static constexpr int value = v;
+};
+
+// Example
+
+class small_type {
+public:
+	void sfun() {
+		print("small type");
+	}
+private:
+	int var = 0;
+};
+
+class big_type {
+public:
+	void bfun() {
+		print("big type");
+	}
+private:
+	int var_1 = 0;
+	int var_2 = 0;
+};
+
+template <class t>
+class foo {
+private:
+	void fun(t obj, int2type<true>) {
+		obj.sfun();
+	}
+	void fun(t obj, int2type<false>) {
+		obj.bfun();
+	}
+public:
+	void fun(t obj) {
+		fun(obj, int2type<sizeof(t) == sizeof(int)>());
+	}
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_mapping_integral_constants_to_types) {
+	TEST_MARKER();
+
+	using namespace test_techniques_ns::test_mapping_integral_constants_to_types_ns;
+
+	small_type s;
+	foo<small_type> sf;
+	sf.fun(s);
+
+	big_type b;
+	foo<big_type> bf;
+	bf.fun(b);
+}
+
+// 2.5. TYPE-TO-TYPE MAPPING
+
+namespace test_techniques_ns {
+namespace test_type_to_type_mapping_ns {
+
+// Technique
+
+template <typename t>
+struct type2type {
+	using original_type = t;
+};
+
+// Example
+
+struct simple_1 {
+	simple_1(int arg) {
+		print("simple 1");
+	}
+};
+
+struct simple_2 {
+	simple_2(int arg) {
+		print("simple 2");
+	}
+};
+
+struct complicated {
+	complicated(int arg_1, int arg_2) {
+		print("complicated");
+	}
+};
+
+template <class obj_t, class arg_t>
+obj_t* create(const arg_t& arg, type2type<obj_t>) {
+	return new obj_t(arg);	
+}
+
+template <class arg_t>
+complicated* create(const arg_t& arg, type2type<complicated>) {
+	return new complicated(arg, -1);	
+}
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_type_to_type_mapping) {
+	TEST_MARKER();
+
+	using namespace test_techniques_ns::test_type_to_type_mapping_ns;
+
+	simple_1* s_1 = create(1, type2type<simple_1>());
+	simple_2* s_2 = create(1, type2type<simple_2>());
+	complicated* c = create(1, type2type<complicated>());
+
+	delete s_1;
+	delete s_2;
+	delete c;
 }
