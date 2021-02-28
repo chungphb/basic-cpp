@@ -545,3 +545,121 @@ BOOST_AUTO_TEST_CASE(test_type_to_type_mapping) {
 	delete s_2;
 	delete c;
 }
+
+// Note: Using type2type<t> instead of t itself will avoid constructing an arbitrarily complex object.
+
+// 2.6. TYPE SELECTION
+
+namespace test_techniques_ns {
+namespace test_type_selection_ns {
+
+// Technique
+
+template <bool flag, typename t, typename u>
+struct type_select {
+	using result = t;
+};
+
+template <typename t, typename u>
+struct type_select<false, t, u> {
+	using result = u;
+};
+
+// Example
+
+struct first {
+	void fun() {
+		print("first class");
+	}
+};
+
+struct second {
+	void fun() {
+		print("second class");
+	}
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_type_selection) {
+	TEST_MARKER();
+
+	using namespace test_techniques_ns::test_type_selection_ns;
+
+	using value_t = type_select<true, first, second>::result;
+	value_t val;
+	val.fun();
+}
+
+// 2.7. DETECTING CONVERTIBILITY AND INHERITANCE
+
+
+namespace test_techniques_ns {
+namespace test_detecting_convertibility_and_inheritance_ns {
+
+// Technique
+
+template <typename t, typename u>
+class type_conversion {
+	using small_type = char;
+	struct big_type { char dummy[2]; };
+	static small_type test(const u&);
+	static big_type test(...);
+	static t make_t(); // use this function to create a t because t's default constructor might be private
+public:
+	static constexpr bool exists = sizeof(test(make_t())) == sizeof(small_type);
+	static constexpr bool same_type = false;
+};
+
+template <typename t>
+class type_conversion<t, t> {
+public:
+	static constexpr bool exists = true;
+	static constexpr bool same_type = true;
+};
+
+#define SUPERSUB(t, u) \
+	(type_conversion<const u*, const t*>::exists && \
+	!type_conversion<const t*, const void*>::same_type)
+
+#define SUPERSUB_STRICT(t, u) \
+	(SUPERSUB(t, u) && \
+	!type_conversion<const t*, const u*>::same_type)
+
+// Example
+
+struct base {};
+
+struct first : public base {};
+
+struct second {};
+
+template <typename t, bool = SUPERSUB(base, t)>
+struct foo {
+	void fun() {
+		print("Derived from base");
+	}
+};
+
+template <typename t>
+struct foo<t, false> {
+	void fun() {
+		print("Not derived from base");
+	}
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_detecting_convertibility_and_inheritance) {
+	TEST_MARKER();
+
+	using namespace test_techniques_ns::test_detecting_convertibility_and_inheritance_ns;
+
+	foo<first> f_1;
+	f_1.fun();
+
+	foo<second> f_2;
+	f_2.fun();
+}
