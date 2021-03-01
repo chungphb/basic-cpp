@@ -594,7 +594,6 @@ BOOST_AUTO_TEST_CASE(test_type_selection) {
 
 // 2.7. DETECTING CONVERTIBILITY AND INHERITANCE
 
-
 namespace test_techniques_ns {
 namespace test_detecting_convertibility_and_inheritance_ns {
 
@@ -662,4 +661,105 @@ BOOST_AUTO_TEST_CASE(test_detecting_convertibility_and_inheritance) {
 
 	foo<second> f_2;
 	f_2.fun();
+}
+
+// 2.7. TYPE TRAITS
+
+namespace test_techniques_ns {
+namespace test_type_traits_ns {
+
+struct null_type {};
+
+template <typename t>
+class type_traits {
+// Pointer traits
+private:
+	template <typename u>
+	struct pointer_traits {
+		static constexpr bool result = false;
+		using pointee_type = null_type;
+	};
+	template <typename u>
+	struct pointer_traits<u*> {
+		static constexpr bool result = true;
+		using pointee_type = u;
+	};
+public:
+	static constexpr bool is_pointer = pointer_traits<t>::result;
+	using pointee_type = typename pointer_traits<t>::pointee_type;
+
+// Reference traits
+private:
+	template <typename u>
+	struct reference_traits {
+		static constexpr bool result = false;
+		using referenced_type = u;
+	};
+	template <typename u>
+	struct reference_traits<u&> {
+		static constexpr bool result = true;
+		using referenced_type = u;
+	};
+public:
+	static constexpr bool is_reference = reference_traits<t>::result;
+	using referenced_type = typename reference_traits<t>::referenced_type;
+
+// Stripping qualifiers
+private:
+	template <typename u>
+	struct remove_const {
+		using result = u;
+	};
+	template <typename u>
+	struct remove_const<const u> {
+		using result = u;
+	};
+public:
+	using non_const_type = typename remove_const<t>::result;
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_type_traits) {
+	TEST_MARKER();
+
+	using namespace test_techniques_ns::test_type_traits_ns;
+
+	struct foo {
+	public:
+		void fun(int v) {
+			val = v;
+			print(val);
+		}
+	private:
+		int val;
+	};
+
+	// Pointer traits
+	{
+		std::cout << "foo is a pointer type? " << std::boolalpha << type_traits<foo>::is_pointer << "\n"; 
+		std::cout << "foo* is a pointer type? " << std::boolalpha << type_traits<foo*>::is_pointer << "\n"; 
+		std::cout << "const foo* is a pointer type? " << std::boolalpha << type_traits<const foo*>::is_pointer << "\n";
+		using pointee_t = typename type_traits<foo*>::pointee_type;
+		pointee_t val;
+		val.fun(1);
+	}
+
+	// Reference traits
+	{
+		std::cout << "foo is a reference type? " << std::boolalpha << type_traits<foo>::is_reference << "\n"; 
+		std::cout << "foo& is a reference type? " << std::boolalpha << type_traits<foo&>::is_reference << "\n"; 
+		std::cout << "const foo& is a reference type? " << std::boolalpha << type_traits<const foo&>::is_reference << "\n";
+		using referenced_t = typename type_traits<foo&>::referenced_type;
+		referenced_t val;
+		val.fun(2);
+	}
+
+	// Stripping qualifiers
+	{
+		using non_const_t = type_traits<const foo>::non_const_type;
+		non_const_t val;
+		val.fun(3);
+	}
 }
