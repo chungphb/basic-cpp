@@ -763,3 +763,130 @@ BOOST_AUTO_TEST_CASE(test_type_traits) {
 		val.fun(3);
 	}
 }
+
+// 3. TYPELISTS
+
+#include <typeinfo>
+
+// 3.1. DEFINING TYPELISTS
+
+namespace test_typelists_ns {
+
+struct null_type {};
+
+template <typename t, typename u>
+struct typelist {
+	using head = t;
+	using tail = u;
+};
+
+namespace tl {
+
+#define TYPELIST_1(T1) typelist<T1, null_type>;
+#define TYPELIST_2(T1, T2) typelist<T1, TYPELIST_1(T2)>
+#define TYPELIST_3(T1, T2, T3) typelist<T1, TYPELIST_2(T2, T3)>
+#define TYPELIST_4(T1, T2, T3, T4) typelist<T1, TYPELIST_3(T2, T3, T4)>
+#define TYPELIST_5(T1, T2, T3, T4, T5) = typelist<T1, TYPELIST_4(T2, T3, T4, T5)>
+
+}
+
+using char_types = typelist<char, typelist<signed char, typelist<unsigned char, null_type>>>;
+
+}
+
+// 3.2. CALCULATING LENGTH
+
+namespace test_typelists_ns {
+namespace tl {
+
+template <typename tlist> struct length;
+
+template <> struct length<null_type> {
+	static constexpr int value = 0;
+};
+
+template <typename t, typename u> struct length<typelist<t, u>> {
+	static constexpr int value = 1 + length<u>::value;
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_calculating_length) {
+	TEST_MARKER();
+
+	using namespace test_typelists_ns;
+
+	print(tl::length<char_types>::value);
+}
+
+// 3.3. INDEXED ACCESS
+
+namespace test_typelists_ns {
+namespace tl {
+
+template <typename tlist, unsigned int index> struct type_at;
+
+template <typename head, typename tail>
+struct type_at<typelist<head, tail>, 0> {
+	using result = head;
+};
+
+template <typename head, typename tail, unsigned int index>
+struct type_at<typelist<head, tail>, index> {
+	using result = typename type_at<tail, index - 1>::result;
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_indexed_access) {
+	TEST_MARKER();
+
+	using namespace test_typelists_ns;
+
+	print(typeid(tl::type_at<char_types, 0>::result).name());
+	print(typeid(tl::type_at<char_types, 1>::result).name());
+	print(typeid(tl::type_at<char_types, 2>::result).name());
+	// print(typeid(tl::type_at<char_types, 3>::result).name());
+	// print(typeid(tl::type_at<char_types, -1>::result).name());
+}
+
+// 3.4. SEARCHING TYPELISTS
+
+namespace test_typelists_ns {
+namespace tl {
+
+template <typename tlist, typename t> struct index_of;
+
+template <typename t>
+struct index_of<null_type, t> {
+	static constexpr int result = -1;
+};
+
+template <typename t, typename tail>
+struct index_of<typelist<t, tail>, t> {
+	static constexpr int result = 0;
+};
+
+template <typename head, typename tail, typename t>
+struct index_of<typelist<head, tail>, t> {
+private:
+	static constexpr int tmp = index_of<tail, t>::result;
+public:
+	static constexpr int result = tmp == -1 ? -1 : 1 + tmp;
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_searching_typelists) {
+	TEST_MARKER();
+
+	using namespace test_typelists_ns;
+
+	print(tl::index_of<char_types, char>::result);
+	print(tl::index_of<char_types, signed char>::result);
+	print(tl::index_of<char_types, unsigned char>::result);
+	print(tl::index_of<char_types, int>::result);
+}
