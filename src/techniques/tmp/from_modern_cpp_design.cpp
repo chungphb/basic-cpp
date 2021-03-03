@@ -768,6 +768,31 @@ BOOST_AUTO_TEST_CASE(test_type_traits) {
 
 #include <typeinfo>
 
+namespace test_typelists_ns {
+
+template <typename T>
+constexpr auto type_name() noexcept {
+	std::string_view name = "Error: unsupported compiler", prefix, suffix;
+#ifdef __clang__
+	name = __PRETTY_FUNCTION__;
+	prefix = "auto type_name() [T = ";
+	suffix = "]";
+#elif defined(__GNUC__)
+	name = __PRETTY_FUNCTION__;
+	prefix = "constexpr auto type_name() [with T = ";
+	suffix = "]";
+#elif defined(_MSC_VER)
+	name = __FUNCSIG__;
+	prefix = "auto __cdecl type_name<";
+	suffix = ">(void) noexcept";
+#endif
+	name.remove_prefix(prefix.size());
+	name.remove_suffix(suffix.size());
+	return name;
+}
+
+}
+
 // 3.1. DEFINING TYPELISTS
 
 namespace test_typelists_ns {
@@ -780,15 +805,11 @@ struct typelist {
 	using tail = u;
 };
 
-namespace tl {
-
-#define TYPELIST_1(T1) typelist<T1, null_type>;
+#define TYPELIST_1(T1) typelist<T1, null_type>
 #define TYPELIST_2(T1, T2) typelist<T1, TYPELIST_1(T2)>
 #define TYPELIST_3(T1, T2, T3) typelist<T1, TYPELIST_2(T2, T3)>
 #define TYPELIST_4(T1, T2, T3, T4) typelist<T1, TYPELIST_3(T2, T3, T4)>
 #define TYPELIST_5(T1, T2, T3, T4, T5) = typelist<T1, TYPELIST_4(T2, T3, T4, T5)>
-
-}
 
 using char_types = typelist<char, typelist<signed char, typelist<unsigned char, null_type>>>;
 
@@ -812,12 +833,13 @@ template <typename t, typename u> struct length<typelist<t, u>> {
 }
 }
 
-BOOST_AUTO_TEST_CASE(test_calculating_length) {
+BOOST_AUTO_TEST_CASE(test_length) {
 	TEST_MARKER();
 
 	using namespace test_typelists_ns;
 
-	print(tl::length<char_types>::value);
+	int len = tl::length<char_types>::value;
+	print("Length: " + std::to_string(len));
 }
 
 // 3.3. INDEXED ACCESS
@@ -840,11 +862,12 @@ struct type_at<typelist<head, tail>, index> {
 }
 }
 
-BOOST_AUTO_TEST_CASE(test_indexed_access) {
+BOOST_AUTO_TEST_CASE(test_type_at) {
 	TEST_MARKER();
 
 	using namespace test_typelists_ns;
 
+	print("List of char types:");
 	print(typeid(tl::type_at<char_types, 0>::result).name());
 	print(typeid(tl::type_at<char_types, 1>::result).name());
 	print(typeid(tl::type_at<char_types, 2>::result).name());
@@ -880,13 +903,169 @@ public:
 }
 }
 
-BOOST_AUTO_TEST_CASE(test_searching_typelists) {
+BOOST_AUTO_TEST_CASE(test_index_of) {
 	TEST_MARKER();
 
 	using namespace test_typelists_ns;
 
-	print(tl::index_of<char_types, char>::result);
-	print(tl::index_of<char_types, signed char>::result);
-	print(tl::index_of<char_types, unsigned char>::result);
-	print(tl::index_of<char_types, int>::result);
+	int id = tl::index_of<char_types, char>::result;
+	print("Index of char: " + std::to_string(id));
+
+	id = tl::index_of<char_types, signed char>::result;
+	print("Index of signed char: " + std::to_string(id));
+
+	id = tl::index_of<char_types, unsigned char>::result;
+	print("Index of unsigned char: " + std::to_string(id));
+
+	id = tl::index_of<char_types, int>::result;
+	print("Index of int: " + std::to_string(id));
+}
+
+
+// 3.5. APPENDING TO TYPELISTS
+
+namespace test_typelists_ns {
+namespace tl {
+
+template <typename tlist, typename t> struct append;
+
+template <>
+struct append<null_type, null_type> {
+	using result = null_type;
+};
+
+template <typename t>
+struct append<null_type, t> {
+	using result = TYPELIST_1(t);
+};
+
+template <typename head, typename tail>
+struct append<null_type, typelist<head, tail>> {
+	using result = typelist<head, tail>;
+};
+
+template <typename head, typename tail, typename t>
+struct append<typelist<head, tail>, t> {
+	using result = typelist<head, typename append<tail, t>::result>;
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_append) {
+	TEST_MARKER();
+
+	using namespace test_typelists_ns;
+
+	using signed_integrals = TYPELIST_4(signed char, short int, int, long int);
+
+	print("BEFORE APPENDING:");
+	print(typeid(tl::type_at<signed_integrals, 0>::result).name());
+	print(typeid(tl::type_at<signed_integrals, 1>::result).name());
+	print(typeid(tl::type_at<signed_integrals, 2>::result).name());
+	print(typeid(tl::type_at<signed_integrals, 3>::result).name());
+
+	using signed_types = typename tl::append<signed_integrals, TYPELIST_3(float, double, long double)>::result;
+
+	print("AFTER APPENDING:");
+	print(typeid(tl::type_at<signed_types, 0>::result).name());
+	print(typeid(tl::type_at<signed_types, 1>::result).name());
+	print(typeid(tl::type_at<signed_types, 2>::result).name());
+	print(typeid(tl::type_at<signed_types, 3>::result).name());
+	print(typeid(tl::type_at<signed_types, 4>::result).name());
+	print(typeid(tl::type_at<signed_types, 5>::result).name());
+	print(typeid(tl::type_at<signed_types, 6>::result).name());
+}
+
+// 3.6. ERASING A TYPE FROM A TYPELIST
+
+namespace test_typelists_ns {
+namespace tl {
+
+template <typename tlist, typename t> struct erase;
+
+template <typename t>
+struct erase<null_type, t> {
+	using result = null_type;
+};
+
+template <typename t, typename tail>
+struct erase<typelist<t, tail>, t> {
+	using result = tail;
+};
+
+template <typename head, typename tail, typename t>
+struct erase<typelist<head, tail>, t> {
+	using result = typelist<head, typename erase<tail, t>::result>;
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_erase) {
+	TEST_MARKER();
+
+	using namespace test_typelists_ns;
+
+	struct foo_1 {};
+	struct foo_2 {};
+	struct foo_3 {};
+	using foo_types = TYPELIST_3(foo_1, foo_2, foo_3);
+
+	print("BEFORE ERASING:");
+	print(typeid(tl::type_at<foo_types, 0>::result).name());
+	print(typeid(tl::type_at<foo_types, 1>::result).name());
+	print(typeid(tl::type_at<foo_types, 2>::result).name());
+
+	using some_foo_types = typename tl::erase<foo_types, foo_2>::result;
+
+	print("AFTER ERASING:");
+	print(typeid(tl::type_at<some_foo_types, 0>::result).name());
+	print(typeid(tl::type_at<some_foo_types, 1>::result).name());
+}
+
+namespace test_typelists_ns {
+namespace tl {
+
+template <typename tlist, typename t> struct erase_all;
+
+template <typename t>
+struct erase_all<null_type, t> {
+	using result = null_type;
+};
+
+template <typename t, typename tail>
+struct erase_all<typelist<t, tail>, t> {
+	using result = typename erase_all<tail, t>::result;
+};
+
+template <typename head, typename tail, typename t>
+struct erase_all<typelist<head, tail>, t> {
+	using result = typelist<head, typename erase_all<tail, t>::result>;
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_erase_all) {
+	TEST_MARKER();
+
+	using namespace test_typelists_ns;
+
+	struct foo_1 {};
+	struct foo_2 {};
+	struct foo_3 {};
+	using foo_types = TYPELIST_4(foo_1, foo_2, foo_3, foo_1);
+
+	print("BEFORE ERASING ALL:");
+	print(typeid(tl::type_at<foo_types, 0>::result).name());
+	print(typeid(tl::type_at<foo_types, 1>::result).name());
+	print(typeid(tl::type_at<foo_types, 2>::result).name());
+	print(typeid(tl::type_at<foo_types, 3>::result).name());
+
+	using some_foo_types = typename tl::erase_all<foo_types, foo_1>::result;
+
+	print("AFTER ERASING ALL:");
+	print(typeid(tl::type_at<some_foo_types, 0>::result).name());
+	print(typeid(tl::type_at<some_foo_types, 1>::result).name());
 }
