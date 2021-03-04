@@ -809,7 +809,8 @@ struct typelist {
 #define TYPELIST_2(T1, T2) typelist<T1, TYPELIST_1(T2)>
 #define TYPELIST_3(T1, T2, T3) typelist<T1, TYPELIST_2(T2, T3)>
 #define TYPELIST_4(T1, T2, T3, T4) typelist<T1, TYPELIST_3(T2, T3, T4)>
-#define TYPELIST_5(T1, T2, T3, T4, T5) = typelist<T1, TYPELIST_4(T2, T3, T4, T5)>
+#define TYPELIST_5(T1, T2, T3, T4, T5) typelist<T1, TYPELIST_4(T2, T3, T4, T5)>
+#define TYPELIST_6(T1, T2, T3, T4, T5, T6) typelist<T1, TYPELIST_5(T2, T3, T4, T5, T6)>
 
 using char_types = typelist<char, typelist<signed char, typelist<unsigned char, null_type>>>;
 
@@ -1068,4 +1069,176 @@ BOOST_AUTO_TEST_CASE(test_erase_all) {
 	print("AFTER ERASING ALL:");
 	print(typeid(tl::type_at<some_foo_types, 0>::result).name());
 	print(typeid(tl::type_at<some_foo_types, 1>::result).name());
+}
+
+// 3.7. ERASING DUPLICATES
+
+namespace test_typelists_ns {
+namespace tl {
+
+template <typename tlist> struct unique;
+
+template <>
+struct unique<null_type> {
+	using result = null_type;
+};
+
+template <typename head, typename tail>
+struct unique<typelist<head, tail>> {
+private:
+	using tmp_1 = typename unique<tail>::result;
+	using tmp_2 = typename erase<tmp_1, head>::result;
+public:
+	using result = typelist<head, tmp_2>;
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_unique) {
+	TEST_MARKER();
+
+	using namespace test_typelists_ns;
+
+	struct foo_1 {};
+	struct foo_2 {};
+	struct foo_3 {};
+	using foo_types = TYPELIST_6(foo_1, foo_2, foo_3, foo_1, foo_2, foo_1);
+
+	print("BEFORE ERASING DUPLICATES:");
+	print(typeid(tl::type_at<foo_types, 0>::result).name());
+	print(typeid(tl::type_at<foo_types, 1>::result).name());
+	print(typeid(tl::type_at<foo_types, 2>::result).name());
+	print(typeid(tl::type_at<foo_types, 3>::result).name());
+	print(typeid(tl::type_at<foo_types, 4>::result).name());
+	print(typeid(tl::type_at<foo_types, 5>::result).name());
+
+	using unique_foo_types = typename tl::unique<foo_types>::result;
+
+	print("AFTER ERASING DUPLICATES:");
+	print(typeid(tl::type_at<unique_foo_types, 0>::result).name());
+	print(typeid(tl::type_at<unique_foo_types, 1>::result).name());
+	print(typeid(tl::type_at<unique_foo_types, 2>::result).name());
+}
+
+// 3.8. REPLACING AN ELEMENT IN A TYPELIST
+
+namespace test_typelists_ns {
+namespace tl {
+
+template <typename tlist, typename t, typename u> struct replace;
+
+template <typename t, typename u>
+struct replace<null_type, t, u> {
+	using result = null_type;
+};
+
+template <typename t, typename tail, typename u>
+struct replace<typelist<t, tail>, t, u> {
+	using result = typelist<u, tail>;
+};
+
+template <typename head, typename tail, typename t, typename u>
+struct replace<typelist<head, tail>, t, u> {
+	using result = typelist<head, typename replace<tail, t, u>::result>;
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_replace) {
+	TEST_MARKER();
+
+	using namespace test_typelists_ns;
+
+	struct foo_1 {};
+	struct foo_2 {};
+	struct foo_3 {};
+	struct not_foo {};
+	struct foo_4 {};
+	using some_types = TYPELIST_4(foo_1, foo_2, foo_3, not_foo);
+
+	print("BEFORE REPLACING:");
+	print(typeid(tl::type_at<some_types, 0>::result).name());
+	print(typeid(tl::type_at<some_types, 1>::result).name());
+	print(typeid(tl::type_at<some_types, 2>::result).name());
+	print(typeid(tl::type_at<some_types, 3>::result).name());
+
+	using foo_types = typename tl::replace<some_types, not_foo, foo_4>::result;
+
+	print("AFTER REPLACING:");
+	print(typeid(tl::type_at<foo_types, 0>::result).name());
+	print(typeid(tl::type_at<foo_types, 1>::result).name());
+	print(typeid(tl::type_at<foo_types, 2>::result).name());
+	print(typeid(tl::type_at<foo_types, 3>::result).name());
+}
+
+// 3.9. PARTIALLY ORDERING TYPELISTS
+
+namespace test_typelists_ns {
+namespace tl {
+
+using namespace test_techniques_ns::test_detecting_convertibility_and_inheritance_ns;
+using namespace test_techniques_ns::test_type_selection_ns;
+
+template <typename tlist, typename t> struct most_derived {};
+
+template <typename t>
+struct most_derived<null_type, t> {
+	using result = t;
+};
+
+template <typename head, typename tail, typename t>
+struct most_derived<typelist<head, tail>, t> {
+private:
+	using candidate = typename most_derived<tail, t>::result;
+public:
+	using result = typename type_select<SUPERSUB(head, candidate), candidate, head>::result;
+};
+
+
+template <typename tlist> struct derived_to_front;
+
+template <>
+struct derived_to_front<null_type> {
+	using result = null_type;
+};
+
+template <typename head, typename tail>
+struct derived_to_front<typelist<head, tail>> {
+private:
+	using the_most_derived = typename most_derived<tail, head>::result;
+	using tmp = typename replace<tail, the_most_derived, head>::result;
+	using new_tail = typename derived_to_front<tmp>::result;
+public:
+	using result = typelist<the_most_derived, new_tail>;
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_sort) {
+	TEST_MARKER();
+
+	using namespace test_typelists_ns;
+
+	struct foo_1 {};
+	struct foo_2 : public foo_1 {};
+	struct foo_3 : public foo_1 {};
+	struct foo_4 : public foo_2 {};
+	using foo_types = TYPELIST_4(foo_1, foo_2, foo_3, foo_4);
+
+	print("BEFORE SORTING:");
+	print(typeid(tl::type_at<foo_types, 0>::result).name());
+	print(typeid(tl::type_at<foo_types, 1>::result).name());
+	print(typeid(tl::type_at<foo_types, 2>::result).name());
+	print(typeid(tl::type_at<foo_types, 3>::result).name());
+
+	using sorted_foo_types = typename tl::derived_to_front<foo_types>::result;
+
+	print("AFTER SORTING:");
+	print(typeid(tl::type_at<sorted_foo_types, 0>::result).name());
+	print(typeid(tl::type_at<sorted_foo_types, 1>::result).name());
+	print(typeid(tl::type_at<sorted_foo_types, 2>::result).name());
+	print(typeid(tl::type_at<sorted_foo_types, 3>::result).name());
 }
