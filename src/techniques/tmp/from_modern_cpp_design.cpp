@@ -1242,3 +1242,108 @@ BOOST_AUTO_TEST_CASE(test_sort) {
 	print(typeid(tl::type_at<sorted_foo_types, 2>::result).name());
 	print(typeid(tl::type_at<sorted_foo_types, 3>::result).name());
 }
+
+// 3.10. CLASS GENERATION WITH TYPELISTS
+
+namespace test_typelists_ns {
+namespace tl {
+
+// SCATTER HIERARCHY
+
+template <typename tlist, template <typename> class unit> struct gen_scatter_hierarchy;
+
+template <template <typename> class unit>
+struct gen_scatter_hierarchy<null_type, unit> {};
+
+template <typename atomic_type, template <typename> class unit>
+struct gen_scatter_hierarchy : public unit<atomic_type> {
+	using left_base = unit<atomic_type>;
+};
+
+template <typename head, typename tail, template <typename> class unit>
+struct gen_scatter_hierarchy<typelist<head, tail>, unit> : public gen_scatter_hierarchy<head, unit>, public gen_scatter_hierarchy<tail, unit> {
+	using tlist = typelist<head, tail>;
+	using left_base = gen_scatter_hierarchy<head, unit>;
+	using right_base = gen_scatter_hierarchy<tail, unit>;
+};
+
+// LINEAR HIERARCHY
+
+struct empty_type {};
+
+template <
+	typename tlist,
+	template <typename atomic_type, typename base> class unit,
+	typename root = empty_type
+>
+struct gen_linear_hierarchy;
+
+template <
+	typename atomic_type,
+	template <typename, typename> class unit,
+	typename root
+>
+struct gen_linear_hierarchy<TYPELIST_1(atomic_type), unit, root> : public unit<atomic_type, root> {};
+
+template <
+	typename head,
+	typename tail,
+	template <typename, typename> class unit,
+	typename root
+>
+struct gen_linear_hierarchy<typelist<head, tail>, unit, root> : public unit<head, gen_linear_hierarchy<tail, unit, root>> {};
+
+}
+
+namespace test_generate_classes_ns {
+
+struct foo_1 {
+	void fun_1() {
+		print("foo 1");
+	}
+};
+
+struct foo_2 {
+	void fun_2() {
+		print("foo 2");
+	}
+};
+
+struct foo_3 {
+	void fun_3() {
+		print("foo 3");
+	}
+};
+
+template <typename t>
+struct holder {
+	t _val;
+};
+
+template <typename t, typename base>
+struct another_holder : base {
+	void fun(t& val) {
+		val.fun();
+	}
+};
+
+}
+}
+
+BOOST_AUTO_TEST_CASE(test_generate_classes) {
+	TEST_MARKER();
+
+	using namespace test_typelists_ns;
+	using namespace test_typelists_ns::test_generate_classes_ns;
+
+	using foos = tl::gen_scatter_hierarchy<TYPELIST_3(foo_1, foo_2, foo_3), holder>;
+	foos f;
+	foo_1 f_1 = (static_cast<holder<foo_1>&>(f))._val;
+	f_1.fun_1();
+	foo_2 f_2 = (static_cast<holder<foo_2>&>(f))._val;
+	f_2.fun_2();
+	foo_3 f_3 = (static_cast<holder<foo_3>&>(f))._val;
+	f_3.fun_3();
+
+	using another_foos = tl::gen_linear_hierarchy<TYPELIST_3(foo_1, foo_2, foo_3), another_holder>;
+}
