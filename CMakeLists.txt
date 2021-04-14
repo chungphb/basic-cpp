@@ -27,6 +27,8 @@ add_executable(stl_algorithms_test src/libs/stl/stl_algorithms_test.cpp)
 
 add_executable(cpp17_test src/libs/stl/cpp17_test.cpp)
 
+add_executable(cpp11_concurrency_test src/libs/stl/cpp11_concurrency_test.cpp)
+
 # 2.2. BOOST
 
 add_executable(boost_intrusive_test src/libs/boost/boost_intrusive_test.cpp)
