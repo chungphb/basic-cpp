@@ -109,11 +109,11 @@ BOOST_AUTO_TEST_CASE(test_managing_locks_with_lock_guards) {
 	struct concurrent_safe_foo {
 	public:
 		void increase() {
-			std::lock_guard<std::mutex> guard(mutex);
+			std::lock_guard<std::mutex> guard{mutex};
 			f.increase();
 		}
 		void decrease() {
-			std::lock_guard<std::mutex> guard(mutex);
+			std::lock_guard<std::mutex> guard{mutex};
 			f.decrease();
 		}
 		int value() {
@@ -159,11 +159,11 @@ BOOST_AUTO_TEST_CASE(test_recursive_locking) {
 	public:
 		foo() : value{0} {}
 		void add(int v) {
-			std::lock_guard<std::recursive_mutex> guard(mutex);
+			std::lock_guard<std::recursive_mutex> guard{mutex};
 			value += v;
 		}
 		void add_and_print(int v) { // Create deadlock if using std::mutex
-			std::lock_guard<std::recursive_mutex> guard(mutex);
+			std::lock_guard<std::recursive_mutex> guard{mutex};
 			add(v);
 			std::cout << value << std::endl;
 		}
@@ -219,6 +219,92 @@ BOOST_AUTO_TEST_CASE(test_call_once) {
 	std::thread t2{task};
 	t1.join();
 	t2.join();
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// CONDITION VARIABLE
+
+BOOST_AUTO_TEST_SUITE(test_condition_variable)
+
+using namespace std::chrono_literals;
+
+struct bounded_buffer {
+public:
+	bounded_buffer(int c) : capacity{c}, front{0}, rear{0}, size{0} {
+		buffer = new int[capacity];
+	}
+
+	~bounded_buffer() {
+		delete[] buffer;
+	}
+
+	void push(int value) {
+		std::unique_lock<std::mutex> lock{mutex};
+		not_full.wait(lock, [this] {
+			return size != capacity;
+		});
+		buffer[rear] = value;
+		rear = (rear + 1) % capacity;
+		++size;
+		lock.unlock();
+		not_empty.notify_one();
+	}
+
+	int pop() {
+		std::unique_lock<std::mutex> lock{mutex};
+		not_empty.wait(lock, [this] {
+			return size != 0;
+		});
+		auto result = buffer[front];
+		front = (front + 1) % capacity;
+		--size;
+		lock.unlock();
+		not_full.notify_one();
+		return result;
+	}
+
+private:
+	int* buffer;
+	int capacity;
+	int front;
+	int rear;
+	int size;
+	std::mutex mutex;
+	std::condition_variable not_full;
+	std::condition_variable not_empty;
+};
+
+void producer(int id, bounded_buffer& buffer) {
+	for (int i = 0; i < 10; i++) {
+		buffer.push(i);
+		printf("Producer %d: %d\n", id, i);
+		std::this_thread::sleep_for(100ms);
+	}
+}
+
+void consumer(int id, bounded_buffer& buffer) {
+	for (int i = 0; i < 5; i++) {
+		int value = buffer.pop();
+		printf("Consumer %d: %d\n", id, value);
+		std::this_thread::sleep_for(250ms);
+	}
+}
+
+BOOST_AUTO_TEST_CASE(test_using_condition_variables) {
+	TEST_MARKER();
+	
+	bounded_buffer buffer{15};
+	std::thread p1{producer, 1, std::ref(buffer)};
+	std::thread p2{producer, 2, std::ref(buffer)};
+	std::thread c1{consumer, 1, std::ref(buffer)};
+	std::thread c2{consumer, 2, std::ref(buffer)};
+	std::thread c3{consumer, 3, std::ref(buffer)};
+	p1.join();
+	p2.join();
+	c1.join();
+	c2.join();
+	c3.join();
 }
 
 BOOST_AUTO_TEST_SUITE_END()
