@@ -4,6 +4,7 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
+#include <chrono>
 
 #include "test_util.h"
 
@@ -49,6 +50,8 @@ BOOST_AUTO_TEST_CASE(test_starting_multiple_threads_with_lambdas) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// MUTEX
+
 BOOST_AUTO_TEST_SUITE(test_mutex)
 
 BOOST_AUTO_TEST_CASE(test_protecting_shared_data_with_mutexes) {
@@ -56,7 +59,7 @@ BOOST_AUTO_TEST_CASE(test_protecting_shared_data_with_mutexes) {
 
 	struct foo {
 	public:
-		foo() : value{ 0 } {}
+		foo() : value{0} {}
 		void increase() {
 			mutex.lock();
 			value++;
@@ -149,5 +152,73 @@ BOOST_AUTO_TEST_CASE(test_managing_locks_with_lock_guards) {
 	std::cout << f.value() << std::endl;
 }
 
+BOOST_AUTO_TEST_CASE(test_recursive_locking) {
+	TEST_MARKER();
+
+	struct foo {
+	public:
+		foo() : value{0} {}
+		void add(int v) {
+			std::lock_guard<std::recursive_mutex> guard(mutex);
+			value += v;
+		}
+		void add_and_print(int v) { // Create deadlock if using std::mutex
+			std::lock_guard<std::recursive_mutex> guard(mutex);
+			add(v);
+			std::cout << value << std::endl;
+		}
+	public:
+		int value;
+		std::recursive_mutex mutex;
+	};
+
+	foo f;
+	std::thread t{[&f] {
+		f.add_and_print(4);
+	}};
+	t.join();
+}
+
+BOOST_AUTO_TEST_CASE(test_timed_locking) {
+	TEST_MARKER();
+
+	using namespace std::chrono_literals;
+
+	std::timed_mutex mutex;
+	auto task = [&mutex] {
+		auto timeout = 40ms;
+		if (mutex.try_lock_for(timeout)) {
+			std::cout << "Start task (with mutex)" << std::endl;
+			std::this_thread::sleep_for(100ms);
+			std::cout << "End task (with mutex)" << std::endl;
+		} else {
+			std::cout << "Start task (without mutex)" << std::endl;
+			std::this_thread::sleep_for(40ms);
+			std::cout << "End task (without mutex)" << std::endl;
+		}
+	};
+
+	std::thread t1{task};
+	std::thread t2{task};
+	t1.join();
+	t2.join();
+}
+
+BOOST_AUTO_TEST_CASE(test_call_once) {
+	TEST_MARKER();
+	
+	std::once_flag flag;
+	auto task = [&flag] {
+		std::call_once(flag, [] {
+			std::cout << "Called once" << std::endl;
+		});
+		std::cout << "Called each time" << std::endl;
+	};
+
+	std::thread t1{task};
+	std::thread t2{task};
+	t1.join();
+	t2.join();
+}
 
 BOOST_AUTO_TEST_SUITE_END()

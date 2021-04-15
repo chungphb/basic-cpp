@@ -17,7 +17,7 @@ include_directories("${CMAKE_SOURCE_DIR}/include")
 # 1.1.1. MODERN C++ DESIGN: GENERIC PROGRAMMING AND DESIGN PATTERNS APPLIED
 # Link: https://g.co/kgs/NaxxkE
 
-add_executable(from_modern_cpp_design src/techniques/tmp/from_modern_cpp_design)
+add_executable(from_modern_cpp_design src/books/from_modern_cpp_design.cpp)
 
 # 2. LIBS
 
