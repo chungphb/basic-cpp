@@ -4,6 +4,7 @@
 #include <iostream>
 #include <thread>
 #include <mutex>
+#include <future>
 #include <chrono>
 
 #include "test_util.h"
@@ -311,9 +312,9 @@ BOOST_AUTO_TEST_SUITE_END()
 
 // ATOMIC
 
-BOOST_AUTO_TEST_SUITE(test_atomic_types)
+BOOST_AUTO_TEST_SUITE(test_atomic)
 
-BOOST_AUTO_TEST_CASE(test_using_atomic_type) {
+BOOST_AUTO_TEST_CASE(test_using_atomic_types) {
 	TEST_MARKER();
 
 	struct foo {
@@ -358,6 +359,83 @@ BOOST_AUTO_TEST_CASE(test_using_atomic_type) {
 		thread.join();
 	}
 	std::cout << f.get() << std::endl;
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// FUTURE
+
+BOOST_AUTO_TEST_SUITE(test_future)
+
+BOOST_AUTO_TEST_CASE(test_creating_asynchronous_tasks) {
+	TEST_MARKER();
+
+	using namespace std::chrono_literals;
+
+	auto fut = std::async(std::launch::async, [] {
+		std::cout << "Hello world!" << std::endl;
+	});
+	fut.get();
+
+	auto fut2 = std::async(std::launch::async, [] {
+		std::this_thread::sleep_for(1s);
+		return 1;
+	});
+	std::cout << fut2.get() << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(test_using_futures) {
+	TEST_MARKER();
+
+	using namespace std::chrono_literals;
+
+	auto fut1 = std::async(std::launch::async, [] {
+		std::this_thread::sleep_for(1s);
+		return 1;
+	});
+	auto fut2 = std::async(std::launch::async, [] {
+		std::this_thread::sleep_for(2s);
+		return 2;
+	});
+	auto fut3 = std::async(std::launch::async, [] {
+		std::this_thread::sleep_for(3s);
+		return 3;
+	});
+
+	auto timeout = 10ms;
+
+	while (fut1.valid() || fut2.valid() || fut3.valid()) {
+		if (fut1.valid() && fut1.wait_for(timeout) == std::future_status::ready) {
+			std::cout << "Task 1 is done!" << fut1.get() << std::endl;
+		}
+		if (fut2.valid() && fut2.wait_for(timeout) == std::future_status::ready) {
+			std::cout << "Task 2 is done!" << fut2.get() << std::endl;
+		}
+		if (fut3.valid() && fut3.wait_for(timeout) == std::future_status::ready) {
+			std::cout << "Task 3 is done!" << fut3.get() << std::endl;
+		}
+		std::cout << "Start doing my own work!" << std::endl;
+		std::this_thread::sleep_for(100ms);
+		std::cout << "Finish doing my own work!" << std::endl;
+	}
+	std::cout << "Done" << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(test_storing_futures) {
+	TEST_MARKER();
+
+	using namespace std::chrono_literals;
+
+	std::vector<std::future<size_t>> futs;
+	for (int i = 0; i < 4; i++) {
+		futs.emplace_back(std::async(std::launch::async, [](size_t value) {
+			std::this_thread::sleep_for(1s);
+			return value + 1;
+		}, i));
+	}
+	for (auto& fut : futs) {
+		std::cout << fut.get() << std::endl;
+	}
 }
 
 BOOST_AUTO_TEST_SUITE_END()
