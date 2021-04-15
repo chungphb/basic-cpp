@@ -308,3 +308,56 @@ BOOST_AUTO_TEST_CASE(test_using_condition_variables) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+// ATOMIC
+
+BOOST_AUTO_TEST_SUITE(test_atomic_types)
+
+BOOST_AUTO_TEST_CASE(test_using_atomic_type) {
+	TEST_MARKER();
+
+	struct foo {
+	public:
+		foo() : value{0} {}
+		void increase() {
+			value++;
+		}
+		void decrease() {
+			value--;
+		}
+		int get() {
+			return value.load();
+		}
+	public:
+		std::atomic<int> value; // Perform better than std::mutex, especially on integral types
+	};
+
+	foo f;
+	const int NUM_THREADS = 4;
+	std::vector<std::thread> threads;
+	for (int i = 0; i < NUM_THREADS; i++) {
+		threads.push_back(std::thread{[&f] {
+			const int NUM_INCREMENTS = 100;
+			for (int i = 0; i < NUM_INCREMENTS; i++) {
+				f.increase();
+			}
+		}});
+		threads.push_back(std::thread{[&f] {
+			const int NUM_DECREMENTS = 100;
+			for (int i = 0; i < NUM_DECREMENTS; i++) {
+				try {
+					f.decrease();
+				} catch (std::runtime_error& err) {
+					std::cout << "Error: " << err.what() << std::endl;
+				}
+				
+			}
+		}});
+	}
+	for (auto& thread : threads) {
+		thread.join();
+	}
+	std::cout << f.get() << std::endl;
+}
+
+BOOST_AUTO_TEST_SUITE_END()
