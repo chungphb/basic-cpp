@@ -44,4 +44,11 @@ target_link_directories(ranges_test INTERFACE range-v3)
 add_executable(toml_test src/libs/others/toml_test.cpp)
 target_include_directories(toml_test PRIVATE "${CMAKE_SOURCE_DIR}/modules/tinytoml/include")
 
+# 3. SITES
+
+# 3.1. GEEKSFORGEEKS
+
+# 3.1.1. DATA STRUCTURES
+add_executable(data_structures_test src/sites/geeksforgeeks/data_structures_test.cpp)
+
 add_subdirectory(modules)
