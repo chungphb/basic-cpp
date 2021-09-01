@@ -75,21 +75,10 @@ BOOST_AUTO_TEST_CASE(test_1) {
 	}
 }
 
-int binary_search(int arr[], int low, int high, int key) {
-	if (high < low) {
-		return -1;
-	}
-	int mid = (low + high) >> 1;
-	if (arr[mid] == key) {
-		return mid;
-	} else if (arr[mid] < key) {
-		return binary_search(arr, mid + 1, high, key);
-	} else {
-		return binary_search(arr, low, mid - 1, key);
-	}
-}
-
 // Search, insert, and delete in an sorted array
+
+int binary_search(int arr[], int low, int high, int key);
+
 BOOST_AUTO_TEST_CASE(test_2) {
 	TEST_MARKER();
 
@@ -137,6 +126,20 @@ BOOST_AUTO_TEST_CASE(test_2) {
 	}
 }
 
+int binary_search(int arr[], int low, int high, int key) {
+	if (high < low) {
+		return -1;
+	}
+	int mid = (low + high) >> 1;
+	if (arr[mid] == key) {
+		return mid;
+	} else if (arr[mid] < key) {
+		return binary_search(arr, mid + 1, high, key);
+	} else {
+		return binary_search(arr, low, mid - 1, key);
+	}
+}
+
 // Reverse an array
 BOOST_AUTO_TEST_CASE(test_3) {
 	TEST_MARKER();
@@ -174,6 +177,40 @@ BOOST_AUTO_TEST_CASE(test_4) {
 		if (arr[i] > max) {
 			std::cout << arr[i] << std::endl;
 			max = arr[i];
+		}
+	}
+}
+
+// Find two elements of an array with a given sum
+
+void merge(int arr[], int low, int mid, int high);
+void merge_sort(int arr[], int low, int high);
+
+BOOST_AUTO_TEST_CASE(test_5) {
+	TEST_MARKER();
+
+	const int SUM = 13;
+	int arr[20] = {5, 7, 1, 9, 4, 6};
+	int capacity = sizeof(arr) / sizeof(arr[0]);
+	int size = 6;
+
+	std::cout << "Sum: " << SUM << std::endl;
+	print(arr, size, "Array");
+
+	// Sort
+	merge_sort(arr, 0, size - 1);
+
+	// Apply the Two-Pointers technique
+	int low = 0;
+	int high = size - 1;
+	while (low < high) {
+		if (arr[low] + arr[high] == SUM) {
+			std::cout << "The needed pair of elements is " << arr[low] << " and " << arr[high] << std::endl;
+			break;
+		} else if (arr[low] + arr[high] > SUM) {
+			--high;
+		} else {
+			++low;
 		}
 	}
 }
@@ -229,36 +266,6 @@ void merge_sort(int arr[], int low, int high) {
 	merge_sort(arr, low, mid);
 	merge_sort(arr, mid + 1, high);
 	merge(arr, low, mid, high);
-}
-
-// Find two elements of an array with a given sum
-BOOST_AUTO_TEST_CASE(test_5) {
-	TEST_MARKER();
-
-	const int SUM = 13;
-	int arr[20] = {5, 7, 1, 9, 4, 6};
-	int capacity = sizeof(arr) / sizeof(arr[0]);
-	int size = 6;
-
-	std::cout << "Sum: " << SUM << std::endl;
-	print(arr, size, "Array");
-
-	// Sort
-	merge_sort(arr, 0, size - 1);
-
-	// Apply the Two-Pointers technique
-	int low = 0;
-	int high = size - 1;
-	while (low < high) {
-		if (arr[low] + arr[high] == SUM) {
-			std::cout << "The needed pair of elements is " << arr[low] << " and " << arr[high] << std::endl;
-			break;
-		} else if (arr[low] + arr[high] > SUM) {
-			--high;
-		} else {
-			++low;
-		}
-	}
 }
 
 // Find the majority element in an array
@@ -361,6 +368,47 @@ BOOST_AUTO_TEST_CASE(test_8) {
 	std::cout << "The missing number is " << (result_1 ^ result_2) << std::endl;
 }
 
+// Rotate an array
+
+void reverse(int arr[], int start, int end);
+void swap_block(int arr[], int block_1_start, int block_2_start, int swap_size);
+void rotate(int arr[], int rotating_size, int size);
+
+BOOST_AUTO_TEST_CASE(test_9) {
+	TEST_MARKER();
+
+	int arr[20] = {1, 2, 3, 4, 5, 6, 7, 8};
+	int capacity = sizeof(arr) / sizeof(arr[0]);
+	int size = 8;
+	int rotating_size = 3;
+
+	print(arr, size, "Before rotating");
+
+	// Reversal algorithm
+	reverse(arr, 0, rotating_size - 1);
+	reverse(arr, rotating_size, size - 1);
+	reverse(arr, 0, size - 1);
+	print(arr, size, "After rotating");
+
+	// Block swap algorithm
+	// 
+	// For example: [1 2 3 | 4 5 6 7 8]
+	// Step 1 (rotating_size = 3, size = 8):
+	// - Swap (1 2 3) to (6 7 8) since rotating_size = 3 < 5 = size - rotating_size
+	// - Result: [6 7 8 | 4 5] 1 2 3			((1 2 3) is in the right place)
+	// Step 2 (rotating_size = 3, size = 5):
+	// - Swap (6 7) to (4 5) since rotating_size = 3 > 2 = size - rotating_size
+	// - Result: 4 5 [8 | 6 7] 1 2 3			((4 5) is in the right place)
+	// Step 3 (rotating_size = 3 - (5 - 3) = 1, size = 3):
+	// - Swap (8) to (7) since rotating_size = 1 < 2 = size - rotating_size
+	// - Result: 4 5 [7 | 6] 8 1 2 3			((8) is in the right place)
+	// Step 4 (rotating_size = 1, size = 2):
+	// - Swap (7) to (6) since rotating_size = 1 = size - rotating_size
+	// - Result: 4 5 6 7 8 1 2 3				((6 7) is in the right place)
+	rotate(arr, rotating_size, size);
+	print(arr, size, "After rotating (again)");
+}
+
 void reverse(int arr[], int start, int end) {
 	int temp;
 	while (start < end) {
@@ -399,42 +447,6 @@ void rotate(int arr[], int rotating_size, int size) {
 	}
 }
 
-// Rotate an array
-BOOST_AUTO_TEST_CASE(test_9) {
-	TEST_MARKER();
-
-	int arr[20] = {1, 2, 3, 4, 5, 6, 7, 8};
-	int capacity = sizeof(arr) / sizeof(arr[0]);
-	int size = 8;
-	int rotating_size = 3;
-
-	print(arr, size, "Before rotating");
-
-	// Reversal algorithm
-	reverse(arr, 0, rotating_size - 1);
-	reverse(arr, rotating_size, size - 1);
-	reverse(arr, 0, size - 1);
-	print(arr, size, "After rotating");
-
-	// Block swap algorithm
-	// 
-	// For example: [1 2 3 | 4 5 6 7 8]
-	// Step 1 (rotating_size = 3, size = 8):
-	// - Swap (1 2 3) to (6 7 8) since rotating_size = 3 < 5 = size - rotating_size
-	// - Result: [6 7 8 | 4 5] 1 2 3			((1 2 3) is in the right place)
-	// Step 2 (rotating_size = 3, size = 5):
-	// - Swap (6 7) to (4 5) since rotating_size = 3 > 2 = size - rotating_size
-	// - Result: 4 5 [8 | 6 7] 1 2 3			((4 5) is in the right place)
-	// Step 3 (rotating_size = 3 - (5 - 3) = 1, size = 3):
-	// - Swap (8) to (7) since rotating_size = 1 < 2 = size - rotating_size
-	// - Result: 4 5 [7 | 6] 8 1 2 3			((8) is in the right place)
-	// Step 4 (rotating_size = 1, size = 2):
-	// - Swap (7) to (6) since rotating_size = 1 = size - rotating_size
-	// - Result: 4 5 6 7 8 1 2 3				((6 7) is in the right place)
-	rotate(arr, rotating_size, size);
-	print(arr, size, "After rotating (again)");
-}
-
 BOOST_AUTO_TEST_SUITE_END()
 
 // LINKED LIST
@@ -451,6 +463,9 @@ struct node {
 };
 
 void print(node* head, std::string name) {
+	if (head == nullptr) {
+		return;
+	}
 	std::cout << name << ": ";
 	node* current_node = head;
 	while (current_node != nullptr) {
@@ -464,6 +479,9 @@ void print(node* head, std::string name) {
 }
 
 void free(node* head) {
+	if (head == nullptr) {
+		return;
+	}
 	node* current_node = head;
 	node* next_node = nullptr;
 	while (current_node != nullptr) {
@@ -471,6 +489,32 @@ void free(node* head) {
 		delete current_node;
 		current_node = next_node;
 	}
+}
+
+// Insert a node
+
+void push(node** head_ref, int data);
+void insert_after(node* prev_node, int data);
+void append(node** head_ref, int data);
+
+BOOST_AUTO_TEST_CASE(test_1) {
+	TEST_MARKER();
+
+	node* head = nullptr;
+
+	// At the front
+	push(&head, 0);
+	print(head, "After inserting at the front");
+
+	// At the back
+	append(&head, 2);
+	print(head, "After inserting at the back");
+
+	// After a given node
+	insert_after(head, 1);
+	print(head, "After inserting after a given node");
+
+	free(head);
 }
 
 void push(node** head_ref, int data) {
@@ -511,23 +555,28 @@ void append(node** head_ref, int data) {
 	last_node->next = new_node;
 }
 
-// Insert a node
-BOOST_AUTO_TEST_CASE(test_1) {
+// Remove a node
+
+void remove(node** head_ref, int data);
+
+BOOST_AUTO_TEST_CASE(test_2) {
 	TEST_MARKER();
 
 	node* head = nullptr;
-
-	// At the front
-	push(&head, 0);
-	print(head, "After inserting at the front");
-
-	// At the back
+	append(&head, 0);
+	append(&head, 1);
 	append(&head, 2);
-	print(head, "After inserting at the back");
+	print(head, "Before removing");
 
-	// After a given node
-	insert_after(head, 1);
-	print(head, "After inserting after a given node");
+	remove(&head, 1);
+
+	// Test case: When removing the head
+	// remove(&head, 0);
+	// 
+	// Test case: When removing a non-existent element
+	// remove(&head, 3);
+
+	print(head, "After removing");
 
 	free(head);
 }
@@ -558,8 +607,11 @@ void remove(node** head_ref, int data) {
 	}
 }
 
-// Remove a node
-BOOST_AUTO_TEST_CASE(test_2) {
+// Remove a node at a given position
+
+void remove_at(node** head_ref, int pos);
+
+BOOST_AUTO_TEST_CASE(test_3) {
 	TEST_MARKER();
 
 	node* head = nullptr;
@@ -568,13 +620,16 @@ BOOST_AUTO_TEST_CASE(test_2) {
 	append(&head, 2);
 	print(head, "Before removing");
 
-	remove(&head, 1);
+	remove_at(&head, 2);
 
 	// Test case: When removing the head
 	// remove(&head, 0);
 	// 
-	// Test case: When removing a non-existent element
+	// Test case: When removing an element at a postion outside of the list
 	// remove(&head, 3);
+	// 
+	// Test case: When removing an element at a negative postion
+	// remove(&head, -1);
 
 	print(head, "After removing");
 
@@ -607,28 +662,22 @@ void remove_at(node** head_ref, int pos) {
 	}
 }
 
-// Remove a node at a given position
-BOOST_AUTO_TEST_CASE(test_3) {
+// Find the length of a list
+
+int length(node* head);
+
+BOOST_AUTO_TEST_CASE(test_4) {
 	TEST_MARKER();
 
 	node* head = nullptr;
 	append(&head, 0);
 	append(&head, 1);
 	append(&head, 2);
-	print(head, "Before removing");
-
-	remove_at(&head, 2);
-
-	// Test case: When removing the head
-	// remove(&head, 0);
-	// 
-	// Test case: When removing an element at a postion outside of the list
-	// remove(&head, 3);
-	// 
-	// Test case: When removing an element at a negative postion
-	// remove(&head, -1);
-
-	print(head, "After removing");
+	print(head, "List");
+	
+	std::cout << "Length: " << length(head) << std::endl;
+	// Test case: Zero-length list
+	// std::cout << "Length: " << length(nullptr) << std::endl;
 
 	free(head);
 }
@@ -643,19 +692,23 @@ int length(node* head) {
 	return len;
 }
 
-// Find the length of a list
-BOOST_AUTO_TEST_CASE(test_4) {
+// Reverse a list
+
+void reverse(node** head_ref);
+
+BOOST_AUTO_TEST_CASE(test_5) {
 	TEST_MARKER();
 
 	node* head = nullptr;
 	append(&head, 0);
 	append(&head, 1);
 	append(&head, 2);
-	print(head, "List");
-	
-	std::cout << "Length: " << length(head) << std::endl;
-	// Test case: Zero-length list
-	// std::cout << "Length: " << length(nullptr) << std::endl;
+	append(&head, 3);
+	append(&head, 4);
+	print(head, "Before reversing");
+
+	reverse(&head);
+	print(head, "After reversing");
 
 	free(head);
 }
@@ -676,20 +729,25 @@ void reverse(node** head_ref) {
 	*head_ref = prev_node;
 }
 
-// Reverse a list
-BOOST_AUTO_TEST_CASE(test_5) {
+// Sort a list
+
+void split(node* head, node** left_sub_head_ref, node** right_sub_head_ref);
+node* merge(node* left_sub_head, node* right_sub_head);
+void merge_sort(node** head_ref);
+
+BOOST_AUTO_TEST_CASE(test_6) {
 	TEST_MARKER();
 
 	node* head = nullptr;
-	append(&head, 0);
-	append(&head, 1);
-	append(&head, 2);
-	append(&head, 3);
 	append(&head, 4);
-	print(head, "Before reversing");
+	append(&head, 2);
+	append(&head, 0);
+	append(&head, 3);
+	append(&head, 1);
+	print(head, "Before sorting");
 
-	reverse(&head);
-	print(head, "After reversing");
+	merge_sort(&head);
+	print(head, "After sorting");
 
 	free(head);
 }
@@ -745,20 +803,30 @@ void merge_sort(node** head_ref) {
 	*head_ref = merge(left_sub_head, right_sub_head);
 }
 
-// Sort a list
-BOOST_AUTO_TEST_CASE(test_6) {
+// Rotate a list
+
+void rotate(node** head_ref, int rotating_size);
+void rotate_2(node** head_ref, int rotating_size);
+
+BOOST_AUTO_TEST_CASE(test_7) {
 	TEST_MARKER();
 
 	node* head = nullptr;
-	append(&head, 4);
-	append(&head, 2);
-	append(&head, 0);
-	append(&head, 3);
 	append(&head, 1);
-	print(head, "Before sorting");
+	append(&head, 2);
+	append(&head, 3);
+	append(&head, 4);
+	append(&head, 5);
+	append(&head, 6);
+	append(&head, 7);
+	append(&head, 8);
+	print(head, "Before rotating");
 
-	merge_sort(&head);
-	print(head, "After sorting");
+	rotate(&head, 3);
+	print(head, "After rotating");
+
+	rotate_2(&head, 3);
+	print(head, "After rotating (again)");
 
 	free(head);
 }
@@ -808,26 +876,24 @@ void rotate_2(node** head_ref, int rotating_size) {
 	current_node->next = nullptr;
 }
 
-// Rotate a list
-BOOST_AUTO_TEST_CASE(test_7) {
+// Detect and remove loop in a list
+
+void remove_loop(node* head, node* loop_node);
+void detect_and_remove_loop(node* head);
+node* create_new_node(int data);
+
+BOOST_AUTO_TEST_CASE(test_8) {
 	TEST_MARKER();
 
-	node* head = nullptr;
-	append(&head, 1);
-	append(&head, 2);
-	append(&head, 3);
-	append(&head, 4);
-	append(&head, 5);
-	append(&head, 6);
-	append(&head, 7);
-	append(&head, 8);
-	print(head, "Before rotating");
+	node* head = create_new_node(1);
+	head->next = create_new_node(2);
+	head->next->next = create_new_node(3);
+	head->next->next->next = create_new_node(4);
+	head->next->next->next->next = create_new_node(5);
+	head->next->next->next->next->next = head->next->next;
 
-	rotate(&head, 3);
-	print(head, "After rotating");
-
-	rotate_2(&head, 3);
-	print(head, "After rotating (again)");
+	detect_and_remove_loop(head);
+	print(head, "After removing loop");
 
 	free(head);
 }
@@ -880,21 +946,244 @@ node* create_new_node(int data) {
 	return new_node;
 }
 
-// Detect and remove loop in a list
-BOOST_AUTO_TEST_CASE(test_8) {
+BOOST_AUTO_TEST_SUITE_END()
+
+// CIRCULAR LINKED LIST
+
+BOOST_AUTO_TEST_SUITE(test_circular_linked_list)
+
+struct node {
+	int data;
+	node* next;
+};
+
+void print(node* last, std::string name) {
+	if (last == nullptr) {
+		return;
+	}
+	std::cout << name << ": ";
+	node* head = last->next;
+	node* current_node = last->next;
+	do {
+		std::cout << current_node->data;
+		if (current_node->next != head) {
+			std::cout << ", ";
+		}
+		current_node = current_node->next;
+	} while (current_node != head);
+	std::cout << std::endl;
+}
+
+void free(node* last) {
+	if (last == nullptr) {
+		return;
+	}
+	// Store a (const) pointer to the head of the list because the last pointer might be updated while processing
+	node* head = last->next;
+	node* current_node = last->next;
+	node* next_node = nullptr;
+	do {
+		next_node = current_node->next;
+		delete current_node;
+		current_node = next_node;
+	} while (current_node != head);
+}
+
+// Insert a node
+
+void insert_to_empty(node** last_ref, int data);
+void push(node** last_ref, int data);
+void append(node** last_ref, int data);
+void insert_after(node** last_ref, int data, int element);
+
+BOOST_AUTO_TEST_CASE(test_1) {
 	TEST_MARKER();
 
-	node* head = create_new_node(1);
-	head->next = create_new_node(2);
-	head->next->next = create_new_node(3);
-	head->next->next->next = create_new_node(4);
-	head->next->next->next->next = create_new_node(5);
-	head->next->next->next->next->next = head->next->next;
+	node* last = nullptr;
 
-	detect_and_remove_loop(head);
-	print(head, "After removing loop");
+	// To an empty list
+	insert_to_empty(&last, 1);
 
-	free(head);
+	// At the front
+	push(&last, 0);
+
+	// At the back
+	append(&last, 3);
+
+	// After a given element
+	insert_after(&last, 2, 1);
+
+	print(last, "List");
+
+	free(last);
+}
+
+void insert_to_empty(node** last_ref, int data) {
+	if (last_ref == nullptr || *last_ref != nullptr) {
+		return;
+	}
+	node* new_node = new node();
+	new_node->data = data;
+	new_node->next = new_node;
+	*last_ref = new_node;
+}
+
+void push(node** last_ref, int data) {
+	if (last_ref == nullptr) {
+		return;
+	}
+	node* new_node = new node();
+	new_node->data = data;
+	if (*last_ref == nullptr) {
+		new_node->next = new_node;
+		*last_ref = new_node;
+	} else {
+		new_node->next = (*last_ref)->next;
+		(*last_ref)->next = new_node;
+	}
+}
+
+void append(node** last_ref, int data) {
+	if (last_ref == nullptr) {
+		return;
+	}
+	node* new_node = new node();
+	new_node->data = data;
+	if (*last_ref == nullptr) {
+		new_node->next = new_node;
+		*last_ref = new_node;
+	} else {
+		new_node->next = (*last_ref)->next;
+		(*last_ref)->next = new_node;
+		*last_ref = new_node;
+	}
+	
+}
+
+void insert_after(node** last_ref, int data, int element) {
+	if (last_ref == nullptr || *last_ref == nullptr) {
+		return;
+	}
+	node* last = *last_ref;
+	node* head = last->next;
+	node* current_node = last->next;
+	do {
+		if (current_node->data == element) {
+			node* new_node = new node();
+			new_node->data = data;
+			new_node->next = current_node->next;
+			current_node->next = new_node;
+			if (current_node == last) {
+				last = new_node;
+			}
+			return;
+		}
+		current_node = current_node->next;
+	} while (current_node != head);
+	std::cout << "There is no element " << element << " in the list" << std::endl;
+}
+
+// Split a list
+
+void split(node* head, node** left_sub_head_ref, node** right_sub_head_ref);
+void print_h(node* head, std::string name);
+void free_h(node* head);
+void push_h(node** head_ref, int data);
+
+BOOST_AUTO_TEST_CASE(test_2) {
+	TEST_MARKER();
+
+	node* head = nullptr;
+	push_h(&head, 4);
+	push_h(&head, 3);
+	push_h(&head, 2);
+	push_h(&head, 1);
+	print_h(head, "List");
+
+	node* left_sub_head = nullptr;
+	node* right_sub_head = nullptr;
+	split(head, &left_sub_head, &right_sub_head);
+	print_h(left_sub_head, "Left sublist");
+	print_h(right_sub_head, "Right sublist");
+
+	free_h(left_sub_head);
+	free_h(right_sub_head);
+}
+
+void split(node* head, node** left_sub_head_ref, node** right_sub_head_ref) {
+	if (head == nullptr || left_sub_head_ref == nullptr || right_sub_head_ref == nullptr) {
+		return;
+	}
+	// If there is only one element in the list
+	if (head->next == head) {
+		*left_sub_head_ref = head;
+	}
+	// Otherwise
+	node* slow = head;
+	node* fast = head;
+	while (fast->next != head && fast->next->next != head) {
+		slow = slow->next;
+		fast = fast->next->next;
+	}
+	// If the size of the list is an even number
+	if (fast->next->next == head) {
+		fast = fast->next;
+	}
+	// Split
+	*left_sub_head_ref = head;
+	*right_sub_head_ref = slow->next;
+	fast->next = slow->next;
+	slow->next = head;
+}
+
+void print_h(node* head, std::string name) {
+	if (head == nullptr) {
+		return;
+	}
+	std::cout << name << ": ";
+	node* current_node = head;
+	do {
+		std::cout << current_node->data;
+		if (current_node->next != head) {
+			std::cout << ", ";
+		}
+		current_node = current_node->next;
+	} while (current_node != head);
+	std::cout << std::endl;
+}
+
+void free_h(node* head) {
+	if (head == nullptr) {
+		return;
+	}
+	node* current_node = head;
+	node* next_node = nullptr;
+	do {
+		next_node = current_node->next;
+		delete current_node;
+		current_node = next_node;
+	} while (current_node != head);
+}
+
+void push_h(node** head_ref, int data) {
+	if (head_ref == nullptr) {
+		return;
+	}
+	node* new_node = new node();
+	new_node->data = data;
+	if (*head_ref == nullptr) {
+		new_node->next = new_node;
+	} else {
+		new_node->next = *head_ref;
+		// Find the last element
+		node* current_node = *head_ref;
+		while (current_node->next != *head_ref) {
+			current_node = current_node->next;
+		}
+		// Update the last element's next pointer
+		current_node->next = new_node;
+	}
+	*head_ref = new_node;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
