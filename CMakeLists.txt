@@ -49,6 +49,13 @@ target_include_directories(toml_test PRIVATE "${CMAKE_SOURCE_DIR}/modules/tinyto
 # 3.1. GEEKSFORGEEKS
 
 # 3.1.1. DATA STRUCTURES
-add_executable(data_structures_test src/sites/geeksforgeeks/data_structures_test.cpp)
+add_executable(array_test src/sites/geeksforgeeks/data_structures/array_test.cpp)
+add_executable(singly_linked_list_test src/sites/geeksforgeeks/data_structures/singly_linked_list_test.cpp)
+add_executable(doubly_linked_list_test src/sites/geeksforgeeks/data_structures/doubly_linked_list_test.cpp)
+add_executable(circular_linked_list_test src/sites/geeksforgeeks/data_structures/circular_linked_list_test.cpp)
+add_executable(binary_tree_test src/sites/geeksforgeeks/data_structures/binary_tree_test.cpp)
+
+# 3.1.2. ALGORITHMS
+add_executable(back_tracking_test src/sites/geeksforgeeks/algorithms/back_tracking_test.cpp)
 
 add_subdirectory(modules)
