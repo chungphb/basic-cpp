@@ -1,5 +1,8 @@
 #define BOOST_TEST_MODULE cpp17 test
 #include <boost/test/included/unit_test.hpp>
+#include <array>
+#include <vector>
+#include <algorithm>
 
 #include "test_util.h"
 
@@ -286,6 +289,57 @@ BOOST_AUTO_TEST_CASE(n_queen_test) {
 	} else {
 		print(sol);
 	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// Subset Sum problem
+// Problem:
+// - Find all subsets of elements selected from a given set whose sum adds up to a given number K.
+// Input: { 15, 22, 14, 26, 32, 9, 16, 8 }, K = 53
+// Output: { 8, 9, 14, 22 }, { 8, 14, 15, 16 }, { 15, 16, 22 }
+
+BOOST_AUTO_TEST_SUITE(subset_sum_suite)
+
+constexpr int MAX_NUM_ITEMS = 8;
+
+void print(std::vector<int> subarr) {
+	for (int item : subarr) {
+		std::cout << item << " ";
+	}
+	std::cout << "\n";
+}
+
+bool isValid(int id, std::array<int, MAX_NUM_ITEMS> arr, int targetSum, int currentSum) {
+	return id < arr.size() && arr[id] + currentSum <= targetSum;
+
+}
+
+void solve(int id, std::array<int, MAX_NUM_ITEMS> arr, int targetSum, std::vector<int> subarr) {
+	int currentSum = std::accumulate(subarr.begin(), subarr.end(), 0);
+	
+	for (int nextId = id + 1; nextId < arr.size(); ++nextId) {
+		if (isValid(nextId, arr, targetSum, currentSum)) {
+			subarr.push_back(arr[nextId]);
+			if (currentSum + arr[nextId] == targetSum) {
+				print(subarr);
+			}
+			solve(nextId, arr, targetSum, subarr);
+			subarr.pop_back();
+		}
+	}
+}
+
+BOOST_AUTO_TEST_CASE(subset_sum_test) {
+	TEST_MARKER();
+
+	std::array<int, MAX_NUM_ITEMS> arr = { 15, 22, 14, 26, 32, 9, 16, 8 };
+	int targetSum = 53;
+	std::vector<int> subarr;
+
+	std::sort(arr.begin(), arr.end());
+
+	solve(-1, arr, targetSum, subarr);
 }
 
 BOOST_AUTO_TEST_SUITE_END()
