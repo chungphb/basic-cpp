@@ -32,8 +32,8 @@ BOOST_AUTO_TEST_SUITE(test_back_tracking)
 
 BOOST_AUTO_TEST_SUITE(the_knights_tour_problem_suite)
 
-#define BOARD_SIZE 8
-#define NUM_VALID_DIRS 8
+constexpr int BOARD_SIZE = 8;
+constexpr int NUM_VALID_DIRS = 8;
 
 bool isValid(int r, int c, int sol[BOARD_SIZE][BOARD_SIZE]) {
 	return (r >= 0 && r < BOARD_SIZE)
@@ -90,6 +90,95 @@ BOOST_AUTO_TEST_CASE(the_knights_tour_problem_test) {
 		std::cout << "Solution not exists.\n";
 	} else {
 		print(sol);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// Rat in a Maze problem
+// Problem:
+// - Given an N x N maze.
+// - A rat starts from the source (maze[0][0]) and has to reach the destination (maze[N - 1][N - 1]). 
+// - The rat can only move in two directions: Forward and Down.
+// Input: (1 = valid, 0 = invalid)
+//   {1, 0, 0, 0}
+//   {1, 1, 0, 1}
+//   {0, 1, 0, 0}
+//   {1, 1, 1, 1}
+// Output:
+//   {1, 0, 0, 0}
+//   {1, 1, 0, 0}
+//   {0, 1, 0, 0}
+//   {0, 1, 1, 1}
+
+BOOST_AUTO_TEST_SUITE(rat_in_a_maze_suite)
+
+constexpr int MAZE_SIZE = 4;
+constexpr int NUM_VALID_DIRS = 2;
+
+void print(int out[MAZE_SIZE][MAZE_SIZE]) {
+	for (int r = 0; r < MAZE_SIZE; ++r) {
+		for (int c = 0; c < MAZE_SIZE; ++c) {
+			std::cout << out[r][c] << " ";
+		}
+		std::cout << "\n";
+	}
+}
+
+bool isValid(int r, int c, int in[MAZE_SIZE][MAZE_SIZE]) {
+	return (r >= 0 && r < MAZE_SIZE)
+		&& (c >= 0 && c < MAZE_SIZE)
+		&& in[r][c] == 1;
+}
+
+bool solve(int r, int c, int in[MAZE_SIZE][MAZE_SIZE], int out[MAZE_SIZE][MAZE_SIZE], int rDir[NUM_VALID_DIRS], int cDir[NUM_VALID_DIRS]) {
+	if (r == MAZE_SIZE - 1 && c == MAZE_SIZE - 1) {
+		return true;
+	}
+
+	for (int i = 0; i < NUM_VALID_DIRS; ++i) {
+		int nextR = r + rDir[i];
+		int nextC = c + cDir[i];
+		if (isValid(nextR, nextC, in)) {
+			out[nextR][nextC] = 1;
+			bool isSolved = solve(nextR, nextC, in, out, rDir, cDir);
+			if (isSolved) {
+				return true;
+			}
+			out[nextR][nextC] = 0;
+		}
+	}
+
+	return false;
+}
+
+BOOST_AUTO_TEST_CASE(rat_in_a_maze_test) {
+	TEST_MARKER();
+
+	int in[MAZE_SIZE][MAZE_SIZE] = { 
+		{ 1, 0, 0, 0 },
+		{ 1, 1, 0, 0 },
+		{ 0, 1, 0, 0 },
+		{ 0, 1, 1, 1 }
+	};
+
+	int out[MAZE_SIZE][MAZE_SIZE];
+	for (int r = 0; r < MAZE_SIZE; ++r) {
+		for (int c = 0; c < MAZE_SIZE; ++c) {
+			out[r][c] = 0;
+		}
+	}
+	out[0][0] = 1;
+	out[MAZE_SIZE - 1][MAZE_SIZE - 1] = 1;
+
+	int rDir[NUM_VALID_DIRS] = { 1, 0 };
+	int cDir[NUM_VALID_DIRS] = { 0, 1 };
+
+	bool isSolved = solve(0, 0, in, out, rDir, cDir);
+	if (!isSolved) {
+		std::cout << "Solution not exists\n";
+	} else {
+		print(out);
 	}
 }
 
