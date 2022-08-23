@@ -29,6 +29,16 @@ BOOST_AUTO_TEST_SUITE(test_back_tracking)
 // - A Knight is placed on the  first empty block of the board. 
 // - Using Chess rules, the Knight must visit each block on the board exactly once.
 // - Print the visited blocks in order.
+// Input: 8
+// Output:
+//   {  0, 59, 38, 33, 30, 17,  8, 63 }
+//   { 37, 34, 31, 60,  9, 62, 29, 16 }
+//   { 58,  1, 36, 39, 32, 27, 18,  7 }
+//   { 35, 48, 41, 26, 61, 10, 15, 28 }
+//   { 42, 57,  2, 49, 40, 23,  6, 19 }
+//   { 47, 50, 45, 54, 25, 20, 11, 14 }
+//   { 56, 43, 52,  3, 22, 13, 24,  5 }
+//   { 51, 46, 55, 44, 53,  4, 21, 12 }
 
 BOOST_AUTO_TEST_SUITE(the_knights_tour_problem_suite)
 
@@ -101,15 +111,15 @@ BOOST_AUTO_TEST_SUITE_END()
 // - A rat starts from the source (maze[0][0]) and has to reach the destination (maze[N - 1][N - 1]). 
 // - The rat can only move in two directions: Forward and Down.
 // Input: (1 = valid, 0 = invalid)
-//   {1, 0, 0, 0}
-//   {1, 1, 0, 1}
-//   {0, 1, 0, 0}
-//   {1, 1, 1, 1}
+//   { 1, 0, 0, 0 }
+//   { 1, 1, 0, 1}
+//   { 0, 1, 0, 0}
+//   { 1, 1, 1, 1 }
 // Output:
-//   {1, 0, 0, 0}
-//   {1, 1, 0, 0}
-//   {0, 1, 0, 0}
-//   {0, 1, 1, 1}
+//   { 1, 0, 0, 0 }
+//   { 1, 1, 0, 0 }
+//   { 0, 1, 0, 0 }
+//   { 0, 1, 1, 1 }
 
 BOOST_AUTO_TEST_SUITE(rat_in_a_maze_suite)
 
@@ -179,6 +189,102 @@ BOOST_AUTO_TEST_CASE(rat_in_a_maze_test) {
 		std::cout << "Solution not exists\n";
 	} else {
 		print(out);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// N Queen problem
+// Problem:
+// - Given an N x N board.
+// - Place N queens on the board so that no two queens attack each other.
+// Input: 4
+// Output:
+//   { 0, 1, 0, 0 }
+//   { 0, 0, 0, 1 }
+//   { 1, 0, 0, 0 }
+//   { 0, 0, 1, 0 }
+
+BOOST_AUTO_TEST_SUITE(n_queen_suite)
+
+constexpr int BOARD_SIZE = 4;
+constexpr int NUM_VALID_POSITIONS = BOARD_SIZE;
+
+void print(int sol[BOARD_SIZE][BOARD_SIZE]) {
+	for (int r = 0; r < BOARD_SIZE; ++r) {
+		for (int c = 0; c < BOARD_SIZE; ++c) {
+			std::cout << sol[r][c] << " ";
+		}
+		std::cout << "\n";
+	}
+}
+
+bool isValid(int r, int c, int sol[BOARD_SIZE][BOARD_SIZE]) {
+	for (int i = 0; i < r; ++i) {
+		if (sol[i][c] == 1) {
+			return false;
+		}
+	}
+
+	for (int j = 0; j < c; ++j) {
+		if (sol[r][j] == 1) {
+			return false;
+		}
+	}
+
+	int k = 1;
+	while (r - k >= 0 && c - k >= 0) {
+		if (sol[r - k][c - k] == 1) {
+			return false;
+		}
+		++k;
+	}
+
+	k = 1;
+	while (r - k >= 0 && c + k < BOARD_SIZE) {
+		if (sol[r - k][c + k] == 1) {
+			return false;
+		}
+		++k;
+	}
+
+	return true;
+}
+
+bool solve(int r, int c, int sol[BOARD_SIZE][BOARD_SIZE]) {
+	if (r + 1 == BOARD_SIZE) {
+		return true;
+	}
+	int nextR = r + 1;
+	for (int nextC = 0; nextC < BOARD_SIZE; ++nextC) {
+		if (isValid(nextR, nextC, sol)) {
+			sol[nextR][nextC] = 1;
+			bool isSolved = solve(nextR, nextC, sol);
+			if (isSolved) {
+				return true;
+			}
+			sol[nextR][nextC] = 0;
+		}
+	}
+
+	return false;
+}
+
+BOOST_AUTO_TEST_CASE(n_queen_test) {
+	TEST_MARKER();
+
+	int sol[BOARD_SIZE][BOARD_SIZE];
+	for (int r = 0; r < BOARD_SIZE; ++r) {
+		for (int c = 0; c < BOARD_SIZE; ++c) {
+			sol[r][c] = 0;
+		}
+	}
+
+	bool isSolved = solve(-1, -1, sol);
+	if (!isSolved) {
+		std::cout << "Solution not exists\n";
+	} else {
+		print(sol);
 	}
 }
 
