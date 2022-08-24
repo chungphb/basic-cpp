@@ -56,6 +56,8 @@ add_executable(circular_linked_list_test src/sites/geeksforgeeks/data_structures
 add_executable(binary_tree_test src/sites/geeksforgeeks/data_structures/binary_tree_test.cpp)
 
 # 3.1.2. ALGORITHMS
+add_executable(two_pointers_test src/sites/geeksforgeeks/algorithms/two_pointers_test.cpp)
+
 add_executable(back_tracking_test src/sites/geeksforgeeks/algorithms/back_tracking_test.cpp)
 
 add_subdirectory(modules)

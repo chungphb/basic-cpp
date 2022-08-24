@@ -26,7 +26,7 @@
 
 BOOST_AUTO_TEST_SUITE(test_back_tracking)
 
-// The Knight's tour problem
+// "The Knight's tour" problem
 // Problem:
 // - Given an N x N board.
 // - A Knight is placed on the  first empty block of the board. 
@@ -43,7 +43,7 @@ BOOST_AUTO_TEST_SUITE(test_back_tracking)
 //   { 56, 43, 52,  3, 22, 13, 24,  5 }
 //   { 51, 46, 55, 44, 53,  4, 21, 12 }
 
-BOOST_AUTO_TEST_SUITE(the_knights_tour_problem_suite)
+BOOST_AUTO_TEST_SUITE(the_knights_tour_suite)
 
 constexpr int BOARD_SIZE = 8;
 constexpr int NUM_VALID_DIRS = 8;
@@ -84,7 +84,7 @@ bool solve(int r, int c, int k, int sol[BOARD_SIZE][BOARD_SIZE], int rDir[NUM_VA
 	return false;
 }
 
-BOOST_AUTO_TEST_CASE(the_knights_tour_problem_test) {
+BOOST_AUTO_TEST_CASE(the_knights_tour_test) {
 	TEST_MARKER();
 
 	int sol[BOARD_SIZE][BOARD_SIZE];
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(the_knights_tour_problem_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
-// Rat in a Maze problem
+// "Rat in a Maze" problem
 // Problem:
 // - Given an N x N maze.
 // - A rat starts from the source (maze[0][0]) and has to reach the destination (maze[N - 1][N - 1]). 
@@ -197,7 +197,7 @@ BOOST_AUTO_TEST_CASE(rat_in_a_maze_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
-// N Queen problem
+// "N Queen" problem
 // Problem:
 // - Given an N x N board.
 // - Place N queens on the board so that no two queens attack each other.
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE(n_queen_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
-// Subset Sum problem
+// "Subset Sum" problem
 // Problem:
 // - Find all subsets of elements selected from a given set whose sum adds up to a given number K.
 // Input: { 15, 22, 14, 26, 32, 9, 16, 8 }, K = 53
