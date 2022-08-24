@@ -171,4 +171,94 @@ BOOST_AUTO_TEST_CASE(three_sum_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Three Sum Closest" problem (LeetCode #16)
+// Problem:
+// - Given an integer array A and an integer target.
+// - Find three integers in A such that the sum is closest to target.
+// - Return the sum of the three integers.
+// Input: nums = { -1, 2, 1, -4 }, target = 1
+// Output: 2 (-1 + 2 + 1)
+
+BOOST_AUTO_TEST_SUITE(three_sum_closest_suite)
+
+int threeSumClosest(std::vector<int>& nums, int target) {
+	// Sort the array
+	std::sort(nums.begin(), nums.end());
+
+	// Cache the result
+	int res = target;
+	int min_diff = INT_MAX;
+
+	// The main loop
+	for (int i = 0; i < nums.size() - 2; ++i) {
+		int start = i + 1;
+		int end = nums.size() - 1;
+		while (start < end) {
+			int sum = nums[i] + nums[start] + nums[end];
+			if (sum == target) {
+				return target;
+			}
+
+			int diff = std::abs(sum - target);
+			if (diff < min_diff) {
+				res = sum;
+				min_diff = diff;
+			}
+
+			// Note: For subarray { x, y, z, t }
+			// If (x + t) >= target
+			// => (y + t) >= target since y > x
+			// => |y + t - target| >= |x + t - target|
+			// => The (y, t) pair can't be included in the final answer
+			if (sum < target) {
+				++start;
+			} else {
+				--end;
+			}
+		}
+	}
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(three_sum_closest_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> arr = { -1, 2, 1, -4 };
+		int target = 1;
+		int res = threeSumClosest(arr, target);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 2
+		std::vector<int> arr = { 0, 0, 0 };
+		int target = 1;
+		int res = threeSumClosest(arr, target);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 3
+		std::vector<int> arr = { 1, 6, 9, 14, 16, 70 };
+		int target = 81;
+		int res = threeSumClosest(arr, target);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 4
+		std::vector<int> arr = { -111, -111, 3, 6, 7, 16, 17, 18, 19 };
+		int target = 13;
+		int res = threeSumClosest(arr, target);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 5
+		std::vector<int> arr = { -55, -24, -18, -11, -7, -3, 4, 5, 6, 9, 11, 23, 33 };
+		int target = 0;
+		int res = threeSumClosest(arr, target);
+		std::cout << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
