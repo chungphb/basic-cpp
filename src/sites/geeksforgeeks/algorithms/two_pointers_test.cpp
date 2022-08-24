@@ -7,7 +7,7 @@
 
 // Notes:
 // - Is easy to understand.
-// - Solves problem within linear time complexity.
+// - Solve problem within linear time complexity.
 // - Techniques:
 //   + Collision: 1 array. Each pointer moves from each side to the middle.
 //   + Forward: 1 array. Both pointers move forward.
@@ -85,7 +85,7 @@ BOOST_AUTO_TEST_SUITE_END()
 // "Three Sum" problem (LeetCode #15)
 // Problem:
 // - Given an integer array A.
-// - Returns all the triplets A[i], A[j], and A[k] such that:
+// - Return all the triplets A[i], A[j], and A[k] such that:
 //   + i != j, i != k, and j != k
 //   + A[i] + A[j] + A[k] == 0
 // 
@@ -255,6 +255,60 @@ BOOST_AUTO_TEST_CASE(three_sum_closest_test) {
 		std::vector<int> arr = { -55, -24, -18, -11, -7, -3, 4, 5, 6, 9, 11, 23, 33 };
 		int target = 0;
 		int res = threeSumClosest(arr, target);
+		std::cout << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Valid Triangle Number" problem (LeetCode #611)
+// Problem:
+// - Given an integer array.
+// - Return the number of triplets chosen from the array that can make triangles if we take them as side lengths of a triangle.
+// Input: nums = {2, 2, 3, 4}
+// Output: nums = {4, 2, 3, 4}
+
+BOOST_AUTO_TEST_SUITE(valid_triangle_number_suite)
+
+int triangleNumber(std::vector<int>& nums) {
+	std::sort(nums.begin(), nums.end());
+
+	int res = 0;
+	for (int i = nums.size() - 1; i >= 2; --i) {
+		int start = 0;
+		int end = i - 1;
+		
+		while (start < end) {
+			int sum = nums[start] + nums[end];
+			if (sum <= nums[i]) {
+				++start;
+			} else {
+				res += end - start;
+				--end;
+			}
+		}
+	}
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(valid_triangle_number_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> arr = { 2, 2, 3, 4 };
+		int res = triangleNumber(arr);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 2
+		std::vector<int> arr = { 4, 2, 3, 4 };
+		int res = triangleNumber(arr);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 3
+		std::vector<int> arr = { 2, 2, 3, 3, 3, 4, 4, 5, 5, 5 };
+		int res = triangleNumber(arr);
 		std::cout << res << "\n";
 	}
 }
