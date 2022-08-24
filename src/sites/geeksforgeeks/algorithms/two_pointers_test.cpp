@@ -711,4 +711,128 @@ BOOST_AUTO_TEST_CASE(longest_unique_substring_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Minimum Window Substring" problem (LeetCode #76)
+// Problem:
+// - Given two strings s and t of lengths m and n respectively.
+// - Return the minimum window substring of s such that every character in t (including duplicates) is included in the window.
+// - Return the empty string "" if there is no such substring.
+// Input: s = "ADOBECODEBANC", t = "ABC"
+// Output: "BANC"
+
+BOOST_AUTO_TEST_SUITE(minimum_window_substring_suite)
+
+std::string minWindow(std::string s, std::string t) {
+	int sLen = s.length();
+	int tLen = t.length();
+
+	// Handle the first window in the main loop
+	int start = 0;
+	int end = -1;
+	std::unordered_map<char, int> chars;
+	for (char c : t) {
+		if (chars.find(c) == chars.end()) {
+			chars.emplace(c, 1);
+		} else {
+			++chars[c];
+		}
+	}
+	bool isValid = false;
+
+	int min = INT_MAX;
+	int min_start = start;
+	int min_end = end;
+
+	// The main loop
+	while (start < sLen && end < sLen) {
+		if (!isValid) {
+			// Prepare for the next round
+			++end;
+			if (end < sLen) {
+				auto it = chars.find(s[end]);
+				if (it == chars.end()) {
+					isValid = false;
+				} else {
+					--chars[s[end]];
+					if (chars[s[end]] <= 0) {
+						isValid = true;
+						for (auto it = chars.begin(); it != chars.end(); ++it) {
+							if (it->second > 0) {
+								isValid = false;
+								break;
+							}
+						}
+					}
+				}
+			}
+		} else {
+			// Update the result
+			int cnt = end - start + 1;
+			if (cnt < min) {
+				min = cnt;
+				min_start = start;
+				min_end = end;
+			}
+
+			// Prepare for the next round
+			auto it = chars.find(s[start]);
+			if (it == chars.end()) {
+				isValid = true;
+			} else {
+				++chars[s[start]];
+				isValid = (chars[s[start]] <= 0);
+			}
+			++start;
+		}
+	}
+	return s.substr(min_start, min_end - min_start + 1);
+}
+
+BOOST_AUTO_TEST_CASE(minimum_window_substring_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::string s = "ADOBECODEBANC";
+		std::string t = "ABC";
+		std::string res = minWindow(s, t);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 2
+		std::string s = "a";
+		std::string t = "a";
+		std::string res = minWindow(s, t);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 3
+		std::string s = "a";
+		std::string t = "aa";
+		std::string res = minWindow(s, t);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 4
+		std::string s = "ABCDEFGHIJKLMN";
+		std::string t = "AM";
+		std::string res = minWindow(s, t);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 5
+		std::string s = "aa";
+		std::string t = "b";
+		std::string res = minWindow(s, t);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 6
+		std::string s = "abc";
+		std::string t = "abc";
+		std::string res = minWindow(s, t);
+		std::cout << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
