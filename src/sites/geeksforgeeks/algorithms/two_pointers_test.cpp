@@ -15,6 +15,14 @@
 
 BOOST_AUTO_TEST_SUITE(test_two_pointers)
 
+struct ListNode {
+	int val;
+	ListNode* next;
+	ListNode() : val{ 0 }, next{ nullptr } {}
+	ListNode(int x) : val{ x }, next{ nullptr } {}
+	ListNode(int x, ListNode* n) : val{ 0 }, next{ n } {}
+};
+
 void print(std::vector<int>& arr) {
 	for (int item : arr) {
 		std::cout << item << " ";
@@ -830,6 +838,119 @@ BOOST_AUTO_TEST_CASE(minimum_window_substring_test) {
 		std::string t = "abc";
 		std::string res = minWindow(s, t);
 		std::cout << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Remove Nth Node From End of List" problem (LeetCode #19)
+// Problem:
+// - Given the head of a linked list.
+// - Remove the nth node from the end of the list and return its head.
+// Input: head = 1 -> 2 -> 3 -> 4 -> 5, n = 2
+// Output: 1 -> 2 -> 3 -> 4
+
+BOOST_AUTO_TEST_SUITE(remove_nth_node_from_the_end_suite)
+
+void print(ListNode* head) {
+	while (head != nullptr) {
+		std::cout << head->val << " ";
+		head = head->next;
+	}
+	std::cout << "\n";
+}
+
+void release(ListNode* head) {
+	ListNode* cur = nullptr;
+	while (head != nullptr) {
+		cur = head;
+		head = head->next;
+		delete cur;
+	}
+}
+
+ListNode* removeNthFromEnd(ListNode* head, int n) {
+	ListNode* start = head;
+	ListNode* end = head;
+	for (int i = 0; i < n; ++i) {
+		end = end->next;
+	}
+	ListNode* prevStart = nullptr;
+	while (end != nullptr) {
+		prevStart = start;
+		start = start->next;
+		end = end->next;
+	}
+	if (start == head) {
+		ListNode* next = head->next;
+		delete head;
+		return next;
+	} else {
+		prevStart->next = start->next;
+		delete start;
+		return head;
+	}
+}
+
+BOOST_AUTO_TEST_CASE(remove_nth_node_from_the_end_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		int n = 2;
+		print(head);
+		head = removeNthFromEnd(head, n);
+		print(head);
+		release(head);
+	}
+
+	{ // Test 2
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		int n = 1;
+		print(head);
+		head = removeNthFromEnd(head, n);
+		print(head);
+		release(head);
+	}
+
+	{ // Test 3
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		int n = 5;
+		print(head);
+		head = removeNthFromEnd(head, n);
+		print(head);
+		release(head);
+	}
+
+	{ // Test 4
+		ListNode* head = new ListNode(1);
+		int n = 1;
+		print(head);
+		head = removeNthFromEnd(head, n);
+		print(head);
+		release(head);
+	}
+
+	{ // Test 5
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		int n = 1;
+		print(head);
+		head = removeNthFromEnd(head, n);
+		print(head);
+		release(head);
 	}
 }
 
