@@ -507,4 +507,93 @@ BOOST_AUTO_TEST_CASE(sort_colors_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Minimum Size Subarray Sum" problem (LeetCode #209)
+// Problem:
+// - Given an array of positive integers A and a positive integer target.
+// - Return the minimal length of a contiguous subarray of which the sum is greater than or equal to target.
+// Input: target = 7, nums = { 2, 3, 1, 2, 4, 3 }
+// Output: 2 ([4, 3])
+
+BOOST_AUTO_TEST_SUITE(minimum_size_subarray_suite)
+
+int minSubArrayLen(int target, std::vector<int>& nums) {
+	int start = 0, end = 0;
+	int sum = nums[start];
+	int min = INT_MAX;
+	int res = 0;
+	while (start < nums.size() && end < nums.size()) {
+		// Note: Handle when the window size is 1
+		if (start == end) {
+			if (sum >= target) {
+				return 1;
+			} else {
+				++end;
+				if (end < nums.size()) {
+					sum += nums[end];
+				}
+			}
+		}
+
+		// Update the window size
+		if (sum < target) {
+			++end;
+			if (end < nums.size()) {
+				sum += nums[end];
+			}
+		} else {
+			// Update the result
+			int cnt = end - start + 1;
+			if (cnt < min) {
+				min = cnt;
+				res = min;
+			}
+
+			sum -= nums[start];
+			++start;
+		}
+	}
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(minimum_size_subarray_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		int target = 7;
+		std::vector<int> arr = { 2, 3, 1, 2, 4, 3 };
+		int res = minSubArrayLen(target, arr);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 2
+		int target = 4;
+		std::vector<int> arr = { 1, 4, 4 };
+		int res = minSubArrayLen(target, arr);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 3
+		int target = 11;
+		std::vector<int> arr = { 1, 1, 1, 1, 1, 1 };
+		int res = minSubArrayLen(target, arr);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 4
+		int target = 2;
+		std::vector<int> arr = { 2 };
+		int res = minSubArrayLen(target, arr);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 5
+		int target = 2;
+		std::vector<int> arr = { 0 };
+		int res = minSubArrayLen(target, arr);
+		std::cout << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
