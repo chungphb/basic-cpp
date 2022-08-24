@@ -429,4 +429,82 @@ BOOST_AUTO_TEST_CASE(palindrome_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Sort Colors" problem (LeetCode #75)
+// Problem:
+// - Given an array A with n objects colored red, white, or blue.
+// - Sort them in-place so that objects of the same color are adjacent, with the colors in the order red, white, and blue.
+// Input: nums = { 2, 0, 2, 1, 1, 0 }
+// Output: { 0, 0, 1, 1, 2, 2 }
+
+BOOST_AUTO_TEST_SUITE(sort_colors_suite)
+
+void sortColors(std::vector<int>& nums) {
+	int start = 0;
+	int end = nums.size() - 1;
+	for (int num : nums) {
+		if (num == 0) {
+			++start;
+		} else if (num == 2) {
+			--end;
+		}
+	}
+	for (int i = 0; i < nums.size(); ++i) {
+		if (i < start) {
+			nums[i] = 0;
+		} else if (i > end) {
+			nums[i] = 2;
+		} else {
+			nums[i] = 1;
+		}
+	}
+}
+
+BOOST_AUTO_TEST_CASE(sort_colors_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> arr = { 2, 0, 2, 1, 1, 0 };
+		sortColors(arr);
+		print(arr);
+	}
+
+	{ // Test 2
+		std::vector<int> arr = { 2, 0, 1 };
+		sortColors(arr);
+		print(arr);
+	}
+
+	{ // Test 3
+		std::vector<int> arr = { 1, 1, 0, 0, 2, 2, 0, 1, 2 };
+		sortColors(arr);
+		print(arr);
+	}
+
+	{ // Test 4
+		std::vector<int> arr = { 0, 0, 0 };
+		sortColors(arr);
+		print(arr);
+	}
+
+	{ // Test 5
+		std::vector<int> arr = { 1, 1, 1 };
+		sortColors(arr);
+		print(arr);
+	}
+
+	{ // Test 6
+		std::vector<int> arr = { 2, 2, 2 };
+		sortColors(arr);
+		print(arr);
+	}
+
+	{ // Test 6
+		std::vector<int> arr = { 1, 2 };
+		sortColors(arr);
+		print(arr);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
