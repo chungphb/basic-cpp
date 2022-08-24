@@ -29,6 +29,14 @@ void print(std::vector<std::vector<int>>& arr2d) {
 	std::cout << "\n";
 }
 
+// ========================================
+// COLLISION
+// ========================================
+
+// ====================
+// Sub type: TWO SUM
+// ====================
+
 // "Two Sum" problem (LeetCode #167)
 // Problem:
 // - Given a sorted array of integers.
@@ -310,6 +318,112 @@ BOOST_AUTO_TEST_CASE(valid_triangle_number_test) {
 		std::vector<int> arr = { 2, 2, 3, 3, 3, 4, 4, 5, 5, 5 };
 		int res = triangleNumber(arr);
 		std::cout << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// ====================
+// Sub type: PARTITION
+// ====================
+
+// "Palindrome" problem (LeetCode #125)
+// Problem:
+// - Given a string s.
+// - Return true if it is a palindrome, or false otherwise.
+// Input: s = "A man, a plan, a canal: Panama"
+// Output: true
+
+BOOST_AUTO_TEST_SUITE(palindrome_suite)
+
+inline bool isValid(char c) {
+	return (c >= '0' && c <= '9')
+		|| (c >= 'a' && c <= 'z')
+		|| (c >= 'A' && c <= 'Z');
+}
+
+inline bool isCapital(char c) {
+	return (c >= 'A' && c <= 'Z');
+}
+
+bool isPalindrome(std::string s) {
+	int start = 0;
+	int end = s.size() - 1;
+	while (start < end) {
+		while (start < end && !isValid(s[start])) {
+			++start;
+		}
+
+		while (start < end && !isValid(s[end])) {
+			--end;
+		}
+
+		if (start >= end) {
+			return true;
+		}
+
+		char c1 = s[start];
+		char c2 = s[end];
+
+		if (isCapital(c1)) {
+			c1 += 32;
+		}
+
+		if (isCapital(c2)) {
+			c2 += 32;
+		}
+
+		if (c1 != c2) {
+			return false;
+		} else {
+			++start;
+			--end;
+		}
+	}
+
+	return true;
+}
+
+BOOST_AUTO_TEST_CASE(palindrome_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::string s = "A man, a plan, a canal: Panama";
+		if (isPalindrome(s)) {
+			std::cout << "\"" << s << "\" is a palindrome\n";
+		} else {
+			std::cout << "\"" << s << "\" is not a palindrome\n";
+		}
+	}
+
+	{ // Test 2
+		std::string s = "race a car";
+		if (isPalindrome(s)) {
+			std::cout << "\"" << s << "\" is a palindrome\n";
+		}
+		else {
+			std::cout << "\"" << s << "\" is not a palindrome\n";
+		}
+	}
+
+	{ // Test 2
+		std::string s = "\n\t";
+		if (isPalindrome(s)) {
+			std::cout << "\"" << s << "\" is a palindrome\n";
+		}
+		else {
+			std::cout << "\"" << s << "\" is not a palindrome\n";
+		}
+	}
+
+	{ // Test 3
+		std::string s = "0 % 1 2 3 4 5 6 7 8 9 9 8 7 6 5 4 3 2 1 # 0";
+		if (isPalindrome(s)) {
+			std::cout << "\"" << s << "\" is a palindrome\n";
+		}
+		else {
+			std::cout << "\"" << s << "\" is not a palindrome\n";
+		}
 	}
 }
 
