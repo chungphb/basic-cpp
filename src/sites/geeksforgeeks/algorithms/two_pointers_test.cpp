@@ -507,6 +507,14 @@ BOOST_AUTO_TEST_CASE(sort_colors_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// ========================================
+// FORWARD
+// ========================================
+
+// ====================
+// Sub type: WINDOW
+// ====================
+
 // "Minimum Size Subarray Sum" problem (LeetCode #209)
 // Problem:
 // - Given an array of positive integers A and a positive integer target.
@@ -517,10 +525,13 @@ BOOST_AUTO_TEST_SUITE_END()
 BOOST_AUTO_TEST_SUITE(minimum_size_subarray_suite)
 
 int minSubArrayLen(int target, std::vector<int>& nums) {
+	// Initalize the first window
 	int start = 0, end = 0;
 	int sum = nums[start];
 	int min = INT_MAX;
 	int res = 0;
+
+	// The main loop
 	while (start < nums.size() && end < nums.size()) {
 		// Note: Handle when the window size is 1
 		if (start == end) {
@@ -536,6 +547,7 @@ int minSubArrayLen(int target, std::vector<int>& nums) {
 
 		// Update the window size
 		if (sum < target) {
+			// Prepare for the next round
 			++end;
 			if (end < nums.size()) {
 				sum += nums[end];
@@ -548,6 +560,7 @@ int minSubArrayLen(int target, std::vector<int>& nums) {
 				res = min;
 			}
 
+			// Prepare for the next round
 			sum -= nums[start];
 			++start;
 		}
@@ -590,6 +603,108 @@ BOOST_AUTO_TEST_CASE(minimum_size_subarray_test) {
 		int target = 2;
 		std::vector<int> arr = { 0 };
 		int res = minSubArrayLen(target, arr);
+		std::cout << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Longest Unique Substring" problem (LeetCode #3)
+// Problem:
+// - Given a string s.
+// - Find the length of the longest substring without repeating characters.
+// Input: s = "abcabcbb"
+// Output: 3
+
+BOOST_AUTO_TEST_SUITE(longest_unique_substring_suite)
+
+int lengthOfLongestSubstring(std::string s) {
+	int len = s.length();
+	if (len == 0 || len == 1) {
+		return len;
+	}
+
+	// Initalize the first window
+	int start = 0;
+	int end = 0;
+	int res = 1;
+	bool isUnique = true;
+	std::unordered_map<char, int> chars;
+	chars.emplace(s[start], 1);
+
+	// The main loop
+	while (start < len && end < len) {
+		// Update the window size
+		if (isUnique) {
+			// Update the result
+			int cnt = end - start + 1;
+			if (cnt > res) {
+				res = cnt;
+			}
+
+			// Prepare for the next round
+			++end;
+			if (end < len) {
+				auto it = chars.find(s[end]);
+				if (it == chars.end()) {
+					chars.emplace(s[end], 1);
+				} else {
+					++chars[s[end]];
+				}
+				isUnique = (chars[s[end]] == 1);
+			}
+		} else {
+			// Prepare for the next round
+			--chars[s[start]];
+			isUnique = (chars[s[end]] == 1);
+			++start;
+		}
+	}
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(longest_unique_substring_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::string s = "abcabcbb";
+		int res = lengthOfLongestSubstring(s);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 2
+		std::string s = "bbbbb";
+		int res = lengthOfLongestSubstring(s);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 3
+		std::string s = "pwwkew";
+		int res = lengthOfLongestSubstring(s);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 4
+		std::string s = "abcdefu";
+		int res = lengthOfLongestSubstring(s);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 5
+		std::string s = "";
+		int res = lengthOfLongestSubstring(s);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 6
+		std::string s = "a";
+		int res = lengthOfLongestSubstring(s);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 7
+		std::string s = "abccbadeffbascbaffcfbfcabdef";
+		int res = lengthOfLongestSubstring(s);
 		std::cout << res << "\n";
 	}
 }
