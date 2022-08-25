@@ -1050,4 +1050,106 @@ BOOST_AUTO_TEST_CASE(middle_linked_list_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Linked List Cycle" problem (LeetCode #141)
+// Problem:
+// - Given the head of a linked list.
+// - Determine if the linked list has a cycle in it.
+// Input: head = 3 -> 2 -> 0 -> -4 (back to 2) 
+// Output: true
+
+BOOST_AUTO_TEST_SUITE(linked_list_cycle_suite)
+
+bool hasCycle(ListNode* head) {
+	ListNode* fast = head;
+	ListNode* slow = head;
+	while (fast != nullptr && fast->next != nullptr) {
+		fast = fast->next->next;
+		slow = slow->next;
+		if (fast == slow) {
+			return true;
+		}
+	}
+	return false;
+}
+
+BOOST_AUTO_TEST_CASE(linked_list_cycle_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		head->next->next->next->next->next = new ListNode(6);
+		bool res = hasCycle(head);
+		std::cout << (res ? "Has cycle\n" : "Not have cycle\n");
+		release(head);
+	}
+
+	{ // Test 2
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		head->next->next->next->next->next = new ListNode(6);
+		head->next->next->next->next->next->next = head->next;
+		bool res = hasCycle(head);
+		std::cout << (res ? "Has cycle\n" : "Not have cycle\n");
+		delete head->next->next->next->next->next;
+		delete head->next->next->next->next;
+		delete head->next->next->next;
+		delete head->next->next;
+		delete head->next;
+		delete head;
+	}
+
+	{ // Test 3
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		bool res = hasCycle(head);
+		std::cout << (res ? "Has cycle\n" : "Not have cycle\n");
+		release(head);
+	}
+
+
+	{ // Test 4
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		head->next->next->next->next->next = head->next->next;
+		bool res = hasCycle(head);
+		std::cout << (res ? "Has cycle\n" : "Not have cycle\n");
+		delete head->next->next->next->next;
+		delete head->next->next->next;
+		delete head->next->next;
+		delete head->next;
+		delete head;
+	}
+
+	{ // Test 5
+		ListNode* head = new ListNode(1);
+		bool res = hasCycle(head);
+		std::cout << (res ? "Has cycle\n" : "Not have cycle\n");
+		release(head);
+	}
+
+
+	{ // Test 6
+		ListNode* head = new ListNode(1);
+		head->next = head;
+		bool res = hasCycle(head);
+		std::cout << (res ? "Has cycle\n" : "Not have cycle\n");
+		delete head;
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
