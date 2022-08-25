@@ -23,6 +23,24 @@ struct ListNode {
 	ListNode(int x, ListNode* n) : val{ 0 }, next{ n } {}
 };
 
+
+void print(ListNode* head) {
+	while (head != nullptr) {
+		std::cout << head->val << " ";
+		head = head->next;
+	}
+	std::cout << "\n";
+}
+
+void release(ListNode* head) {
+	ListNode* cur = nullptr;
+	while (head != nullptr) {
+		cur = head;
+		head = head->next;
+		delete cur;
+	}
+}
+
 void print(std::vector<int>& arr) {
 	for (int item : arr) {
 		std::cout << item << " ";
@@ -852,23 +870,6 @@ BOOST_AUTO_TEST_SUITE_END()
 
 BOOST_AUTO_TEST_SUITE(remove_nth_node_from_the_end_suite)
 
-void print(ListNode* head) {
-	while (head != nullptr) {
-		std::cout << head->val << " ";
-		head = head->next;
-	}
-	std::cout << "\n";
-}
-
-void release(ListNode* head) {
-	ListNode* cur = nullptr;
-	while (head != nullptr) {
-		cur = head;
-		head = head->next;
-		delete cur;
-	}
-}
-
 ListNode* removeNthFromEnd(ListNode* head, int n) {
 	ListNode* start = head;
 	ListNode* end = head;
@@ -950,6 +951,99 @@ BOOST_AUTO_TEST_CASE(remove_nth_node_from_the_end_test) {
 		print(head);
 		head = removeNthFromEnd(head, n);
 		print(head);
+		release(head);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// ====================
+// Sub type: FAST AND SLOW
+// ====================
+
+// "Middle of the Linked List" problem (LeetCode #876)
+// Problem:
+// - Given the head of a singly linked list.
+// - Return the middle node of the linked list.
+// - If there are two middle nodes, return the second middle node.
+// Input: head = 1 -> 2 -> 3 -> 4 -> 5
+// Output: 3 -> 4 -> 5
+
+BOOST_AUTO_TEST_SUITE(middle_linked_list_suite)
+
+ListNode* middleNode(ListNode* head) {
+	ListNode* fast = head;
+	ListNode* slow = head;
+	while (fast != nullptr && fast->next != nullptr) {
+		fast = fast->next->next;
+		slow = slow->next;
+	}
+	return slow;
+}
+
+BOOST_AUTO_TEST_CASE(middle_linked_list_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		head->next->next->next->next->next = new ListNode(6);
+		print(head);
+		ListNode* mid = middleNode(head);
+		print(mid);
+		release(head);
+	}
+
+	{ // Test 2
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		print(head);
+		ListNode* mid = middleNode(head);
+		print(mid);
+		release(head);
+	}
+
+	{ // Test 3
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		print(head);
+		ListNode* mid = middleNode(head);
+		print(mid);
+		release(head);
+	}
+
+	{ // Test 4
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		print(head);
+		ListNode* mid = middleNode(head);
+		print(mid);
+		release(head);
+	}
+
+	{ // Test 5
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		print(head);
+		ListNode* mid = middleNode(head);
+		print(mid);
+		release(head);
+	}
+
+	{ // Test 6
+		ListNode* head = new ListNode(1);
+		print(head);
+		ListNode* mid = middleNode(head);
+		print(mid);
 		release(head);
 	}
 }
