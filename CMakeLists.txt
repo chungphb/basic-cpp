@@ -60,4 +60,6 @@ add_executable(two_pointers_test src/sites/geeksforgeeks/algorithms/two_pointers
 
 add_executable(back_tracking_test src/sites/geeksforgeeks/algorithms/back_tracking_test.cpp)
 
+add_executable(bfs_test src/sites/geeksforgeeks/algorithms/bfs_test.cpp)
+
 add_subdirectory(modules)
