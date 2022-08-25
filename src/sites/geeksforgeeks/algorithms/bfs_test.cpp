@@ -569,4 +569,136 @@ BOOST_AUTO_TEST_CASE(populate_next_right_pointers_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Word Ladder" problem (LeetCode #127)
+// Problem:
+// - Given two words, beginWord and endWord, and a dictionary wordList.
+// - Return the number of words in the shortest transformation sequence from beginWord to endWord, or 0 if no such sequence exists.
+// Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
+// Output: 5 ("hit" -> "hot" -> "dot" -> "dog" -> cog")
+
+BOOST_AUTO_TEST_SUITE(word_ladder_suite)
+
+bool areNeighbors(std::string word1, std::string word2) {
+	const int WORD_SIZE = word1.size();
+	bool isDiff = false;
+	for (int i = 0; i < WORD_SIZE; ++i) {
+		if (word1[i] != word2[i]) {
+			if (isDiff) {
+				return false;
+			}
+			isDiff = true;
+		}
+	}
+	return true;
+}
+
+int ladderLength(std::string beginWord, std::string endWord, std::vector<std::string>& wordList) {
+	const int WORD_SIZE = beginWord.size();
+	const int LIST_SIZE = wordList.size();
+
+	int endId = -1;
+	std::vector<std::vector<int>> graph;
+	std::queue<int> queue;
+	for (int i = 0; i < LIST_SIZE; ++i) {
+		if (wordList[i] == endWord) {
+			endId = i;
+		}
+		graph.push_back({});
+		if (areNeighbors(wordList[i], beginWord)) {
+			if (i == endId) {
+				return 2;
+			}
+			queue.push(i);
+		}
+	}
+	if (endId == -1 || queue.empty()) {
+		return 0;
+	}
+
+	for (int i = 0; i < LIST_SIZE - 1; ++i) {
+		for (int j = i + 1; j < LIST_SIZE; ++j) {
+			if (areNeighbors(wordList[i], wordList[j])) {
+				graph[i].push_back(j);
+				graph[j].push_back(i);
+			}
+		}
+	}
+
+	int res = 0;
+	std::unordered_set<int> set;
+	while (!queue.empty() && res < LIST_SIZE) {
+		++res;
+		int size = queue.size();
+		for (int k = 0; k < size; ++k) {
+			int node = queue.front();
+			set.insert(node);
+			queue.pop();
+			std::vector<int> neighbors = graph[node];
+			if (!neighbors.empty()) {
+				for (int neighbor : neighbors) {
+					if (neighbor == endId) {
+						return res + 2;
+					} else {
+						if (!set.contains(neighbor)) {
+							queue.push(neighbor);
+						}
+					}
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+BOOST_AUTO_TEST_CASE(word_ladder_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::string beginWord = "hit";
+		std::string endWord = "cog";
+		std::vector<std::string> wordList = { "hot", "dot", "dog", "lot", "log", "cog"};
+
+		int res = ladderLength(beginWord, endWord, wordList);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 2
+		std::string beginWord = "hit";
+		std::string endWord = "cog";
+		std::vector<std::string> wordList = { "hot", "lot", "log", "cog" };
+
+		int res = ladderLength(beginWord, endWord, wordList);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 3
+		std::string beginWord = "hit";
+		std::string endWord = "cog";
+		std::vector<std::string> wordList = { "hot", "lot", "log" };
+
+		int res = ladderLength(beginWord, endWord, wordList);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 4
+		std::string beginWord = "hit";
+		std::string endWord = "cog";
+		std::vector<std::string> wordList = { "lot", "log" };
+
+		int res = ladderLength(beginWord, endWord, wordList);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 5
+		std::string beginWord = "hit";
+		std::string endWord = "hot";
+		std::vector<std::string> wordList = { "hot" };
+
+		int res = ladderLength(beginWord, endWord, wordList);
+		std::cout << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
