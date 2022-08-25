@@ -1152,4 +1152,117 @@ BOOST_AUTO_TEST_CASE(linked_list_cycle_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// ========================================
+// PARALLEL
+// ========================================
+
+// "Merge Two Sorted Lists" problem (LeetCode #21)
+// Problem:
+// - Given the heads of two sorted linked lists.
+// - Merge the two lists in a one sorted list.
+// Input: list1 = 1 -> 2 -> 4, list2 = 1 -> 3 -> 4
+// Output: 1 -> 1 -> 2 -> 3 -> 4 -> 4
+
+BOOST_AUTO_TEST_SUITE(merge_two_sorted_lists_suite)
+
+ListNode* mergeTwoLists(ListNode* list1, ListNode* list2) {
+	if (list2 == nullptr) {
+		return list1;
+	}
+	
+	if (list1 == nullptr) {
+		return list2;
+	}
+
+	ListNode* list = nullptr;
+	if (list1->val < list2->val) {
+		list = list1;
+		list1 = list1->next;
+	} else {
+		list = list2;
+		list2 = list2->next;
+	}
+
+	ListNode* cur = list;
+	while (list1 != nullptr && list2 != nullptr) {
+		if (list1->val < list2->val) {
+			cur->next = list1;
+			list1 = list1->next;
+		} else {
+			cur->next = list2;
+			list2 = list2->next;
+		}
+		cur = cur->next;
+	}
+
+	if (list1 == nullptr && list2 != nullptr) {
+		while (list2 != nullptr) {
+			cur->next = list2;
+			list2 = list2->next;
+			cur = cur->next;
+		}
+	}
+
+	if (list2 == nullptr && list1 != nullptr) {
+		while (list1 != nullptr) {
+			cur->next = list1;
+			list1 = list1->next;
+			cur = cur->next;
+		}
+	}
+
+	return list;
+}
+
+BOOST_AUTO_TEST_CASE(merge_two_sorted_lists_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		ListNode* list1 = new ListNode(1);
+		list1->next = new ListNode(2);
+		list1->next->next = new ListNode(4);
+		
+		ListNode* list2 = new ListNode(1);
+		list2->next = new ListNode(3);
+		list2->next->next = new ListNode(4);
+
+		ListNode* list = mergeTwoLists(list1, list2);
+		print(list);
+		release(list);
+	}
+
+	{ // Test 2
+		ListNode* list1 = new ListNode(1);
+		list1->next = new ListNode(2);
+		list1->next->next = new ListNode(4);
+
+		ListNode* list2 = new ListNode(4);
+		list2->next = new ListNode(5);
+		list2->next->next = new ListNode(6);
+
+		ListNode* list = mergeTwoLists(list1, list2);
+		print(list);
+		release(list);
+	}
+
+	{ // Test 3
+		ListNode* list1 = nullptr;
+		ListNode* list2 = nullptr;
+		ListNode* list = mergeTwoLists(list1, list2);
+		print(list);
+		release(list);
+	}
+
+	{ // Test 4
+		ListNode* list1 = nullptr;
+		ListNode* list2 = new ListNode(0);
+
+		ListNode* list = mergeTwoLists(list1, list2);
+		print(list);
+		release(list);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
