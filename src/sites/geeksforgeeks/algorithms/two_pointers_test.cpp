@@ -1265,4 +1265,74 @@ BOOST_AUTO_TEST_CASE(merge_two_sorted_lists_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Product of Array Except Self" problem (LeetCode #238)
+// Problem:
+// - Given an integer array A.
+// - Return an array R such that R[i] is equal to the product of all the elements of A except A[i].
+// Input: A = { 1, 2, 3, 4 }
+// Output: { 24, 12, 8, 6 }
+
+BOOST_AUTO_TEST_SUITE(product_of_array_except_self_suite)
+
+std::vector<int> productExceptSelf(std::vector<int>& nums) {
+	const int SIZE = nums.size();
+	std::vector<int> res(SIZE);
+	std::fill(res.begin(), res.end(), 1);
+
+	int left = 0;
+	int right = SIZE - 1;
+	int preSum = 1;
+	int postSum = 1;
+	while (right >= 0) {
+		if (left < right) {
+			res[left] = preSum;
+			res[right] = postSum;
+		} else {
+			res[left] *= preSum;
+			res[right] *= postSum;
+		}
+		if (right > 0) {
+			preSum *= nums[left];
+			postSum *= nums[right];
+		}
+		++left;
+		--right;
+	}
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(product_of_array_except_self_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> arr = { 1, 2, 3, 4 };
+		std::vector<int> res = productExceptSelf(arr);
+		print(arr);
+		print(res);
+	}
+
+	{ // Test 2
+		std::vector<int> arr = { 0, 0 };
+		std::vector<int> res = productExceptSelf(arr);
+		print(arr);
+		print(res);
+	}
+
+	{ // Test 3
+		std::vector<int> arr = { -1, 1, 0, -3, 3 };
+		std::vector<int> res = productExceptSelf(arr);
+		print(arr);
+		print(res);
+	}
+
+	{ // Test 4
+		std::vector<int> arr = { 1, INT_MAX, 1, 1 };
+		std::vector<int> res = productExceptSelf(arr);
+		print(arr);
+		print(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
