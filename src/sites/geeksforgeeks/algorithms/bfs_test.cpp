@@ -360,6 +360,7 @@ int minDepth(TreeNode* root) {
 			}
 		}
 	}
+
 	return minDepth;
 }
 
@@ -407,6 +408,161 @@ BOOST_AUTO_TEST_CASE(minimum_depth_of_binary_tree_test) {
 		print(root);
 		int res = minDepth(root);
 		std::cout << "Result: " << res << "\n";
+		release(root);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Populating Next Right Pointers in Each Node" problem (LeetCode #116)
+// Problem:
+// - Given a perfect binary tree where all leaves are on the same level, and every parent has two children.
+// - Populate each next pointer to point to its next right node.
+// - If there is no next right node, the next pointer should be set to NULL.
+// Input:
+// Output:
+
+BOOST_AUTO_TEST_SUITE(populate_next_right_pointers_suite)
+
+class Node {
+public:
+	int val;
+	Node* left;
+	Node* right;
+	Node* next;
+
+	Node() : val(0), left(NULL), right(NULL), next(NULL) {}
+
+	Node(int _val) : val(_val), left(NULL), right(NULL), next(NULL) {}
+
+	Node(int _val, Node* _left, Node* _right, Node* _next)
+		: val(_val), left(_left), right(_right), next(_next) {}
+};
+
+void print(Node* root) {
+	if (root == nullptr) {
+		return;
+	}
+
+	std::queue<Node*> queue;
+	queue.push(root);
+	while (!queue.empty()) {
+		Node* node = queue.front();
+		queue.pop();
+
+		std::cout << node->val << " -> ";
+		if (node->left != nullptr) {
+			std::cout << node->left->val;
+			queue.push(node->left);
+		} else {
+			std::cout << "NULL";
+		}
+
+		std::cout << " + ";
+
+		if (node->right != nullptr) {
+			std::cout << node->right->val;
+			queue.push(node->right);
+		} else {
+			std::cout << "NULL";
+		}
+
+		std::cout << " , ";
+
+		if (node->next != nullptr) {
+			std::cout << node->next->val;
+		} else {
+			std::cout << "NULL";
+		}
+
+		std::cout << "\n";
+	}
+	std::cout << "\n";
+}
+
+void release(Node* root) {
+	if (root == nullptr) {
+		return;
+	}
+
+	std::queue<Node*> queue;
+	queue.push(root);
+	while (!queue.empty()) {
+		Node* node = queue.front();
+		queue.pop();
+		if (node->left != nullptr) {
+			queue.push(node->left);
+		}
+		if (node->right != nullptr) {
+			queue.push(node->right);
+		}
+		delete node;
+	}
+}
+
+Node* connect(Node* root) {
+	if (root == nullptr) {
+		return nullptr;
+	}
+	std::queue<Node*> queue;
+	queue.push(root);
+	while (!queue.empty()) {
+		int size = queue.size();
+		Node* prev = nullptr;
+		for (int i = 0; i < size; ++i) {
+			Node* node = queue.front();
+			queue.pop();
+			if (node->left != nullptr) {
+				queue.push(node->left);
+			}
+			if (node->right != nullptr) {
+				queue.push(node->right);
+			}
+			if (prev != nullptr) {
+				prev->next = node;
+			}
+			prev = node;
+		}
+	}
+	return root;
+}
+
+BOOST_AUTO_TEST_CASE(populate_next_right_pointers_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		Node* root = new Node(1);
+		root->left = new Node(2);
+		root->right = new Node(3);
+		root->left->left = new Node(4);
+		root->left->right = new Node(5);
+		root->right->left = new Node(6);
+		root->right->right = new Node(7);
+		std::cout << "Tree:\n";
+		print(root);
+		Node* res = connect(root);
+		std::cout << "Result:\n";
+		print(res);
+		release(root);
+	}
+
+	{ // Test 2
+		Node* root = new Node(1);
+		std::cout << "Tree:\n";
+		print(root);
+		Node* res = connect(root);
+		std::cout << "Result:\n";
+		print(res);
+		release(root);
+	}
+
+	{ // Test 3
+		Node* root = nullptr;
+		std::cout << "Tree:\n";
+		print(root);
+		Node* res = connect(root);
+		std::cout << "Result:\n";
+		print(res);
 		release(root);
 	}
 }
