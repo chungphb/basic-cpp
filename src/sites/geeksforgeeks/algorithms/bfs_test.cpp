@@ -2,6 +2,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <vector>
 #include <queue>
+#include <unordered_set>
 
 #include "test_util.h"
 
@@ -177,6 +178,149 @@ BOOST_AUTO_TEST_CASE(binary_tree_level_order_traversal_test) {
 		std::vector<std::vector<int>> res = levelOrder(root);
 		print(res);
 		release(root);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "01 Matrix" problem (LeetCode #542)
+// Problem:
+// - Given an m x n binary matrix mat.
+// - Return the distance of the nearest 0 for each cell.
+// Input: mat = [[0,0,0],[0,1,0],[1,1,1]]
+// Output: [[0,0,0],[0,1,0],[1,2,1]]
+// Note:
+// - Start from 0, not from 1. 
+// - If a node is reached, it's not been visited.
+//   -> Is 1 (because we marked all 0s as visited).
+//   -> Has distance to the closest 0 = distance of the previous node to its closest 0 + 1.
+
+BOOST_AUTO_TEST_SUITE(binary_matrix_suite)
+
+std::vector<std::vector<int>> updateMatrix(std::vector<std::vector<int>>& mat) {
+	int dirX[] = { -1, 0, 0, 1 };
+	int dirY[] = { 0, -1, 1, 0 };
+
+	std::queue<std::pair<int, int>> queue;
+	std::unordered_set<int> set;
+	int m = mat.size();
+	int n = mat[0].size();
+	for (int i = 0; i < m; ++i) {
+		for (int j = 0; j < n; ++j) {
+			if (mat[i][j] == 0) {
+				queue.emplace(i, j);
+				set.insert(i * n + j);
+			}
+		}
+	}
+
+	while (!queue.empty()) {
+		std::pair<int, int> pos = queue.front();
+		queue.pop();
+		for (int i = 0; i < 4; ++i) {
+			int nPosX = pos.first + dirX[i];
+			int nPosY = pos.second + dirY[i];
+			int nHash = nPosX * n + nPosY;
+			if (nPosX >= 0 && nPosX < m && nPosY >= 0 && nPosY < n && !set.contains(nHash)) {
+				queue.emplace(nPosX, nPosY);
+				set.insert(nHash);
+				mat[nPosX][nPosY] = mat[pos.first][pos.second] + 1;
+			}
+		}
+	}
+
+	return mat;
+}
+
+BOOST_AUTO_TEST_CASE(binary_matrix_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<std::vector<int>> mat = { { 0, 0, 0 }, { 0, 1, 0 }, { 0, 0, 0 } };
+		std::cout << "Matrix:\n";
+		print(mat);
+		std::vector<std::vector<int>> res = updateMatrix(mat);
+		std::cout << "Result:\n";
+		print(mat);
+	}
+
+	{ // Test 2
+		std::vector<std::vector<int>> mat = { { 0, 0, 0 }, { 0, 1, 0 }, { 1, 1, 1 } };
+		std::cout << "Matrix:\n";
+		print(mat);
+		std::vector<std::vector<int>> res = updateMatrix(mat);
+		std::cout << "Result:\n";
+		print(mat);
+	}
+
+	{ // Test 3
+		std::vector<std::vector<int>> mat = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+		std::cout << "Matrix:\n";
+		print(mat);
+		std::vector<std::vector<int>> res = updateMatrix(mat);
+		std::cout << "Result:\n";
+		print(mat);
+	}
+
+	{ // Test 4
+		std::vector<std::vector<int>> mat = { { 1, 1, 1 }, { 1, 0, 1 }, { 1, 1, 1 } };
+		std::cout << "Matrix:\n";
+		print(mat);
+		std::vector<std::vector<int>> res = updateMatrix(mat);
+		std::cout << "Result:\n";
+		print(mat);
+	}
+
+	{ // Test 5
+		std::vector<std::vector<int>> mat = { { 0, 1, 0, 1 }, { 1, 0, 1, 0 } };
+		std::cout << "Matrix:\n";
+		print(mat);
+		std::vector<std::vector<int>> res = updateMatrix(mat);
+		std::cout << "Result:\n";
+		print(mat);
+	}
+
+	{ // Test 6
+		std::vector<std::vector<int>> mat = { { 1, 0 }, { 1, 1 } };
+		std::cout << "Matrix:\n";
+		print(mat);
+		std::vector<std::vector<int>> res = updateMatrix(mat);
+		std::cout << "Result:\n";
+		print(mat);
+	}
+
+	{ // Test 7
+		std::vector<std::vector<int>> mat = { {
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+			1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0 } };
+		std::cout << "Matrix:\n";
+		print(mat);
+		std::vector<std::vector<int>> res = updateMatrix(mat);
+		std::cout << "Result:\n";
+		print(mat);
 	}
 }
 
