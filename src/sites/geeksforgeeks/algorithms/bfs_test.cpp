@@ -326,4 +326,91 @@ BOOST_AUTO_TEST_CASE(binary_matrix_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Minimum Depth of Binary Tree" problem (LeetCode #111)
+// Problem:
+// - Given a binary tree.
+// - Find its minimum depth.
+// Input: root = [3,9,20,null,null,15,7]
+// Output: 2
+
+BOOST_AUTO_TEST_SUITE(minimum_depth_of_binary_tree_suite)
+
+int minDepth(TreeNode* root) {
+	if (root == nullptr) {
+		return 0;
+	}
+
+	std::queue<TreeNode*> queue;
+	queue.push(root);
+	int minDepth = 0;
+	while (!queue.empty()) {
+		++minDepth;
+		int size = queue.size();
+		for (int k = 0; k < size; ++k) {
+			TreeNode* node = queue.front();
+			queue.pop();
+			if (node->left == nullptr && node->right == nullptr) {
+				return minDepth;
+			}
+			if (node->left != nullptr) {
+				queue.push(node->left);
+			}
+			if (node->right != nullptr) {
+				queue.push(node->right);
+			}
+		}
+	}
+	return minDepth;
+}
+
+BOOST_AUTO_TEST_CASE(minimum_depth_of_binary_tree_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		TreeNode* root = new TreeNode(3);
+		root->left = new TreeNode(9);
+		root->right = new TreeNode(20);
+		root->right->left = new TreeNode(15);
+		root->right->right = new TreeNode(7);
+		std::cout << "Tree:\n";
+		print(root);
+		int res = minDepth(root);
+		std::cout << "Result: " << res << "\n";
+		release(root);
+	}
+
+	{ // Test 2
+		TreeNode* root = new TreeNode(2);
+		root->right = new TreeNode(3);
+		root->right->right = new TreeNode(4);
+		root->right->right->right = new TreeNode(5);
+		root->right->right->right->right = new TreeNode(6);
+		std::cout << "Tree:\n";
+		print(root);
+		int res = minDepth(root);
+		std::cout << "Result: " << res << "\n";
+		release(root);
+	}
+
+	{ // Test 3
+		TreeNode* root = new TreeNode(1);
+		std::cout << "Tree:\n";
+		print(root);
+		int res = minDepth(root);
+		std::cout << "Result: " << res << "\n";
+		release(root);
+	}
+
+	{ // Test 4
+		TreeNode* root = nullptr;
+		std::cout << "Tree:\n";
+		print(root);
+		int res = minDepth(root);
+		std::cout << "Result: " << res << "\n";
+		release(root);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
