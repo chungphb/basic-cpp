@@ -346,4 +346,110 @@ BOOST_AUTO_TEST_CASE(same_tree_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Symmetric Tree" problem (LeetCode #101)
+// Problem:
+// - Given the root of a binary tree.
+// - Check whether it is a mirror of itself.
+// Input: root = [1,2,2,3,4,4,3]
+// Output: true
+
+BOOST_AUTO_TEST_SUITE(symmetric_tree_suite)
+
+bool isSymmetric(TreeNode* root) {
+	if (root == nullptr) {
+		return true;
+	}
+	std::stack<TreeNode*> leftStack;
+	leftStack.push(root->left);
+	std::stack<TreeNode*> rightStack;
+	rightStack.push(root->right);
+	while (!leftStack.empty() && !rightStack.empty()) {
+		TreeNode* leftNode = leftStack.top();
+		leftStack.pop();
+		TreeNode* rightNode = rightStack.top();
+		rightStack.pop();
+		if (leftNode == nullptr && rightNode == nullptr) {
+			continue;
+		} else if (leftNode == nullptr || rightNode == nullptr) {
+			return false;
+		} else {
+			if (leftNode->val != rightNode->val) {
+				return false;
+			}
+			leftStack.push(leftNode->right);
+			leftStack.push(leftNode->left);
+			rightStack.push(rightNode->left);
+			rightStack.push(rightNode->right);
+		}
+	}
+	return leftStack.empty() && rightStack.empty();
+}
+
+BOOST_AUTO_TEST_CASE(symmetric_tree_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		TreeNode* root = new TreeNode(1);
+		root->left = new TreeNode(2);
+		root->right = new TreeNode(2);
+		root->left->left = new TreeNode(3);
+		root->left->right = new TreeNode(4);
+		root->right->left = new TreeNode(4);
+		root->right->right = new TreeNode(3);
+		std::cout << "Tree:\n";
+		print(root);
+		bool res = isSymmetric(root);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+		release(root);
+	}
+
+	{ // Test 2
+		TreeNode* root = new TreeNode(1);
+		root->left = new TreeNode(2);
+		root->right = new TreeNode(2);
+		root->left->left = new TreeNode(3);
+		root->right->left = new TreeNode(3);
+		std::cout << "Tree:\n";
+		print(root);
+		bool res = isSymmetric(root);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+		release(root);
+	}
+
+	{ // Test 3
+		TreeNode* root = new TreeNode(1);
+		std::cout << "Tree:\n";
+		print(root);
+		bool res = isSymmetric(root);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+		release(root);
+	}
+
+	{ // Test 4
+		TreeNode* root = nullptr;
+		std::cout << "Tree:\n";
+		print(root);
+		bool res = isSymmetric(root);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+		release(root);
+	}
+
+	{ // Test 5
+		TreeNode* root = new TreeNode(1);
+		root->left = new TreeNode(2);
+		root->right = new TreeNode(2);
+		root->left->left = new TreeNode(3);
+		root->left->left->left = new TreeNode(4);
+		root->right->right = new TreeNode(3);
+		root->right->right->right = new TreeNode(4);
+		std::cout << "Tree:\n";
+		print(root);
+		bool res = isSymmetric(root);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+		release(root);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
