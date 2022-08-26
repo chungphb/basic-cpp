@@ -645,4 +645,72 @@ BOOST_AUTO_TEST_CASE(combinations_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Combination Sum" problem (LeetCode #39)
+// Problem:
+// - Given an array of distinct integers candidates and a target integer target.
+// - Return a list of all unique combinations of candidates where the chosen numbers sum to target.
+// - The same number may be chosen from candidates an unlimited number of times.
+// Input: candidates = [2,3,6,7], target = 7
+// Output: [[2,2,3],[7]]
+
+BOOST_AUTO_TEST_SUITE(combination_sum_suite)
+
+void dfs(int start, std::vector<int>& candidates, int target, std::vector<int>& list, int sum, std::vector<std::vector<int>>& res) {
+	if (sum > target) {
+		return;
+	}
+	if (sum == target) {
+		res.push_back(list);
+		return;
+	}
+	for (int i = start; i < candidates.size(); ++i) {
+		list.push_back(candidates[i]);
+		sum += candidates[i];
+		dfs(i, candidates, target, list, sum, res);
+		list.pop_back();
+		sum -= candidates[i];
+	}
+}
+
+std::vector<std::vector<int>> combinationSum(std::vector<int>& candidates, int target) {
+	std::vector<std::vector<int>> res;
+	std::vector<int> list;
+	dfs(0, candidates, target, list, 0, res);
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(combination_sum_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> candidates = { 2, 3, 6, 7 };
+		int target = 7;
+		std::vector<std::vector<int>> res = combinationSum(candidates, target);
+		print(res);
+	}
+
+	{ // Test 2
+		std::vector<int> candidates = { 2, 3, 5, 4, 1 };
+		int target = 6;
+		std::vector<std::vector<int>> res = combinationSum(candidates, target);
+		print(res);
+	}
+
+	{ // Test 3
+		std::vector<int> candidates = { 2, 3, 5 };
+		int target = 8;
+		std::vector<std::vector<int>> res = combinationSum(candidates, target);
+		print(res);
+	}
+
+	{ // Test 4
+		std::vector<int> candidates = { 2 };
+		int target = 1;
+		std::vector<std::vector<int>> res = combinationSum(candidates, target);
+		print(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
