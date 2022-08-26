@@ -878,4 +878,75 @@ BOOST_AUTO_TEST_CASE(combination_sum_3_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Permutations" problem (LeetCode #46)
+// Problem
+// - Given an array nums of distinct integers.
+// - Return all the possible permutations.
+// Input: nums = [1,2,3]
+// Output: [[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]]
+
+BOOST_AUTO_TEST_SUITE(permutations_suite)
+
+void dfs(std::vector<int>& nums, std::vector<int>& list, std::vector<bool>& visited, std::vector<std::vector<int>>& res) {
+	if (list.size() == nums.size()) {
+		res.push_back(list);
+		return;
+	}
+	for (int i = 0; i < nums.size(); ++i) {
+		if (visited[i]) {
+			continue;
+		}
+		list.push_back(nums[i]);
+		visited[i] = true;
+		dfs(nums, list, visited, res);
+		list.pop_back();
+		visited[i] = false;
+	}
+}
+
+std::vector<std::vector<int>> permute(std::vector<int>& nums) {
+	std::vector<std::vector<int>> res;
+	std::vector<int> list;
+	std::vector<bool> visited(nums.size());
+	std::fill(visited.begin(), visited.end(), false);
+	dfs(nums, list, visited, res);
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(permutations_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> nums = {1, 2, 3};
+		std::vector<std::vector<int>> res = permute(nums);
+		print(res);
+	}
+
+	{ // Test 2
+		std::vector<int> nums = { 3, 2, 1 };
+		std::vector<std::vector<int>> res = permute(nums);
+		print(res);
+	}
+
+	{ // Test 3
+		std::vector<int> nums = { 0, 1 };
+		std::vector<std::vector<int>> res = permute(nums);
+		print(res);
+	}
+
+	{ // Test 4
+		std::vector<int> nums = { 1 };
+		std::vector<std::vector<int>> res = permute(nums);
+		print(res);
+	}
+
+	{ // Test 5
+		std::vector<int> nums = { -1, 2, 3, -2, 5, 4 };
+		std::vector<std::vector<int>> res = permute(nums);
+		print(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
