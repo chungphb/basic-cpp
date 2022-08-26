@@ -588,4 +588,61 @@ BOOST_AUTO_TEST_CASE(convert_sorted_array_to_bst_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// ========================================
+// COMBINATIONS, PERMUTATIONS, SUBSETS
+// ========================================
+
+// "Combinations" problem (LeetCode #77)
+// Problem:
+// - Given two integers n and k.
+// - Return all possible combinations of k numbers chosen from the range [1, n].
+// Input: n = 4, k = 2
+// Output: [[1,2],[1,3],[1,4],[2,3],[2,4],[3,4]]
+
+BOOST_AUTO_TEST_SUITE(combinations_suite)
+
+void dfs(int start, int n, int k, std::vector<int>& list, std::vector<std::vector<int>>& res) {
+	if (list.size() == k) {
+		res.push_back(list);
+		return;
+	}
+
+	for (int i = start; i <= n; ++i) {
+		list.push_back(i);
+		dfs(i + 1, n, k, list, res);
+		list.pop_back();
+	}
+}
+
+std::vector<std::vector<int>> combine(int n, int k) {
+	std::vector<std::vector<int>> res;
+	std::vector<int> list;
+	dfs(1, n, k, list, res);
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(combinations_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		int n = 4, k = 2;
+		std::vector<std::vector<int>> res = combine(n, k);
+		print(res);
+	}
+
+	{ // Test 2
+		int n = 1, k = 1;
+		std::vector<std::vector<int>> res = combine(n, k);
+		print(res);
+	}
+
+	{ // Test 3
+		int n = 8, k = 4;
+		std::vector<std::vector<int>> res = combine(n, k);
+		print(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()

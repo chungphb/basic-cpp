@@ -89,6 +89,10 @@ void print(std::vector<std::vector<T>>& arr2d) {
 	std::cout << "\n";
 }
 
+// ========================================
+// TREE
+// ========================================
+
 // "Binary Tree Level Order Traversal" problem (LeetCode #102)
 // Problem:
 // - Given the root of a binary tree.
@@ -187,6 +191,721 @@ BOOST_AUTO_TEST_CASE(binary_tree_level_order_traversal_test) {
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+
+// "Minimum Depth of Binary Tree" problem (LeetCode #111)
+// Problem:
+// - Given a binary tree.
+// - Find its minimum depth.
+// Input: root = [3,9,20,null,null,15,7]
+// Output: 2
+
+BOOST_AUTO_TEST_SUITE(minimum_depth_of_binary_tree_suite)
+
+int minDepth(TreeNode* root) {
+	if (root == nullptr) {
+		return 0;
+	}
+
+	std::queue<TreeNode*> queue;
+	queue.push(root);
+	int minDepth = 0;
+	while (!queue.empty()) {
+		++minDepth;
+		int size = queue.size();
+		for (int k = 0; k < size; ++k) {
+			TreeNode* node = queue.front();
+			queue.pop();
+			if (node->left == nullptr && node->right == nullptr) {
+				return minDepth;
+			}
+			if (node->left != nullptr) {
+				queue.push(node->left);
+			}
+			if (node->right != nullptr) {
+				queue.push(node->right);
+			}
+		}
+	}
+
+	return minDepth;
+}
+
+BOOST_AUTO_TEST_CASE(minimum_depth_of_binary_tree_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		TreeNode* root = new TreeNode(3);
+		root->left = new TreeNode(9);
+		root->right = new TreeNode(20);
+		root->right->left = new TreeNode(15);
+		root->right->right = new TreeNode(7);
+		std::cout << "Tree:\n";
+		print(root);
+		int res = minDepth(root);
+		std::cout << "Result: " << res << "\n";
+		release(root);
+	}
+
+	{ // Test 2
+		TreeNode* root = new TreeNode(2);
+		root->right = new TreeNode(3);
+		root->right->right = new TreeNode(4);
+		root->right->right->right = new TreeNode(5);
+		root->right->right->right->right = new TreeNode(6);
+		std::cout << "Tree:\n";
+		print(root);
+		int res = minDepth(root);
+		std::cout << "Result: " << res << "\n";
+		release(root);
+	}
+
+	{ // Test 3
+		TreeNode* root = new TreeNode(1);
+		std::cout << "Tree:\n";
+		print(root);
+		int res = minDepth(root);
+		std::cout << "Result: " << res << "\n";
+		release(root);
+	}
+
+	{ // Test 4
+		TreeNode* root = nullptr;
+		std::cout << "Tree:\n";
+		print(root);
+		int res = minDepth(root);
+		std::cout << "Result: " << res << "\n";
+		release(root);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Populating Next Right Pointers in Each Node" problem (LeetCode #116)
+// Problem:
+// - Given a perfect binary tree where all leaves are on the same level, and every parent has two children.
+// - Populate each next pointer to point to its next right node.
+// - If there is no next right node, the next pointer should be set to NULL.
+// Input:
+// Output:
+
+BOOST_AUTO_TEST_SUITE(populate_next_right_pointers_suite)
+
+class Node {
+public:
+	int val;
+	Node* left;
+	Node* right;
+	Node* next;
+
+	Node() : val(0), left(NULL), right(NULL), next(NULL) {}
+
+	Node(int _val) : val(_val), left(NULL), right(NULL), next(NULL) {}
+
+	Node(int _val, Node* _left, Node* _right, Node* _next)
+		: val(_val), left(_left), right(_right), next(_next) {}
+};
+
+void print(Node* root) {
+	if (root == nullptr) {
+		return;
+	}
+
+	std::queue<Node*> queue;
+	queue.push(root);
+	while (!queue.empty()) {
+		Node* node = queue.front();
+		queue.pop();
+
+		std::cout << node->val << " -> ";
+		if (node->left != nullptr) {
+			std::cout << node->left->val;
+			queue.push(node->left);
+		}
+		else {
+			std::cout << "NULL";
+		}
+
+		std::cout << " + ";
+
+		if (node->right != nullptr) {
+			std::cout << node->right->val;
+			queue.push(node->right);
+		}
+		else {
+			std::cout << "NULL";
+		}
+
+		std::cout << " , ";
+
+		if (node->next != nullptr) {
+			std::cout << node->next->val;
+		}
+		else {
+			std::cout << "NULL";
+		}
+
+		std::cout << "\n";
+	}
+	std::cout << "\n";
+}
+
+void release(Node* root) {
+	if (root == nullptr) {
+		return;
+	}
+
+	std::queue<Node*> queue;
+	queue.push(root);
+	while (!queue.empty()) {
+		Node* node = queue.front();
+		queue.pop();
+		if (node->left != nullptr) {
+			queue.push(node->left);
+		}
+		if (node->right != nullptr) {
+			queue.push(node->right);
+		}
+		delete node;
+	}
+}
+
+Node* connect(Node* root) {
+	if (root == nullptr) {
+		return nullptr;
+	}
+	std::queue<Node*> queue;
+	queue.push(root);
+	while (!queue.empty()) {
+		int size = queue.size();
+		Node* prev = nullptr;
+		for (int i = 0; i < size; ++i) {
+			Node* node = queue.front();
+			queue.pop();
+			if (node->left != nullptr) {
+				queue.push(node->left);
+			}
+			if (node->right != nullptr) {
+				queue.push(node->right);
+			}
+			if (prev != nullptr) {
+				prev->next = node;
+			}
+			prev = node;
+		}
+	}
+	return root;
+}
+
+BOOST_AUTO_TEST_CASE(populate_next_right_pointers_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		Node* root = new Node(1);
+		root->left = new Node(2);
+		root->right = new Node(3);
+		root->left->left = new Node(4);
+		root->left->right = new Node(5);
+		root->right->left = new Node(6);
+		root->right->right = new Node(7);
+		std::cout << "Tree:\n";
+		print(root);
+		Node* res = connect(root);
+		std::cout << "Result:\n";
+		print(res);
+		release(root);
+	}
+
+	{ // Test 2
+		Node* root = new Node(1);
+		std::cout << "Tree:\n";
+		print(root);
+		Node* res = connect(root);
+		std::cout << "Result:\n";
+		print(res);
+		release(root);
+	}
+
+	{ // Test 3
+		Node* root = nullptr;
+		std::cout << "Tree:\n";
+		print(root);
+		Node* res = connect(root);
+		std::cout << "Result:\n";
+		print(res);
+		release(root);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Binary Tree Right Side View" problem (LeetCode #199)
+// Problem:
+// - Given the root of a binary tree.
+// - Imagine yourself standing on the right side of it, return the values of the nodes you can see ordered from top to bottom.
+// Input: root = [1,2,3,null,5,null,4]
+// Output: [1,3,4]
+
+BOOST_AUTO_TEST_SUITE(binary_tree_right_side_view_suite)
+
+std::vector<int> rightSideView(TreeNode* root) {
+	if (root == nullptr) {
+		return {};
+	}
+
+	std::vector<int> res;
+	std::queue<TreeNode*> queue;
+	queue.push(root);
+	while (!queue.empty()) {
+		int size = queue.size();
+		for (int k = size - 1; k >= 0; --k) {
+			TreeNode* node = queue.front();
+			queue.pop();
+			if (node->left != nullptr) {
+				queue.push(node->left);
+			}
+			if (node->right != nullptr) {
+				queue.push(node->right);
+			}
+			if (k == 0) {
+				res.push_back(node->val);
+			}
+		}
+	}
+
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(binary_tree_right_side_view_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		TreeNode* root = new TreeNode(1);
+		root->left = new TreeNode(2);
+		root->right = new TreeNode(3);
+		root->left->right = new TreeNode(5);
+		root->right->right = new TreeNode(4);
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "Result:\n";
+		std::vector<int> res = rightSideView(root);
+		print(res);
+		std::cout << "\n";
+		release(root);
+	}
+
+	{ // Test 2
+		TreeNode* root = new TreeNode(1);
+		root->left = new TreeNode(2);
+		root->right = new TreeNode(3);
+		root->left->right = new TreeNode(5);
+		root->right->right = new TreeNode(4);
+		root->left->right->left = new TreeNode(6);
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "Result:\n";
+		std::vector<int> res = rightSideView(root);
+		print(res);
+		std::cout << "\n";
+		release(root);
+	}
+
+	{ // Test 3
+		TreeNode* root = new TreeNode(1);
+		root->left = new TreeNode(2);
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "Result:\n";
+		std::vector<int> res = rightSideView(root);
+		print(res);
+		std::cout << "\n";
+		release(root);
+	}
+
+	{ // Test 4
+		TreeNode* root = new TreeNode(1);
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "Result:\n";
+		std::vector<int> res = rightSideView(root);
+		print(res);
+		std::cout << "\n";
+		release(root);
+	}
+
+	{ // Test 5
+		TreeNode* root = nullptr;
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "Result:\n";
+		std::vector<int> res = rightSideView(root);
+		print(res);
+		std::cout << "\n";
+		release(root);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// ========================================
+// GRAPH
+// ========================================
+
+// "Word Ladder" problem (LeetCode #127)
+// Problem:
+// - Given two words, beginWord and endWord, and a dictionary wordList.
+// - Return the number of words in the shortest transformation sequence from beginWord to endWord, or 0 if no such sequence exists.
+// Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
+// Output: 5 ("hit" -> "hot" -> "dot" -> "dog" -> cog")
+
+BOOST_AUTO_TEST_SUITE(word_ladder_suite)
+
+bool areNeighbors(std::string word1, std::string word2) {
+	const int WORD_SIZE = word1.size();
+	bool isDiff = false;
+	for (int i = 0; i < WORD_SIZE; ++i) {
+		if (word1[i] != word2[i]) {
+			if (isDiff) {
+				return false;
+			}
+			isDiff = true;
+		}
+	}
+	return true;
+}
+
+int ladderLength(std::string beginWord, std::string endWord, std::vector<std::string>& wordList) {
+	const int WORD_SIZE = beginWord.size();
+	const int LIST_SIZE = wordList.size();
+
+	int endId = -1;
+	std::vector<std::vector<int>> graph;
+	std::queue<int> queue;
+	for (int i = 0; i < LIST_SIZE; ++i) {
+		if (wordList[i] == endWord) {
+			endId = i;
+		}
+		graph.push_back({});
+		if (areNeighbors(wordList[i], beginWord)) {
+			if (i == endId) {
+				return 2;
+			}
+			queue.push(i);
+		}
+	}
+	if (endId == -1 || queue.empty()) {
+		return 0;
+	}
+
+	for (int i = 0; i < LIST_SIZE - 1; ++i) {
+		for (int j = i + 1; j < LIST_SIZE; ++j) {
+			if (areNeighbors(wordList[i], wordList[j])) {
+				graph[i].push_back(j);
+				graph[j].push_back(i);
+			}
+		}
+	}
+
+	int res = 0;
+	std::unordered_set<int> set;
+	while (!queue.empty() && res < LIST_SIZE) {
+		++res;
+		int size = queue.size();
+		for (int k = 0; k < size; ++k) {
+			int node = queue.front();
+			set.insert(node);
+			queue.pop();
+			std::vector<int> neighbors = graph[node];
+			if (!neighbors.empty()) {
+				for (int neighbor : neighbors) {
+					if (neighbor == endId) {
+						return res + 2;
+					}
+					else {
+						if (!set.contains(neighbor)) {
+							set.insert(neighbor);
+							queue.push(neighbor);
+						}
+					}
+				}
+			}
+		}
+	}
+	return 0;
+}
+
+BOOST_AUTO_TEST_CASE(word_ladder_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::string beginWord = "hit";
+		std::string endWord = "cog";
+		std::vector<std::string> wordList = { "hot", "dot", "dog", "lot", "log", "cog" };
+
+		int res = ladderLength(beginWord, endWord, wordList);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 2
+		std::string beginWord = "hit";
+		std::string endWord = "cog";
+		std::vector<std::string> wordList = { "hot", "lot", "log", "cog" };
+
+		int res = ladderLength(beginWord, endWord, wordList);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 3
+		std::string beginWord = "hit";
+		std::string endWord = "cog";
+		std::vector<std::string> wordList = { "hot", "lot", "log" };
+
+		int res = ladderLength(beginWord, endWord, wordList);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 4
+		std::string beginWord = "hit";
+		std::string endWord = "cog";
+		std::vector<std::string> wordList = { "lot", "log" };
+
+		int res = ladderLength(beginWord, endWord, wordList);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 5
+		std::string beginWord = "hit";
+		std::string endWord = "hot";
+		std::vector<std::string> wordList = { "hot" };
+
+		int res = ladderLength(beginWord, endWord, wordList);
+		std::cout << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Clone Graph" problem (LeetCode #133)
+// Problem:
+// - Given a reference of a node in a connected undirected graph.
+// - Return a deep copy (clone) of the graph.
+// Input:
+// Output:
+
+BOOST_AUTO_TEST_SUITE(clone_graph_suite)
+
+class Node {
+public:
+	int val;
+	std::vector<Node*> neighbors;
+	Node() {
+		val = 0;
+		neighbors = std::vector<Node*>();
+	}
+	Node(int _val) {
+		val = _val;
+		neighbors = std::vector<Node*>();
+	}
+	Node(int _val, std::vector<Node*> _neighbors) {
+		val = _val;
+		neighbors = _neighbors;
+	}
+};
+
+void print(Node* root) {
+	if (root == nullptr) {
+		return;
+	}
+
+	std::queue<Node*> queue;
+	std::unordered_set<int> set;
+	queue.push(root);
+	while (!queue.empty()) {
+		Node* node = queue.front();
+		queue.pop();
+		set.insert(node->val);
+		std::cout << node->val << " -> ";
+		for (Node* neighbor : node->neighbors) {
+			std::cout << neighbor->val << " ";
+			if (set.count(neighbor->val) == 0) {
+				set.insert(neighbor->val);
+				queue.push(neighbor);
+			}
+		}
+		std::cout << "\n";
+	}
+	std::cout << "\n";
+}
+
+void release(Node* root) {
+	if (root == nullptr) {
+		return;
+	}
+
+	std::vector<Node*> nodeList;
+	std::queue<Node*> queue;
+	std::unordered_set<int> set;
+	queue.push(root);
+	while (!queue.empty()) {
+		Node* node = queue.front();
+		queue.pop();
+		nodeList.push_back(node);
+		set.insert(node->val);
+		for (Node* neighbor : node->neighbors) {
+			if (neighbor != nullptr && set.count(neighbor->val) == 0) {
+				set.insert(neighbor->val);
+				queue.push(neighbor);
+			}
+		}
+	}
+
+	for (Node* node : nodeList) {
+		delete node;
+	}
+}
+
+Node* cloneGraph(Node* node) {
+	if (node == nullptr) {
+		return nullptr;
+	}
+
+	Node* graph = nullptr;
+	std::unordered_map<int, Node*> graphNodeList;
+	std::queue<Node*> queue;
+	queue.push(node);
+	while (!queue.empty()) {
+		Node* curr = queue.front();
+		queue.pop();
+
+		Node* cloneNode;
+		auto it = graphNodeList.find(curr->val);
+		if (it == graphNodeList.end()) {
+			cloneNode = new Node(curr->val);
+			graphNodeList.emplace(cloneNode->val, cloneNode);
+		}
+		else {
+			cloneNode = it->second;
+		}
+
+		if (graph == nullptr) {
+			graph = cloneNode;
+		}
+		for (Node* neighbor : curr->neighbors) {
+			Node* cloneNeighbor;
+			auto it = graphNodeList.find(neighbor->val);
+			if (it == graphNodeList.end()) {
+				queue.push(neighbor);
+				cloneNeighbor = new Node(neighbor->val);
+				graphNodeList.emplace(cloneNeighbor->val, cloneNeighbor);
+			}
+			else {
+				cloneNeighbor = it->second;
+			}
+			cloneNode->neighbors.push_back(cloneNeighbor);
+		}
+	}
+	return graph;
+}
+
+BOOST_AUTO_TEST_CASE(clone_graph_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		constexpr int NUM_NODES = 4;
+		constexpr int START_NODE = NUM_NODES > 0 ? 1 : 0;
+		std::vector<Node*> nodes;
+		nodes.push_back(nullptr);
+		for (int i = 1; i <= NUM_NODES; ++i) {
+			nodes.push_back(new Node(i));
+		}
+		nodes[1]->neighbors.push_back(nodes[2]);
+		nodes[1]->neighbors.push_back(nodes[4]);
+		nodes[2]->neighbors.push_back(nodes[1]);
+		nodes[2]->neighbors.push_back(nodes[3]);
+		nodes[3]->neighbors.push_back(nodes[2]);
+		nodes[3]->neighbors.push_back(nodes[4]);
+		nodes[4]->neighbors.push_back(nodes[1]);
+		nodes[4]->neighbors.push_back(nodes[3]);
+		Node* graph = nodes[START_NODE];
+		print(graph);
+		Node* res = cloneGraph(graph);
+		print(res);
+		release(graph);
+		release(res);
+	}
+
+	{ // Test 2
+		constexpr int NUM_NODES = 1;
+		constexpr int START_NODE = NUM_NODES > 0 ? 1 : 0;
+		std::vector<Node*> nodes;
+		nodes.push_back(nullptr);
+		for (int i = 1; i <= NUM_NODES; ++i) {
+			nodes.push_back(new Node(i));
+		}
+		Node* graph = nodes[START_NODE];
+		print(graph);
+		Node* res = cloneGraph(graph);
+		print(res);
+		release(graph);
+		release(res);
+	}
+
+	{ // Test 3
+		constexpr int NUM_NODES = 0;
+		constexpr int START_NODE = NUM_NODES > 0 ? 1 : 0;
+		std::vector<Node*> nodes;
+		nodes.push_back(nullptr);
+		for (int i = 1; i <= NUM_NODES; ++i) {
+			nodes.push_back(new Node(i));
+		}
+		Node* graph = nodes[START_NODE];
+		print(graph);
+		Node* res = cloneGraph(graph);
+		print(res);
+		release(graph);
+		release(res);
+	}
+
+	{ // Test 6
+		constexpr int NUM_NODES = 6;
+		constexpr int START_NODE = NUM_NODES > 0 ? 1 : 0;
+		std::vector<Node*> nodes;
+		nodes.push_back(nullptr);
+		for (int i = 1; i <= NUM_NODES; ++i) {
+			nodes.push_back(new Node(i));
+		}
+		nodes[1]->neighbors.push_back(nodes[2]);
+		nodes[1]->neighbors.push_back(nodes[4]);
+		nodes[1]->neighbors.push_back(nodes[6]);
+		nodes[2]->neighbors.push_back(nodes[1]);
+		nodes[2]->neighbors.push_back(nodes[3]);
+		nodes[2]->neighbors.push_back(nodes[4]);
+		nodes[3]->neighbors.push_back(nodes[2]);
+		nodes[3]->neighbors.push_back(nodes[6]);
+		nodes[3]->neighbors.push_back(nodes[4]);
+		nodes[4]->neighbors.push_back(nodes[2]);
+		nodes[4]->neighbors.push_back(nodes[1]);
+		nodes[4]->neighbors.push_back(nodes[6]);
+		nodes[4]->neighbors.push_back(nodes[5]);
+		nodes[5]->neighbors.push_back(nodes[1]);
+		nodes[5]->neighbors.push_back(nodes[6]);
+		nodes[5]->neighbors.push_back(nodes[4]);
+		nodes[6]->neighbors.push_back(nodes[1]);
+		nodes[6]->neighbors.push_back(nodes[3]);
+		nodes[6]->neighbors.push_back(nodes[5]);
+		Node* graph = nodes[START_NODE];
+		print(graph);
+		Node* res = cloneGraph(graph);
+		print(res);
+		release(graph);
+		release(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// ========================================
+// MATRIX
+// ========================================
 
 // "01 Matrix" problem (LeetCode #542)
 // Problem:
@@ -326,382 +1045,6 @@ BOOST_AUTO_TEST_CASE(binary_matrix_test) {
 		std::vector<std::vector<int>> res = updateMatrix(mat);
 		std::cout << "Result:\n";
 		print(mat);
-	}
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-// "Minimum Depth of Binary Tree" problem (LeetCode #111)
-// Problem:
-// - Given a binary tree.
-// - Find its minimum depth.
-// Input: root = [3,9,20,null,null,15,7]
-// Output: 2
-
-BOOST_AUTO_TEST_SUITE(minimum_depth_of_binary_tree_suite)
-
-int minDepth(TreeNode* root) {
-	if (root == nullptr) {
-		return 0;
-	}
-
-	std::queue<TreeNode*> queue;
-	queue.push(root);
-	int minDepth = 0;
-	while (!queue.empty()) {
-		++minDepth;
-		int size = queue.size();
-		for (int k = 0; k < size; ++k) {
-			TreeNode* node = queue.front();
-			queue.pop();
-			if (node->left == nullptr && node->right == nullptr) {
-				return minDepth;
-			}
-			if (node->left != nullptr) {
-				queue.push(node->left);
-			}
-			if (node->right != nullptr) {
-				queue.push(node->right);
-			}
-		}
-	}
-
-	return minDepth;
-}
-
-BOOST_AUTO_TEST_CASE(minimum_depth_of_binary_tree_test) {
-	TEST_MARKER();
-
-	{ // Test 1
-		TreeNode* root = new TreeNode(3);
-		root->left = new TreeNode(9);
-		root->right = new TreeNode(20);
-		root->right->left = new TreeNode(15);
-		root->right->right = new TreeNode(7);
-		std::cout << "Tree:\n";
-		print(root);
-		int res = minDepth(root);
-		std::cout << "Result: " << res << "\n";
-		release(root);
-	}
-
-	{ // Test 2
-		TreeNode* root = new TreeNode(2);
-		root->right = new TreeNode(3);
-		root->right->right = new TreeNode(4);
-		root->right->right->right = new TreeNode(5);
-		root->right->right->right->right = new TreeNode(6);
-		std::cout << "Tree:\n";
-		print(root);
-		int res = minDepth(root);
-		std::cout << "Result: " << res << "\n";
-		release(root);
-	}
-
-	{ // Test 3
-		TreeNode* root = new TreeNode(1);
-		std::cout << "Tree:\n";
-		print(root);
-		int res = minDepth(root);
-		std::cout << "Result: " << res << "\n";
-		release(root);
-	}
-
-	{ // Test 4
-		TreeNode* root = nullptr;
-		std::cout << "Tree:\n";
-		print(root);
-		int res = minDepth(root);
-		std::cout << "Result: " << res << "\n";
-		release(root);
-	}
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-// "Populating Next Right Pointers in Each Node" problem (LeetCode #116)
-// Problem:
-// - Given a perfect binary tree where all leaves are on the same level, and every parent has two children.
-// - Populate each next pointer to point to its next right node.
-// - If there is no next right node, the next pointer should be set to NULL.
-// Input:
-// Output:
-
-BOOST_AUTO_TEST_SUITE(populate_next_right_pointers_suite)
-
-class Node {
-public:
-	int val;
-	Node* left;
-	Node* right;
-	Node* next;
-
-	Node() : val(0), left(NULL), right(NULL), next(NULL) {}
-
-	Node(int _val) : val(_val), left(NULL), right(NULL), next(NULL) {}
-
-	Node(int _val, Node* _left, Node* _right, Node* _next)
-		: val(_val), left(_left), right(_right), next(_next) {}
-};
-
-void print(Node* root) {
-	if (root == nullptr) {
-		return;
-	}
-
-	std::queue<Node*> queue;
-	queue.push(root);
-	while (!queue.empty()) {
-		Node* node = queue.front();
-		queue.pop();
-
-		std::cout << node->val << " -> ";
-		if (node->left != nullptr) {
-			std::cout << node->left->val;
-			queue.push(node->left);
-		} else {
-			std::cout << "NULL";
-		}
-
-		std::cout << " + ";
-
-		if (node->right != nullptr) {
-			std::cout << node->right->val;
-			queue.push(node->right);
-		} else {
-			std::cout << "NULL";
-		}
-
-		std::cout << " , ";
-
-		if (node->next != nullptr) {
-			std::cout << node->next->val;
-		} else {
-			std::cout << "NULL";
-		}
-
-		std::cout << "\n";
-	}
-	std::cout << "\n";
-}
-
-void release(Node* root) {
-	if (root == nullptr) {
-		return;
-	}
-
-	std::queue<Node*> queue;
-	queue.push(root);
-	while (!queue.empty()) {
-		Node* node = queue.front();
-		queue.pop();
-		if (node->left != nullptr) {
-			queue.push(node->left);
-		}
-		if (node->right != nullptr) {
-			queue.push(node->right);
-		}
-		delete node;
-	}
-}
-
-Node* connect(Node* root) {
-	if (root == nullptr) {
-		return nullptr;
-	}
-	std::queue<Node*> queue;
-	queue.push(root);
-	while (!queue.empty()) {
-		int size = queue.size();
-		Node* prev = nullptr;
-		for (int i = 0; i < size; ++i) {
-			Node* node = queue.front();
-			queue.pop();
-			if (node->left != nullptr) {
-				queue.push(node->left);
-			}
-			if (node->right != nullptr) {
-				queue.push(node->right);
-			}
-			if (prev != nullptr) {
-				prev->next = node;
-			}
-			prev = node;
-		}
-	}
-	return root;
-}
-
-BOOST_AUTO_TEST_CASE(populate_next_right_pointers_test) {
-	TEST_MARKER();
-
-	{ // Test 1
-		Node* root = new Node(1);
-		root->left = new Node(2);
-		root->right = new Node(3);
-		root->left->left = new Node(4);
-		root->left->right = new Node(5);
-		root->right->left = new Node(6);
-		root->right->right = new Node(7);
-		std::cout << "Tree:\n";
-		print(root);
-		Node* res = connect(root);
-		std::cout << "Result:\n";
-		print(res);
-		release(root);
-	}
-
-	{ // Test 2
-		Node* root = new Node(1);
-		std::cout << "Tree:\n";
-		print(root);
-		Node* res = connect(root);
-		std::cout << "Result:\n";
-		print(res);
-		release(root);
-	}
-
-	{ // Test 3
-		Node* root = nullptr;
-		std::cout << "Tree:\n";
-		print(root);
-		Node* res = connect(root);
-		std::cout << "Result:\n";
-		print(res);
-		release(root);
-	}
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-// "Word Ladder" problem (LeetCode #127)
-// Problem:
-// - Given two words, beginWord and endWord, and a dictionary wordList.
-// - Return the number of words in the shortest transformation sequence from beginWord to endWord, or 0 if no such sequence exists.
-// Input: beginWord = "hit", endWord = "cog", wordList = ["hot","dot","dog","lot","log","cog"]
-// Output: 5 ("hit" -> "hot" -> "dot" -> "dog" -> cog")
-
-BOOST_AUTO_TEST_SUITE(word_ladder_suite)
-
-bool areNeighbors(std::string word1, std::string word2) {
-	const int WORD_SIZE = word1.size();
-	bool isDiff = false;
-	for (int i = 0; i < WORD_SIZE; ++i) {
-		if (word1[i] != word2[i]) {
-			if (isDiff) {
-				return false;
-			}
-			isDiff = true;
-		}
-	}
-	return true;
-}
-
-int ladderLength(std::string beginWord, std::string endWord, std::vector<std::string>& wordList) {
-	const int WORD_SIZE = beginWord.size();
-	const int LIST_SIZE = wordList.size();
-
-	int endId = -1;
-	std::vector<std::vector<int>> graph;
-	std::queue<int> queue;
-	for (int i = 0; i < LIST_SIZE; ++i) {
-		if (wordList[i] == endWord) {
-			endId = i;
-		}
-		graph.push_back({});
-		if (areNeighbors(wordList[i], beginWord)) {
-			if (i == endId) {
-				return 2;
-			}
-			queue.push(i);
-		}
-	}
-	if (endId == -1 || queue.empty()) {
-		return 0;
-	}
-
-	for (int i = 0; i < LIST_SIZE - 1; ++i) {
-		for (int j = i + 1; j < LIST_SIZE; ++j) {
-			if (areNeighbors(wordList[i], wordList[j])) {
-				graph[i].push_back(j);
-				graph[j].push_back(i);
-			}
-		}
-	}
-
-	int res = 0;
-	std::unordered_set<int> set;
-	while (!queue.empty() && res < LIST_SIZE) {
-		++res;
-		int size = queue.size();
-		for (int k = 0; k < size; ++k) {
-			int node = queue.front();
-			set.insert(node);
-			queue.pop();
-			std::vector<int> neighbors = graph[node];
-			if (!neighbors.empty()) {
-				for (int neighbor : neighbors) {
-					if (neighbor == endId) {
-						return res + 2;
-					} else {
-						if (!set.contains(neighbor)) {
-							set.insert(neighbor);
-							queue.push(neighbor);
-						}
-					}
-				}
-			}
-		}
-	}
-	return 0;
-}
-
-BOOST_AUTO_TEST_CASE(word_ladder_test) {
-	TEST_MARKER();
-
-	{ // Test 1
-		std::string beginWord = "hit";
-		std::string endWord = "cog";
-		std::vector<std::string> wordList = { "hot", "dot", "dog", "lot", "log", "cog"};
-
-		int res = ladderLength(beginWord, endWord, wordList);
-		std::cout << res << "\n";
-	}
-
-	{ // Test 2
-		std::string beginWord = "hit";
-		std::string endWord = "cog";
-		std::vector<std::string> wordList = { "hot", "lot", "log", "cog" };
-
-		int res = ladderLength(beginWord, endWord, wordList);
-		std::cout << res << "\n";
-	}
-
-	{ // Test 3
-		std::string beginWord = "hit";
-		std::string endWord = "cog";
-		std::vector<std::string> wordList = { "hot", "lot", "log" };
-
-		int res = ladderLength(beginWord, endWord, wordList);
-		std::cout << res << "\n";
-	}
-
-	{ // Test 4
-		std::string beginWord = "hit";
-		std::string endWord = "cog";
-		std::vector<std::string> wordList = { "lot", "log" };
-
-		int res = ladderLength(beginWord, endWord, wordList);
-		std::cout << res << "\n";
-	}
-
-	{ // Test 5
-		std::string beginWord = "hit";
-		std::string endWord = "hot";
-		std::vector<std::string> wordList = { "hot" };
-
-		int res = ladderLength(beginWord, endWord, wordList);
-		std::cout << res << "\n";
 	}
 }
 
@@ -867,332 +1210,7 @@ BOOST_AUTO_TEST_CASE(surrounded_regions_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
-// "Clone Graph" problem (LeetCode #133)
-// Problem:
-// - Given a reference of a node in a connected undirected graph.
-// - Return a deep copy (clone) of the graph.
-// Input:
-// Output:
-
-BOOST_AUTO_TEST_SUITE(clone_graph_suite)
-
-class Node {
-public:
-	int val;
-	std::vector<Node*> neighbors;
-	Node() {
-		val = 0;
-		neighbors = std::vector<Node*>();
-	}
-	Node(int _val) {
-		val = _val;
-		neighbors = std::vector<Node*>();
-	}
-	Node(int _val, std::vector<Node*> _neighbors) {
-		val = _val;
-		neighbors = _neighbors;
-	}
-};
-
-void print(Node* root) {
-	if (root == nullptr) {
-		return;
-	}
-
-	std::queue<Node*> queue;
-	std::unordered_set<int> set;
-	queue.push(root);
-	while (!queue.empty()) {
-		Node* node = queue.front();
-		queue.pop();
-		set.insert(node->val);
-		std::cout << node->val << " -> ";
-		for (Node* neighbor : node->neighbors) {
-			std::cout << neighbor->val << " ";
-			if (set.count(neighbor->val) == 0) {
-				set.insert(neighbor->val);
-				queue.push(neighbor);
-			}
-		}
-		std::cout << "\n";
-	}
-	std::cout << "\n";
-}
-
-void release(Node* root) {
-	if (root == nullptr) {
-		return;
-	}
-
-	std::vector<Node*> nodeList;
-	std::queue<Node*> queue;
-	std::unordered_set<int> set;
-	queue.push(root);
-	while (!queue.empty()) {
-		Node* node = queue.front();
-		queue.pop();
-		nodeList.push_back(node);
-		set.insert(node->val);
-		for (Node* neighbor : node->neighbors) {
-			if (neighbor != nullptr && set.count(neighbor->val) == 0) {
-				set.insert(neighbor->val);
-				queue.push(neighbor);
-			}
-		}
-	}
-
-	for (Node* node : nodeList) {
-		delete node;
-	}
-}
-
-Node* cloneGraph(Node* node) {
-	if (node == nullptr) {
-		return nullptr;
-	}
-
-	Node* graph = nullptr;
-	std::unordered_map<int, Node*> graphNodeList;
-	std::queue<Node*> queue;
-	queue.push(node);
-	while (!queue.empty()) {
-		Node* curr = queue.front();
-		queue.pop();
-
-		Node* cloneNode;
-		auto it = graphNodeList.find(curr->val);
-		if (it == graphNodeList.end()) {
-			cloneNode = new Node(curr->val);
-			graphNodeList.emplace(cloneNode->val, cloneNode);
-		} else {
-			cloneNode = it->second;
-		}
-
-		if (graph == nullptr) {
-			graph = cloneNode;
-		}
-		for (Node* neighbor : curr->neighbors) {
-			Node* cloneNeighbor;
-			auto it = graphNodeList.find(neighbor->val);
-			if (it == graphNodeList.end()) {
-				queue.push(neighbor);
-				cloneNeighbor = new Node(neighbor->val);
-				graphNodeList.emplace(cloneNeighbor->val, cloneNeighbor);
-			} else {
-				cloneNeighbor = it->second;
-			}
-			cloneNode->neighbors.push_back(cloneNeighbor);
-		}
-	}
-	return graph;
-}
-
-BOOST_AUTO_TEST_CASE(clone_graph_test) {
-	TEST_MARKER();
-
-	{ // Test 1
-		constexpr int NUM_NODES = 4;
-		constexpr int START_NODE = NUM_NODES > 0 ? 1 : 0;
-		std::vector<Node*> nodes;
-		nodes.push_back(nullptr);
-		for (int i = 1; i <= NUM_NODES; ++i) {
-			nodes.push_back(new Node(i));
-		}
-		nodes[1]->neighbors.push_back(nodes[2]);
-		nodes[1]->neighbors.push_back(nodes[4]);
-		nodes[2]->neighbors.push_back(nodes[1]);
-		nodes[2]->neighbors.push_back(nodes[3]);
-		nodes[3]->neighbors.push_back(nodes[2]);
-		nodes[3]->neighbors.push_back(nodes[4]);
-		nodes[4]->neighbors.push_back(nodes[1]);
-		nodes[4]->neighbors.push_back(nodes[3]);
-		Node* graph = nodes[START_NODE];
-		print(graph);
-		Node* res = cloneGraph(graph);
-		print(res);
-		release(graph);
-		release(res);
-	}
-
-	{ // Test 2
-		constexpr int NUM_NODES = 1;
-		constexpr int START_NODE = NUM_NODES > 0 ? 1 : 0;
-		std::vector<Node*> nodes;
-		nodes.push_back(nullptr);
-		for (int i = 1; i <= NUM_NODES; ++i) {
-			nodes.push_back(new Node(i));
-		}
-		Node* graph = nodes[START_NODE];
-		print(graph);
-		Node* res = cloneGraph(graph);
-		print(res);
-		release(graph);
-		release(res);
-	}
-
-	{ // Test 3
-		constexpr int NUM_NODES = 0;
-		constexpr int START_NODE = NUM_NODES > 0 ? 1 : 0;
-		std::vector<Node*> nodes;
-		nodes.push_back(nullptr);
-		for (int i = 1; i <= NUM_NODES; ++i) {
-			nodes.push_back(new Node(i));
-		}
-		Node* graph = nodes[START_NODE];
-		print(graph);
-		Node* res = cloneGraph(graph);
-		print(res);
-		release(graph);
-		release(res);
-	}
-
-	{ // Test 6
-		constexpr int NUM_NODES = 6;
-		constexpr int START_NODE = NUM_NODES > 0 ? 1 : 0;
-		std::vector<Node*> nodes;
-		nodes.push_back(nullptr);
-		for (int i = 1; i <= NUM_NODES; ++i) {
-			nodes.push_back(new Node(i));
-		}
-		nodes[1]->neighbors.push_back(nodes[2]);
-		nodes[1]->neighbors.push_back(nodes[4]);
-		nodes[1]->neighbors.push_back(nodes[6]);
-		nodes[2]->neighbors.push_back(nodes[1]);
-		nodes[2]->neighbors.push_back(nodes[3]);
-		nodes[2]->neighbors.push_back(nodes[4]);
-		nodes[3]->neighbors.push_back(nodes[2]);
-		nodes[3]->neighbors.push_back(nodes[6]);
-		nodes[3]->neighbors.push_back(nodes[4]);
-		nodes[4]->neighbors.push_back(nodes[2]);
-		nodes[4]->neighbors.push_back(nodes[1]);
-		nodes[4]->neighbors.push_back(nodes[6]);
-		nodes[4]->neighbors.push_back(nodes[5]);
-		nodes[5]->neighbors.push_back(nodes[1]);
-		nodes[5]->neighbors.push_back(nodes[6]);
-		nodes[5]->neighbors.push_back(nodes[4]);
-		nodes[6]->neighbors.push_back(nodes[1]);
-		nodes[6]->neighbors.push_back(nodes[3]);
-		nodes[6]->neighbors.push_back(nodes[5]);
-		Node* graph = nodes[START_NODE];
-		print(graph);
-		Node* res = cloneGraph(graph);
-		print(res);
-		release(graph);
-		release(res);
-	}
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-// "Binary Tree Right Side View" problem (LeetCode #199)
-// Problem:
-// - Given the root of a binary tree.
-// - Imagine yourself standing on the right side of it, return the values of the nodes you can see ordered from top to bottom.
-// Input: root = [1,2,3,null,5,null,4]
-// Output: [1,3,4]
-
-BOOST_AUTO_TEST_SUITE(binary_tree_right_side_view_suite)
-
-std::vector<int> rightSideView(TreeNode* root) {
-	if (root == nullptr) {
-		return {};
-	}
-
-	std::vector<int> res;
-	std::queue<TreeNode*> queue;
-	queue.push(root);
-	while (!queue.empty()) {
-		int size = queue.size();
-		for (int k = size - 1; k >= 0; --k) {
-			TreeNode* node = queue.front();
-			queue.pop();
-			if (node->left != nullptr) {
-				queue.push(node->left);
-			}
-			if (node->right != nullptr) {
-				queue.push(node->right);
-			}
-			if (k == 0) {
-				res.push_back(node->val);
-			}
-		}
-	}
-
-	return res;
-}
-
-BOOST_AUTO_TEST_CASE(binary_tree_right_side_view_test) {
-	TEST_MARKER();
-
-	{ // Test 1
-		TreeNode* root = new TreeNode(1);
-		root->left = new TreeNode(2);
-		root->right = new TreeNode(3);
-		root->left->right = new TreeNode(5);
-		root->right->right = new TreeNode(4);
-		std::cout << "Tree:\n";
-		print(root);
-		std::cout << "Result:\n";
-		std::vector<int> res = rightSideView(root);
-		print(res);
-		std::cout << "\n";
-		release(root);
-	}
-
-	{ // Test 2
-		TreeNode* root = new TreeNode(1);
-		root->left = new TreeNode(2);
-		root->right = new TreeNode(3);
-		root->left->right = new TreeNode(5);
-		root->right->right = new TreeNode(4);
-		root->left->right->left = new TreeNode(6);
-		std::cout << "Tree:\n";
-		print(root);
-		std::cout << "Result:\n";
-		std::vector<int> res = rightSideView(root);
-		print(res);
-		std::cout << "\n";
-		release(root);
-	}
-
-	{ // Test 3
-		TreeNode* root = new TreeNode(1);
-		root->left = new TreeNode(2);
-		std::cout << "Tree:\n";
-		print(root);
-		std::cout << "Result:\n";
-		std::vector<int> res = rightSideView(root);
-		print(res);
-		std::cout << "\n";
-		release(root);
-	}
-
-	{ // Test 4
-		TreeNode* root = new TreeNode(1);
-		std::cout << "Tree:\n";
-		print(root);
-		std::cout << "Result:\n";
-		std::vector<int> res = rightSideView(root);
-		print(res);
-		std::cout << "\n";
-		release(root);
-	}
-
-	{ // Test 5
-		TreeNode* root = nullptr;
-		std::cout << "Tree:\n";
-		print(root);
-		std::cout << "Result:\n";
-		std::vector<int> res = rightSideView(root);
-		print(res);
-		std::cout << "\n";
-		release(root);
-	}
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-// "xxx" problem (LeetCode #xxx)
+// "Number of Islands" problem (LeetCode #200)
 // Problem:
 // - Given an m x n 2D binary grid grid which represents a map of '1's (land) and '0's (water).
 // - Return the number of islands.
