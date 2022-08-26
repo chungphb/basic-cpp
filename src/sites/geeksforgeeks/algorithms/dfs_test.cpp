@@ -798,4 +798,84 @@ BOOST_AUTO_TEST_CASE(combination_sum_2_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Combination Sum III" problem (LeetCode #216)
+// Problem:
+// - Find all valid combinations of k numbers that sum up to n, such that:
+//   + Only numbers 1 through 9 are used.
+//   + Each number is used at most once.
+// Input: k = 3, n = 7
+// Output: [[1,2,4]]
+
+BOOST_AUTO_TEST_SUITE(combination_sum_3_suite)
+
+void dfs(int start, int k, int n, std::vector<int>& list, int sum, std::vector<std::vector<int>>& res) {
+	if (sum > n) {
+		return;
+	}
+
+	if (list.size() == k) {
+		if (sum == n) {
+			res.push_back(list);
+		}
+		return;
+	}
+
+	for (int i = start; i <= 9; ++i) {
+		list.push_back(i);
+		sum += i;
+		dfs(i + 1, k, n, list, sum, res);
+		list.pop_back();
+		sum -= i;
+	}
+}
+
+std::vector<std::vector<int>> combinationSum3(int k, int n) {
+	std::vector<std::vector<int>> res;
+	std::vector<int> list;
+	dfs(1, k, n, list, 0, res);
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(combination_sum_3_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		int k = 3, n = 7;
+		std::vector<std::vector<int>> res = combinationSum3(k, n);
+		print(res);
+	}
+
+	{ // Test 2
+		int k = 3, n = 9;
+		std::vector<std::vector<int>> res = combinationSum3(k, n);
+		print(res);
+	}
+
+	{ // Test 3
+		int k = 4, n = 1;
+		std::vector<std::vector<int>> res = combinationSum3(k, n);
+		print(res);
+	}
+
+	{ // Test 4
+		int k = 9, n = 45;
+		std::vector<std::vector<int>> res = combinationSum3(k, n);
+		print(res);
+	}
+
+	{ // Test 5
+		int k = 8, n = 40;
+		std::vector<std::vector<int>> res = combinationSum3(k, n);
+		print(res);
+	}
+
+	{ // Test 5
+		int k = 9, n = 50;
+		std::vector<std::vector<int>> res = combinationSum3(k, n);
+		print(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
