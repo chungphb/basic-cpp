@@ -197,4 +197,153 @@ BOOST_AUTO_TEST_CASE(binary_tree_preorder_traversal_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Same Tree" problem (LeetCode #100)
+// Problem:
+// - Given the roots of two binary trees p and q.
+// - Check if they are the same or not.
+// Input: p = [1,2,3], q = [1,2,3]
+// Output: true
+
+BOOST_AUTO_TEST_SUITE(same_tree_suite)
+
+bool isSameTree(TreeNode* p, TreeNode* q) {
+	if (!p) {
+		return !q;
+	}
+
+	if (!q) {
+		return !p;
+	}
+
+	std::stack<TreeNode*> pQueue;
+	pQueue.push(p);
+	std::stack<TreeNode*> qQueue;
+	qQueue.push(q);
+	while (!pQueue.empty() && !qQueue.empty()) {
+		TreeNode* pNode = pQueue.top();
+		pQueue.pop();
+		TreeNode* qNode = qQueue.top();
+		qQueue.pop();
+		if (pNode->val != qNode->val) {
+			return false;
+		}
+
+		if ((pNode->right && !qNode->right) || (!pNode->right && qNode->right)) {
+			return false;
+		}
+
+		if (pNode->right && qNode->right) {
+			pQueue.push(pNode->right);
+			qQueue.push(qNode->right);
+		}
+
+		if ((pNode->left && !qNode->left) || (!pNode->left && qNode->left)) {
+			return false;
+		}
+
+		if (pNode->left && qNode->left) {
+			pQueue.push(pNode->left);
+			qQueue.push(qNode->left);
+		}
+	}
+	return pQueue.empty() && qQueue.empty();
+}
+
+BOOST_AUTO_TEST_CASE(same_tree_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		TreeNode* p = new TreeNode(1);
+		p->left = new TreeNode(2);
+		p->right = new TreeNode(3);
+		std::cout << "Tree 1:\n";
+		print(p);
+
+		TreeNode* q = new TreeNode(1);
+		q->left = new TreeNode(2);
+		q->right = new TreeNode(3);
+		std::cout << "Tree 2:\n";
+		print(q);
+
+		bool res = isSameTree(p, q);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+
+		release(p);
+		release(q);
+	}
+
+	{ // Test 2
+		TreeNode* p = new TreeNode(1);
+		p->left = new TreeNode(2);
+		std::cout << "Tree 1:\n";
+		print(p);
+
+		TreeNode* q = new TreeNode(1);
+		q->right = new TreeNode(2);
+		std::cout << "Tree 2:\n";
+		print(q);
+
+		bool res = isSameTree(p, q);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+
+		release(p);
+		release(q);
+	}
+
+	{ // Test 3
+		TreeNode* p = new TreeNode(1);
+		p->left = new TreeNode(2);
+		p->right = new TreeNode(1);
+		std::cout << "Tree 1:\n";
+		print(p);
+
+		TreeNode* q = new TreeNode(1);
+		q->left = new TreeNode(1);
+		q->right = new TreeNode(2);
+		std::cout << "Tree 2:\n";
+		print(q);
+
+		bool res = isSameTree(p, q);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+
+		release(p);
+		release(q);
+	}
+
+	{ // Test 4
+		TreeNode* p = new TreeNode(1);
+		std::cout << "Tree 1:\n";
+		print(p);
+
+		TreeNode* q = new TreeNode(1);
+		q->right = new TreeNode(2);
+		std::cout << "Tree 2:\n";
+		print(q);
+
+		bool res = isSameTree(p, q);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+
+		release(p);
+		release(q);
+	}
+
+	{ // Test 5
+		TreeNode* p = new TreeNode(1);
+		std::cout << "Tree 1:\n";
+		print(p);
+
+		TreeNode* q = nullptr;
+		std::cout << "Tree 2:\n";
+		print(q);
+
+		bool res = isSameTree(p, q);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+
+		release(p);
+		release(q);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
