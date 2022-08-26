@@ -1192,4 +1192,143 @@ BOOST_AUTO_TEST_CASE(binary_tree_right_side_view_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "xxx" problem (LeetCode #xxx)
+// Problem:
+// - Given an m x n 2D binary grid grid which represents a map of '1's (land) and '0's (water).
+// - Return the number of islands.
+// Input: grid = [
+// ["1", "1", "0", "0", "0"],
+// ["1", "1", "0", "0", "0"],
+// ["0", "0", "1", "0", "0"],
+// ["0", "0", "0", "1", "1"]
+// ]
+// Output: 1
+
+BOOST_AUTO_TEST_SUITE(number_of_islands_suite)
+
+int numIslands(std::vector<std::vector<char>>& grid) {
+	int dirX[] = {-1, 0, 0, 1};
+	int dirY[] = {0, -1, 1, 0};
+
+	int m = grid.size();
+	int n = grid[0].size();
+
+	int res = 0;
+	for (int i = 0; i < m; ++i) {
+		for (int j = 0; j < n; ++j) {
+			if (grid[i][j] == '1') {
+				++res;
+				std::queue<std::pair<int, int>> queue;
+				queue.emplace(i, j);
+				while (!queue.empty()) {
+					std::pair<int, int> pos = queue.front();
+					queue.pop();
+					grid[pos.first][pos.second] == '0';
+					for (int k = 0; k < 4; ++k) {
+						int nPosX = pos.first + dirX[k];
+						int nPosY = pos.second + dirY[k];
+						if (nPosX >= 0 && nPosX < m && nPosY >= 0 && nPosY < n && grid[nPosX][nPosY] == '1') {
+							queue.emplace(nPosX, nPosY);
+							grid[nPosX][nPosY] = '0';
+						}
+					}
+				}
+			}
+		}
+	}
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(number_of_islands_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<std::vector<char>> grid = {
+			{ '1', '1', '1', '1', '0' },
+			{ '1', '1', '0', '1', '0' },
+			{ '1', '1', '0', '0', '0' },
+			{ '0', '0', '0', '0', '0' },
+		};
+		std::cout << "Grid:\n";
+		print(grid);
+		int res = numIslands(grid);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 2
+		std::vector<std::vector<char>> grid = {
+			{ '1', '1', '0', '0', '0' },
+			{ '1', '1', '0', '0', '0' },
+			{ '0', '0', '1', '0', '0' },
+			{ '0', '0', '0', '1', '1' },
+		};
+		std::cout << "Grid:\n";
+		print(grid);
+		int res = numIslands(grid);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 3
+		std::vector<std::vector<char>> grid = {
+			{ '1' },
+		};
+		std::cout << "Grid:\n";
+		print(grid);
+		int res = numIslands(grid);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 4
+		std::vector<std::vector<char>> grid = {
+			{ '1', '0', '1', '0', '1' },
+			{ '0', '1', '0', '1', '0' },
+			{ '1', '0', '1', '0', '1' },
+			{ '0', '1', '0', '1', '0' },
+		};
+		std::cout << "Grid:\n";
+		print(grid);
+		int res = numIslands(grid);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 5
+		std::vector<std::vector<char>> grid = {
+			{ '0', '0', '0', '0', '0' },
+			{ '0', '0', '0', '0', '0' },
+			{ '0', '0', '0', '0', '0' },
+			{ '0', '0', '0', '0', '0' },
+		};
+		std::cout << "Grid:\n";
+		print(grid);
+		int res = numIslands(grid);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 6
+		std::vector<std::vector<char>> grid = {
+			{ '1', '1', '1', '1', '1' },
+			{ '1', '1', '1', '1', '1' },
+			{ '1', '1', '1', '1', '1' },
+			{ '1', '1', '1', '1', '1' },
+		};
+		std::cout << "Grid:\n";
+		print(grid);
+		int res = numIslands(grid);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 7
+		std::vector<std::vector<char>> grid = {
+			{ '1', '0', '0', '1', '0' },
+			{ '0', '1', '1', '0', '1' }
+		};
+		std::cout << "Grid:\n";
+		print(grid);
+		int res = numIslands(grid);
+		std::cout << "Result: " << res << "\n\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
