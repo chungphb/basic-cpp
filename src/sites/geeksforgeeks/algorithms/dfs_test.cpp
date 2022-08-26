@@ -526,4 +526,66 @@ BOOST_AUTO_TEST_CASE(maximum_depth_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Convert Sorted Array to Binary Search Tree" problem (LeetCode #108)
+// Problem:
+// - Given an integer array nums where the elements are sorted in ascending order.
+// - Convert it to a height-balanced binary search tree.
+// Input: nums = [-10,-3,0,5,9]
+// Output: [0,-3,9,-10,null,5]
+
+BOOST_AUTO_TEST_SUITE(convert_sorted_array_to_bst_suite)
+
+TreeNode* createBST(std::vector<int>& nums, int left, int right) {
+	if (left > right) {
+		return nullptr;
+	}
+	int mid = (left + right) / 2;
+	TreeNode* root = new TreeNode(nums[mid]);
+	root->left = createBST(nums, left, mid - 1);
+	root->right = createBST(nums, mid + 1, right);
+	return root;
+}
+
+TreeNode* sortedArrayToBST(std::vector<int>& nums) {
+	return createBST(nums, 0, nums.size() - 1);
+}
+
+BOOST_AUTO_TEST_CASE(convert_sorted_array_to_bst_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> nums = { -10, -3, 0, 5, 9 };
+		print(nums);
+		TreeNode* root = sortedArrayToBST(nums);
+		print(root);
+		release(root);
+	}
+
+	{ // Test 2
+		std::vector<int> nums = { 1, 3 };
+		print(nums);
+		TreeNode* root = sortedArrayToBST(nums);
+		print(root);
+		release(root);
+	}
+
+	{ // Test 3
+		std::vector<int> nums = { 1 };
+		print(nums);
+		TreeNode* root = sortedArrayToBST(nums);
+		print(root);
+		release(root);
+	}
+
+	{ // Test 4
+		std::vector<int> nums = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+		print(nums);
+		TreeNode* root = sortedArrayToBST(nums);
+		print(root);
+		release(root);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
