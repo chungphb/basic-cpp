@@ -949,4 +949,66 @@ BOOST_AUTO_TEST_CASE(permutations_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Subsets" problem (LeetCode #78)
+// Problem:
+// - Given an integer array nums of unique elements.
+// - Return all possible subsets (the power set).
+// - The solution set must not contain duplicate subsets.
+// Input: nums = [1,2,3]
+// Output: [[],[1],[2],[1,2],[3],[1,3],[2,3],[1,2,3]]
+
+BOOST_AUTO_TEST_SUITE(subsets_suite)
+
+void dfs(int start, std::vector<int>& nums, std::vector<int>& list, std::vector<std::vector<int>>& res) {
+	res.push_back(list);
+	for (int i = start; i < nums.size(); ++i) {
+		list.push_back(nums[i]);
+		dfs(i + 1, nums, list, res);
+		list.pop_back();
+	}
+}
+
+std::vector<std::vector<int>> subsets(std::vector<int>& nums) {
+	std::vector<int> list;
+	std::vector<std::vector<int>> res;
+	dfs(0, nums, list, res);
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(subsets_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> nums = { 1, 2, 3 };
+		std::vector<std::vector<int>> res = subsets(nums);
+		print(res);
+	}
+
+	{ // Test 2
+		std::vector<int> nums = { 3, 2, 1 };
+		std::vector<std::vector<int>> res = subsets(nums);
+		print(res);
+	}
+
+	{ // Test 3
+		std::vector<int> nums = { 0, 1 };
+		std::vector<std::vector<int>> res = subsets(nums);
+		print(res);
+	}
+
+	{ // Test 4
+		std::vector<int> nums = { 1 };
+		std::vector<std::vector<int>> res = subsets(nums);
+		print(res);
+	}
+
+	{ // Test 5
+		std::vector<int> nums = { -1, 2, 3, -2, 5, 4 };
+		std::vector<std::vector<int>> res = subsets(nums);
+		print(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
