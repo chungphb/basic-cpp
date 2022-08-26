@@ -1084,4 +1084,112 @@ BOOST_AUTO_TEST_CASE(clone_graph_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Binary Tree Right Side View" problem (LeetCode #199)
+// Problem:
+// - Given the root of a binary tree.
+// - Imagine yourself standing on the right side of it, return the values of the nodes you can see ordered from top to bottom.
+// Input: root = [1,2,3,null,5,null,4]
+// Output: [1,3,4]
+
+BOOST_AUTO_TEST_SUITE(binary_tree_right_side_view_suite)
+
+std::vector<int> rightSideView(TreeNode* root) {
+	if (root == nullptr) {
+		return {};
+	}
+
+	std::vector<int> res;
+	std::queue<TreeNode*> queue;
+	queue.push(root);
+	while (!queue.empty()) {
+		int size = queue.size();
+		for (int k = size - 1; k >= 0; --k) {
+			TreeNode* node = queue.front();
+			queue.pop();
+			if (node->left != nullptr) {
+				queue.push(node->left);
+			}
+			if (node->right != nullptr) {
+				queue.push(node->right);
+			}
+			if (k == 0) {
+				res.push_back(node->val);
+			}
+		}
+	}
+
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(binary_tree_right_side_view_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		TreeNode* root = new TreeNode(1);
+		root->left = new TreeNode(2);
+		root->right = new TreeNode(3);
+		root->left->right = new TreeNode(5);
+		root->right->right = new TreeNode(4);
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "Result:\n";
+		std::vector<int> res = rightSideView(root);
+		print(res);
+		std::cout << "\n";
+		release(root);
+	}
+
+	{ // Test 2
+		TreeNode* root = new TreeNode(1);
+		root->left = new TreeNode(2);
+		root->right = new TreeNode(3);
+		root->left->right = new TreeNode(5);
+		root->right->right = new TreeNode(4);
+		root->left->right->left = new TreeNode(6);
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "Result:\n";
+		std::vector<int> res = rightSideView(root);
+		print(res);
+		std::cout << "\n";
+		release(root);
+	}
+
+	{ // Test 3
+		TreeNode* root = new TreeNode(1);
+		root->left = new TreeNode(2);
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "Result:\n";
+		std::vector<int> res = rightSideView(root);
+		print(res);
+		std::cout << "\n";
+		release(root);
+	}
+
+	{ // Test 4
+		TreeNode* root = new TreeNode(1);
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "Result:\n";
+		std::vector<int> res = rightSideView(root);
+		print(res);
+		std::cout << "\n";
+		release(root);
+	}
+
+	{ // Test 5
+		TreeNode* root = nullptr;
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "Result:\n";
+		std::vector<int> res = rightSideView(root);
+		print(res);
+		std::cout << "\n";
+		release(root);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
