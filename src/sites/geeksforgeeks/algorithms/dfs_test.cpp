@@ -713,4 +713,89 @@ BOOST_AUTO_TEST_CASE(combination_sum_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Combination Sum II" problem (LeetCode #40)
+// Problem:
+// - Given a collection of candidate numbers (candidates) and a target number (target).
+// - Find all unique combinations in candidates where the candidate numbers sum to target.
+// - Each number in candidates may only be used once in the combination.
+// Input: candidates = [10,1,2,7,6,1,5], target = 8
+// Output: [
+// [1, 1, 6],
+// [1, 2, 5],
+// [1, 7],
+// [2, 6]
+// ]
+
+BOOST_AUTO_TEST_SUITE(combination_sum_2_suite)
+
+void dfs(int start, std::vector<int>& candidates, int target, std::vector<int>& list, int sum, std::vector<std::vector<int>>& res) {
+	if (sum > target) {
+		return;
+	}
+	if (sum == target) {
+		res.push_back(list);
+		return;
+	}
+
+	for (int i = start; i < candidates.size(); ++i) {
+		if (i > start && candidates[i] == candidates[i - 1]) {
+			continue;
+		}
+		list.push_back(candidates[i]);
+		sum += candidates[i];
+		dfs(i + 1, candidates, target, list, sum, res);
+		list.pop_back();
+		sum -= candidates[i];
+	}
+}
+
+std::vector<std::vector<int>> combinationSum2(std::vector<int>& candidates, int target) {
+	std::sort(candidates.begin(), candidates.end());
+	std::vector<std::vector<int>> res;
+	std::vector<int> list;
+	dfs(0, candidates, target, list, 0, res);
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(combination_sum_2_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> candidates = { 10, 1, 2, 7, 6, 1, 5 };
+		int target = 8;
+		std::vector<std::vector<int>> res = combinationSum2(candidates, target);
+		print(res);
+	}
+
+	{ // Test 2
+		std::vector<int> candidates = { 2, 5, 2, 1, 2 };
+		int target = 5;
+		std::vector<std::vector<int>> res = combinationSum2(candidates, target);
+		print(res);
+	}
+
+	{ // Test 3
+		std::vector<int> candidates = { 2, 3, 5 };
+		int target = 8;
+		std::vector<std::vector<int>> res = combinationSum2(candidates, target);
+		print(res);
+	}
+
+	{ // Test 4
+		std::vector<int> candidates = { 2 };
+		int target = 1;
+		std::vector<std::vector<int>> res = combinationSum2(candidates, target);
+		print(res);
+	}
+
+	{ // Test 5
+		std::vector<int> candidates = { 1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3 };
+		int target = 4;
+		std::vector<std::vector<int>> res = combinationSum2(candidates, target);
+		print(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
