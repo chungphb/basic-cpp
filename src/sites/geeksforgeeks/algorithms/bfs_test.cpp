@@ -867,4 +867,221 @@ BOOST_AUTO_TEST_CASE(surrounded_regions_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Clone Graph" problem (LeetCode #133)
+// Problem:
+// - Given a reference of a node in a connected undirected graph.
+// - Return a deep copy (clone) of the graph.
+// Input:
+// Output:
+
+BOOST_AUTO_TEST_SUITE(clone_graph_suite)
+
+class Node {
+public:
+	int val;
+	std::vector<Node*> neighbors;
+	Node() {
+		val = 0;
+		neighbors = std::vector<Node*>();
+	}
+	Node(int _val) {
+		val = _val;
+		neighbors = std::vector<Node*>();
+	}
+	Node(int _val, std::vector<Node*> _neighbors) {
+		val = _val;
+		neighbors = _neighbors;
+	}
+};
+
+void print(Node* root) {
+	if (root == nullptr) {
+		return;
+	}
+
+	std::queue<Node*> queue;
+	std::unordered_set<int> set;
+	queue.push(root);
+	while (!queue.empty()) {
+		Node* node = queue.front();
+		queue.pop();
+		set.insert(node->val);
+		std::cout << node->val << " -> ";
+		for (Node* neighbor : node->neighbors) {
+			std::cout << neighbor->val << " ";
+			if (set.count(neighbor->val) == 0) {
+				set.insert(neighbor->val);
+				queue.push(neighbor);
+			}
+		}
+		std::cout << "\n";
+	}
+	std::cout << "\n";
+}
+
+void release(Node* root) {
+	if (root == nullptr) {
+		return;
+	}
+
+	std::vector<Node*> nodeList;
+	std::queue<Node*> queue;
+	std::unordered_set<int> set;
+	queue.push(root);
+	while (!queue.empty()) {
+		Node* node = queue.front();
+		queue.pop();
+		nodeList.push_back(node);
+		set.insert(node->val);
+		for (Node* neighbor : node->neighbors) {
+			if (neighbor != nullptr && set.count(neighbor->val) == 0) {
+				set.insert(neighbor->val);
+				queue.push(neighbor);
+			}
+		}
+	}
+
+	for (Node* node : nodeList) {
+		delete node;
+	}
+}
+
+Node* cloneGraph(Node* node) {
+	if (node == nullptr) {
+		return nullptr;
+	}
+
+	Node* graph = nullptr;
+	std::unordered_map<int, Node*> graphNodeList;
+	std::queue<Node*> queue;
+	queue.push(node);
+	while (!queue.empty()) {
+		Node* curr = queue.front();
+		queue.pop();
+
+		Node* cloneNode;
+		auto it = graphNodeList.find(curr->val);
+		if (it == graphNodeList.end()) {
+			cloneNode = new Node(curr->val);
+			graphNodeList.emplace(cloneNode->val, cloneNode);
+		} else {
+			cloneNode = it->second;
+		}
+
+		if (graph == nullptr) {
+			graph = cloneNode;
+		}
+		for (Node* neighbor : curr->neighbors) {
+			Node* cloneNeighbor;
+			auto it = graphNodeList.find(neighbor->val);
+			if (it == graphNodeList.end()) {
+				queue.push(neighbor);
+				cloneNeighbor = new Node(neighbor->val);
+				graphNodeList.emplace(cloneNeighbor->val, cloneNeighbor);
+			} else {
+				cloneNeighbor = it->second;
+			}
+			cloneNode->neighbors.push_back(cloneNeighbor);
+		}
+	}
+	return graph;
+}
+
+BOOST_AUTO_TEST_CASE(clone_graph_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		constexpr int NUM_NODES = 4;
+		constexpr int START_NODE = NUM_NODES > 0 ? 1 : 0;
+		std::vector<Node*> nodes;
+		nodes.push_back(nullptr);
+		for (int i = 1; i <= NUM_NODES; ++i) {
+			nodes.push_back(new Node(i));
+		}
+		nodes[1]->neighbors.push_back(nodes[2]);
+		nodes[1]->neighbors.push_back(nodes[4]);
+		nodes[2]->neighbors.push_back(nodes[1]);
+		nodes[2]->neighbors.push_back(nodes[3]);
+		nodes[3]->neighbors.push_back(nodes[2]);
+		nodes[3]->neighbors.push_back(nodes[4]);
+		nodes[4]->neighbors.push_back(nodes[1]);
+		nodes[4]->neighbors.push_back(nodes[3]);
+		Node* graph = nodes[START_NODE];
+		print(graph);
+		Node* res = cloneGraph(graph);
+		print(res);
+		release(graph);
+		release(res);
+	}
+
+	{ // Test 2
+		constexpr int NUM_NODES = 1;
+		constexpr int START_NODE = NUM_NODES > 0 ? 1 : 0;
+		std::vector<Node*> nodes;
+		nodes.push_back(nullptr);
+		for (int i = 1; i <= NUM_NODES; ++i) {
+			nodes.push_back(new Node(i));
+		}
+		Node* graph = nodes[START_NODE];
+		print(graph);
+		Node* res = cloneGraph(graph);
+		print(res);
+		release(graph);
+		release(res);
+	}
+
+	{ // Test 3
+		constexpr int NUM_NODES = 0;
+		constexpr int START_NODE = NUM_NODES > 0 ? 1 : 0;
+		std::vector<Node*> nodes;
+		nodes.push_back(nullptr);
+		for (int i = 1; i <= NUM_NODES; ++i) {
+			nodes.push_back(new Node(i));
+		}
+		Node* graph = nodes[START_NODE];
+		print(graph);
+		Node* res = cloneGraph(graph);
+		print(res);
+		release(graph);
+		release(res);
+	}
+
+	{ // Test 6
+		constexpr int NUM_NODES = 6;
+		constexpr int START_NODE = NUM_NODES > 0 ? 1 : 0;
+		std::vector<Node*> nodes;
+		nodes.push_back(nullptr);
+		for (int i = 1; i <= NUM_NODES; ++i) {
+			nodes.push_back(new Node(i));
+		}
+		nodes[1]->neighbors.push_back(nodes[2]);
+		nodes[1]->neighbors.push_back(nodes[4]);
+		nodes[1]->neighbors.push_back(nodes[6]);
+		nodes[2]->neighbors.push_back(nodes[1]);
+		nodes[2]->neighbors.push_back(nodes[3]);
+		nodes[2]->neighbors.push_back(nodes[4]);
+		nodes[3]->neighbors.push_back(nodes[2]);
+		nodes[3]->neighbors.push_back(nodes[6]);
+		nodes[3]->neighbors.push_back(nodes[4]);
+		nodes[4]->neighbors.push_back(nodes[2]);
+		nodes[4]->neighbors.push_back(nodes[1]);
+		nodes[4]->neighbors.push_back(nodes[6]);
+		nodes[4]->neighbors.push_back(nodes[5]);
+		nodes[5]->neighbors.push_back(nodes[1]);
+		nodes[5]->neighbors.push_back(nodes[6]);
+		nodes[5]->neighbors.push_back(nodes[4]);
+		nodes[6]->neighbors.push_back(nodes[1]);
+		nodes[6]->neighbors.push_back(nodes[3]);
+		nodes[6]->neighbors.push_back(nodes[5]);
+		Node* graph = nodes[START_NODE];
+		print(graph);
+		Node* res = cloneGraph(graph);
+		print(res);
+		release(graph);
+		release(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
