@@ -2,9 +2,12 @@
 #include <boost/test/included/unit_test.hpp>
 #include <vector>
 #include <queue>
+#include <deque>
 #include <unordered_set>
 
 #include "test_util.h"
+
+// Note: When traversing undirect graph, mark a node as visited before adding it to the queue.
 
 BOOST_AUTO_TEST_SUITE(test_bfs)
 
@@ -70,15 +73,17 @@ void release(TreeNode* root) {
 	}
 }
 
-void print(std::vector<int>& arr) {
+template <typename T>
+void print(std::vector<T>& arr) {
 	for (int item : arr) {
 		std::cout << item << " ";
 	}
 	std::cout << "\n";
 }
 
-void print(std::vector<std::vector<int>>& arr2d) {
-	for (std::vector<int>& arr : arr2d) {
+template <typename T>
+void print(std::vector<std::vector<T>>& arr2d) {
+	for (std::vector<T>& arr : arr2d) {
 		print(arr);
 	}
 	std::cout << "\n";
@@ -640,6 +645,7 @@ int ladderLength(std::string beginWord, std::string endWord, std::vector<std::st
 						return res + 2;
 					} else {
 						if (!set.contains(neighbor)) {
+							set.insert(neighbor);
 							queue.push(neighbor);
 						}
 					}
@@ -696,6 +702,166 @@ BOOST_AUTO_TEST_CASE(word_ladder_test) {
 
 		int res = ladderLength(beginWord, endWord, wordList);
 		std::cout << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Surrounded Regions" problem (LeetCode #130)
+// Problem:
+// - Given an m x n matrix board containing 'X' and 'O'.
+// - Capture all regions that are 4-directionally surrounded by 'X'.
+// Input: board = [["X","X","X","X"],["X","O","O","X"],["X","X","O","X"],["X","O","X","X"]]
+// Output: [["X","X","X","X"],["X","X","X","X"],["X","X","X","X"],["X","O","X","X"]]
+
+BOOST_AUTO_TEST_SUITE(surrounded_regions_suite)
+
+void solve(std::vector<std::vector<char>>& board) {
+	int dirX[] = { -1, 0, 0, 1 };
+	int dirY[] = { 0, -1, 1, 0 };
+
+	std::queue<std::pair<int, int>> queue; // Unflippable 0
+	std::unordered_set<int> set;
+	
+	int m = board.size();
+	int n = board[0].size();
+
+	for (int i = 0; i < m; ++i) {
+		for (int j = 0; j < n; ++j) {
+			if ((i == 0 || i == m - 1 || j == 0 || j == n - 1) && (board[i][j] == 'O')) {
+				queue.emplace(i, j);
+			}
+		}
+	}
+
+	while (!queue.empty()) {
+		std::pair<int, int> pos = queue.front();
+		queue.pop();
+		set.insert(pos.first * n + pos.second);
+		for (int k = 0; k < 4; ++k) {
+			int nPosX = pos.first + dirX[k];
+			int nPosY = pos.second + dirY[k];
+			int nHash = nPosX * n + nPosY;
+			if (nPosX >= 0 && nPosX < m && nPosY >= 0 && nPosY < n && board[nPosX][nPosY] == 'O' && !set.contains(nPosX * n + nPosY)) {
+				set.insert(nHash);
+				queue.emplace(nPosX, nPosY);
+			}
+		}
+	}
+
+	for (int i = 0; i < m; ++i) {
+		for (int j = 0; j < n; ++j) {
+			if (board[i][j] == 'O' && !set.contains(i * n + j)) {
+				board[i][j] = 'X';
+			}
+		}
+	}
+}
+
+BOOST_AUTO_TEST_CASE(surrounded_regions_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<std::vector<char>> board = { 
+			{ 'X', 'X', 'X', 'X' },
+			{ 'X', 'O', 'O', 'X' },
+			{ 'X', 'X', 'O', 'X' },
+			{ 'X', 'O', 'X', 'X' }
+		};
+
+		std::cout << "Before: \n";
+		print(board);
+		solve(board);
+		std::cout << "After: \n";
+		print(board);
+		std::cout << "\n";
+	}
+
+	{ // Test 2
+		std::vector<std::vector<char>> board = {
+			{ 'X' }
+		};
+
+		std::cout << "Before: \n";
+		print(board);
+		solve(board);
+		std::cout << "After: \n";
+		print(board);
+		std::cout << "\n";
+	}
+
+	{ // Test 3
+		std::vector<std::vector<char>> board = {
+			{ 'O' }
+		};
+
+		std::cout << "Before: \n";
+		print(board);
+		solve(board);
+		std::cout << "After: \n";
+		print(board);
+		std::cout << "\n";
+	}
+
+	{ // Test 4
+		std::vector<std::vector<char>> board = {
+			{ 'X', 'X', 'X', 'X' },
+			{ 'X', 'O', 'O', 'X' },
+			{ 'X', 'O', 'O', 'X' },
+			{ 'X', 'X', 'X', 'X' }
+		};
+
+		std::cout << "Before: \n";
+		print(board);
+		solve(board);
+		std::cout << "After: \n";
+		print(board);
+		std::cout << "\n";
+	}
+
+	{ // Test 5
+		std::vector<std::vector<char>> board = {
+			{ 'O', 'X', 'X', 'O' },
+			{ 'X', 'O', 'O', 'X' },
+			{ 'X', 'O', 'O', 'X' },
+			{ 'O', 'X', 'X', 'O' }
+		};
+
+		std::cout << "Before: \n";
+		print(board);
+		solve(board);
+		std::cout << "After: \n";
+		print(board);
+		std::cout << "\n";
+	}
+
+	{ // Test 6
+		std::vector<std::vector<char>> board = {
+			{ 'O', 'X', 'X', 'O' },
+			{ 'X', 'O', 'O', 'X' }
+		};
+
+		std::cout << "Before: \n";
+		print(board);
+		solve(board);
+		std::cout << "After: \n";
+		print(board);
+		std::cout << "\n";
+	}
+
+	{ // Test 7
+		std::vector<std::vector<char>> board = {
+			{ 'O', 'O', 'X', 'O' },
+			{ 'X', 'O', 'O', 'X' },
+			{ 'O', 'X', 'X', 'O' }
+		};
+
+		std::cout << "Before: \n";
+		print(board);
+		solve(board);
+		std::cout << "After: \n";
+		print(board);
+		std::cout << "\n";
 	}
 }
 
