@@ -9,8 +9,8 @@
 
 // Note:
 // - Iterative DFS is usually faster than recursive DFS.
+// - Recursive DFS is usually easier to implement than iterative DFS;
 // - Use a stack when implementing iterative DFS (careful about the order to push the neighbors).
-
 
 BOOST_AUTO_TEST_SUITE(test_dfs)
 
@@ -446,6 +446,80 @@ BOOST_AUTO_TEST_CASE(symmetric_tree_test) {
 		print(root);
 		bool res = isSymmetric(root);
 		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+		release(root);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Maximum Depth of Binary Tree" problem (LeetCode #104)
+// Problem:
+// - Given the root of a binary tree.
+// - Return its maximum depth.
+// Input: root = [3,9,20,null,null,15,7]
+// Output: 3
+
+BOOST_AUTO_TEST_SUITE(maximum_depth_suite)
+
+int depth(TreeNode* root) {
+	if (root == nullptr) {
+		return 0;
+	}
+	int leftDepth = depth(root->left);
+	int rightDepth = depth(root->right);
+	return 1 + max(leftDepth, rightDepth);
+}
+
+int maxDepth(TreeNode* root) {
+	if (root == nullptr) {
+		return 0;
+	}
+	int leftDepth = maxDepth(root->left);
+	int rightDepth = maxDepth(root->right);
+	return 1 + max(leftDepth, rightDepth);
+}
+
+BOOST_AUTO_TEST_CASE(maximum_depth_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		TreeNode* root = new TreeNode(3);
+		root->left = new TreeNode(9);
+		root->right = new TreeNode(20);
+		root->right->left = new TreeNode(15);
+		root->right->right = new TreeNode(7);
+		std::cout << "Tree:\n";
+		print(root);
+		int res = maxDepth(root);
+		std::cout << "Result: " << res << "\n\n";
+		release(root);
+	}
+
+	{ // Test 2
+		TreeNode* root = new TreeNode(1);
+		root->right = new TreeNode(2);
+		std::cout << "Tree:\n";
+		print(root);
+		int res = maxDepth(root);
+		std::cout << "Result: " << res << "\n\n";
+		release(root);
+	}
+
+	{ // Test 3
+		TreeNode* root = new TreeNode(1);
+		std::cout << "Tree:\n";
+		print(root);
+		int res = maxDepth(root);
+		std::cout << "Result: " << res << "\n\n";
+		release(root);
+	}
+
+	{ // Test 4
+		TreeNode* root = nullptr;
+		std::cout << "Tree:\n";
+		print(root);
+		int res = maxDepth(root);
+		std::cout << "Result: " << res << "\n\n";
 		release(root);
 	}
 }
