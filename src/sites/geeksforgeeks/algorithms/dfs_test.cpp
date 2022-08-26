@@ -11,6 +11,7 @@
 // - Iterative DFS is usually faster than recursive DFS.
 // - Recursive DFS is usually easier to implement than iterative DFS;
 // - Use a stack when implementing iterative DFS (careful about the order to push the neighbors).
+// - In matrix problems, to mark a position as visited, we usually update its value to something else.
 
 BOOST_AUTO_TEST_SUITE(test_dfs)
 
@@ -1006,6 +1007,104 @@ BOOST_AUTO_TEST_CASE(subsets_test) {
 		std::vector<int> nums = { -1, 2, 3, -2, 5, 4 };
 		std::vector<std::vector<int>> res = subsets(nums);
 		print(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Word Search" problem (LeetCode #79)
+// Problem:
+// - Given an m x n grid of characters board and a string word.
+// - Return true if word exists in the grid.
+// Input: board = [["A","B","C","E"],["S","F","C","S"],["A","D","E","E"]], word = "ABCCED"
+// Output: true
+
+BOOST_AUTO_TEST_SUITE(word_search_suite)
+
+bool dfs(int posX, int posY, int id, std::vector<std::vector<char>>& board, std::string word) {
+	if (id >= word.size()) {
+		return true;
+	}
+
+	if (posX < 0 || posX >= board.size() || posY < 0 || posY >= board[0].size() || board[posX][posY] != word[id]) {
+		return false;
+	}
+
+	char c = board[posX][posY];
+	board[posX][posY] = '*';
+	int res = dfs(posX + 1, posY, id + 1, board, word) || dfs(posX - 1, posY, id + 1, board, word) || dfs(posX, posY + 1, id + 1, board, word) || dfs(posX, posY - 1, id + 1, board, word);
+	board[posX][posY] = c;
+	return res;
+}
+
+bool exist(std::vector<std::vector<char>>& board, std::string word) {
+	int m = board.size();
+	int n = board[0].size();
+	for (int i = 0; i < m; ++i) {
+		for (int j = 0; j < n; ++j) {
+			if (board[i][j] == word[0]) {
+				int res = dfs(i, j, 0, board, word);
+				if (res) {
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+BOOST_AUTO_TEST_CASE(word_search_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<std::vector<char>> board = {
+			{'A', 'B', 'C', 'E'},
+			{'S', 'F', 'C', 'S'},
+			{'A', 'D', 'E', 'E'}
+		};
+		std::string word = "SEE";
+		bool res = exist(board, word);
+		std::cout << std::boolalpha << res << std::endl;
+	}
+
+	{ // Test 2
+		std::vector<std::vector<char>> board = {
+			{'A', 'B', 'C', 'E'},
+			{'S', 'F', 'C', 'S'},
+			{'A', 'D', 'E', 'E'}
+		};
+		std::string word = "ABCD";
+		bool res = exist(board, word);
+		std::cout << std::boolalpha << res << std::endl;
+	}
+
+	{ // Test 3
+		std::vector<std::vector<char>> board = {
+			{'A'}
+		};
+		std::string word = "A";
+		bool res = exist(board, word);
+		std::cout << std::boolalpha << res << std::endl;
+	}
+
+	{ // Test 4
+		std::vector<std::vector<char>> board = {
+			{'A'}
+		};
+		std::string word = "B";
+		bool res = exist(board, word);
+		std::cout << std::boolalpha << res << std::endl;
+	}
+
+	{ // Test 5
+		std::vector<std::vector<char>> board = {
+			{'A', 'B', 'C', 'E'},
+			{'S', 'F', 'C', 'S'},
+			{'A', 'D', 'E', 'E'}
+		};
+		std::string word = "ABCB";
+		bool res = exist(board, word);
+		std::cout << std::boolalpha << res << std::endl;
 	}
 }
 
