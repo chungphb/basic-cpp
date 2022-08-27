@@ -1234,4 +1234,75 @@ BOOST_AUTO_TEST_CASE(validate_bst_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Construct Binary Tree from Preorder and Inorder Traversal" problem (LeetCode #105)
+// Problem:
+// - Given two integer arrays preorder and inorder where preorder is the preorder traversal of a binary tree and inorder is the inorder traversal of the same tree.
+// - Construct and return the binary tree.
+// Input: preorder = [3,9,20,15,7], inorder = [9,3,15,20,7]
+// Output: [3,9,20,null,null,15,7]
+
+BOOST_AUTO_TEST_SUITE(construct_binary_tree_suite)
+
+TreeNode* dfs(int preStart, int inStart, int size, std::vector<int>& preorder, std::vector<int>& inorder) {
+	if (size == 0) {
+		return nullptr;
+	}
+
+	// Construct the root
+	int rootVal = preorder[preStart];
+	TreeNode* root = new TreeNode(rootVal);
+
+	// Determine the size of the subtrees
+	int leftSize = 0;
+	for (int k = inStart; k < inStart + size; ++k) {
+		if (inorder[k] == rootVal) { 
+			break;
+		}
+		++leftSize;
+	}
+	int rightSize = size - leftSize - 1;
+
+	// Construct the subtrees
+	root->left = dfs(preStart + 1, inStart, leftSize, preorder, inorder);
+	root->right = dfs(preStart + leftSize + 1, inStart + leftSize + 1, rightSize, preorder, inorder);
+	return root;
+}
+
+TreeNode* buildTree(std::vector<int>& preorder, std::vector<int>& inorder) {
+	if (preorder.size() == 0) {
+		return nullptr;
+	}
+	return dfs(0, 0, preorder.size(), preorder, inorder);
+}
+
+BOOST_AUTO_TEST_CASE(construct_binary_tree_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> preorder = { 3, 9, 20, 15, 7 };
+		std::vector<int> inorder = { 9, 3, 15, 20, 7 };
+		TreeNode* root = buildTree(preorder, inorder);
+		print(root);
+		release(root);
+	}
+
+	{ // Test 2
+		std::vector<int> preorder = { -1 };
+		std::vector<int> inorder = { -1 };
+		TreeNode* root = buildTree(preorder, inorder);
+		print(root);
+		release(root);
+	}
+
+	{ // Test 3
+		std::vector<int> preorder = { 10, 5, 3, 7, 6, 15, 12, 14, 13, 17 };
+		std::vector<int> inorder = { 3, 5, 6, 7, 10, 12, 13, 14, 15, 17 };
+		TreeNode* root = buildTree(preorder, inorder);
+		print(root);
+		release(root);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
