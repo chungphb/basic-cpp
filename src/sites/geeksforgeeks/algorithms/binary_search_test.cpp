@@ -259,4 +259,88 @@ BOOST_AUTO_TEST_CASE(first_bad_version_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Find Peak Element" problem (LeetCode #162)
+// Problem:
+// - Given a 0-indexed integer array nums.
+// - Find a peak element, and return its index.
+// - If the array contains multiple peaks, return the index to any of the peaks.
+// - You may imagine that nums[-1] = nums[n] = -inf.
+// - You must write an algorithm that runs in O(log n) time.
+// Input: nums = [1,2,3,1]
+// Output: 2
+
+BOOST_AUTO_TEST_SUITE(find_peak_element_suite)
+
+int findPeakElement(std::vector<int>& nums) {
+	const int SIZE = nums.size();
+	if (SIZE == 1) {
+		return 0;
+	}
+	int left = 0;
+	int right = SIZE - 1;
+	while (left <= right) {
+		int mid = left + (right - left) / 2;
+		if (mid > 0 && mid < SIZE - 1) {
+			if (nums[mid] > nums[mid - 1] && nums[mid] > nums[mid + 1]) {
+				return mid;
+			} else if (nums[mid] < nums[mid + 1]) {
+				left = mid + 1;
+			} else {
+				right = mid - 1;
+			}
+		} else if (mid == 0) {
+			if (nums[mid] > nums[mid + 1]) {
+				return mid;
+			} else {
+				left = mid + 1;
+			}
+		} else if (mid == SIZE - 1) {
+			if (nums[mid] > nums[mid - 1]) {
+				return mid;
+			}
+			else {
+				right = mid - 1;
+			}
+		}
+	}
+
+	return -1;
+}
+
+BOOST_AUTO_TEST_CASE(find_peak_element_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> nums = { 1, 2, 3, 1 };
+		int res = findPeakElement(nums);
+		std::cout << res << std::endl;
+	}
+
+	{ // Test 2
+		std::vector<int> nums = { 1, 2, 3, 4 };
+		int res = findPeakElement(nums);
+		std::cout << res << std::endl;
+	}
+
+	{ // Test 3
+		std::vector<int> nums = { 4, 3, 2, 1 };
+		int res = findPeakElement(nums);
+		std::cout << res << std::endl;
+	}
+
+	{ // Test 4
+		std::vector<int> nums = { 1, 2, 1, 3, 5, 6, 4 };
+		int res = findPeakElement(nums);
+		std::cout << res << std::endl;
+	}
+
+	{ // Test 5
+		std::vector<int> nums = { 3, 4, 3, 2, 1 };
+		int res = findPeakElement(nums);
+		std::cout << res << std::endl;
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
