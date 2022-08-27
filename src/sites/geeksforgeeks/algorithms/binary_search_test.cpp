@@ -6,6 +6,22 @@
 
 BOOST_AUTO_TEST_SUITE(test_binary_search)
 
+template <typename T>
+void print(std::vector<T>& arr) {
+	for (int item : arr) {
+		std::cout << item << " ";
+	}
+	std::cout << "\n";
+}
+
+template <typename T>
+void print(std::vector<std::vector<T>>& arr2d) {
+	for (std::vector<T>& arr : arr2d) {
+		print(arr);
+	}
+	std::cout << "\n";
+}
+
 // "Binary Search" problem (LeetCode #704)
 // Problem:
 // - Given an array of integers nums which is sorted in ascending order, and an integer target.
@@ -338,6 +354,144 @@ BOOST_AUTO_TEST_CASE(find_peak_element_test) {
 		std::vector<int> nums = { 3, 4, 3, 2, 1 };
 		int res = findPeakElement(nums);
 		std::cout << res << std::endl;
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Search in Rotated Sorted Array" problem (LeetCode #33)
+// Problem:
+// - There is an integer array nums sorted in ascending order (with distinct values)..
+// - Prior to being passed to your function, nums is possibly rotated at an unknown pivot index k.
+// - Given the array nums after the possible rotation and an integer target.
+// - Return the index of target if it is in nums, or -1 if it is not in nums.
+// Input: nums = [4,5,6,7,0,1,2], target = 0
+// Output: 4
+
+BOOST_AUTO_TEST_SUITE(search_rotated_sorted_array_suite)
+
+int search(std::vector<int>& nums, int target) {
+	int left = 0;
+	int right = nums.size() - 1;
+	while (left <= right) {
+		int mid = left + (right - left) / 2;
+
+		if (target == nums[mid]) {
+			return mid;
+		}
+
+		if (nums[left] < nums[mid]) {
+			if (target == nums[left]) {
+				return left;
+			} else if (target > nums[left] && target < nums[mid]) {
+				right = mid - 1;
+			} else {
+				left = mid + 1;
+			}
+		} else { // nums[mid] < nums[right]
+			if (target == nums[right]) {
+				return right;
+			} else if (target > nums[mid] && target < nums[right]) {
+				left = mid + 1;
+			} else {
+				right = mid - 1;
+			}
+		}
+	}
+	return -1;
+}
+
+BOOST_AUTO_TEST_CASE(search_rotated_sorted_array_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> nums = { 4, 5, 6, 7, 0, 1, 2 };
+		int target = 0;
+		print(nums);
+		std::cout << target << "\n";
+		int res = search(nums, target);
+		std::cout << res << "\n\n";
+	}
+
+	{ // Test 2
+		std::vector<int> nums = { 4, 5, 6, 7, 0, 1, 2 };
+		int target = 3;
+		print(nums);
+		std::cout << target << "\n";
+		int res = search(nums, target);
+		std::cout << res << "\n\n";
+	}
+
+	{ // Test 3
+		std::vector<int> nums = { 6, 7, 0, 1, 2, 4, 5 };
+		int target = 0;
+		print(nums);
+		std::cout << target << "\n";
+		int res = search(nums, target);
+		std::cout << res << "\n\n";
+	}
+
+	{ // Test 4
+		std::vector<int> nums = { 6, 7, 0, 1, 2, 4, 5 };
+		int target = 3;
+		print(nums);
+		std::cout << target << "\n";
+		int res = search(nums, target);
+		std::cout << res << "\n\n";
+	}
+
+	{ // Test 5
+		std::vector<int> nums = { 0, 1, 2, 4, 5, 6, 7 };
+		int target = 0;
+		print(nums);
+		std::cout << target << "\n";
+		int res = search(nums, target);
+		std::cout << res << "\n\n";
+	}
+
+	{ // Test 6
+		std::vector<int> nums = { 0, 1, 2, 4, 5, 6, 7 };
+		int target = 3;
+		print(nums);
+		std::cout << target << "\n";
+		int res = search(nums, target);
+		std::cout << res << "\n\n";
+	}
+
+	{ // Test 7
+		std::vector<int> nums = { 2, 4, 5, 6, 7, 0, 1 };
+		int target = 0;
+		print(nums);
+		std::cout << target << "\n";
+		int res = search(nums, target);
+		std::cout << res << "\n\n";
+	}
+
+	{ // Test 8
+		std::vector<int> nums = { 2, 4, 5, 6, 7, 0, 1 };
+		int target = 3;
+		print(nums);
+		std::cout << target << "\n";
+		int res = search(nums, target);
+		std::cout << res << "\n\n";
+	}
+
+	{ // Test 9
+		std::vector<int> nums = { 1 };
+		int target = 1;
+		print(nums);
+		std::cout << target << "\n";
+		int res = search(nums, target);
+		std::cout << res << "\n\n";
+	}
+
+	{ // Test 10
+		std::vector<int> nums = { 1 };
+		int target = 0;
+		print(nums);
+		std::cout << target << "\n";
+		int res = search(nums, target);
+		std::cout << res << "\n\n";
 	}
 }
 
