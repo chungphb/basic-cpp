@@ -64,4 +64,6 @@ add_executable(bfs_test src/sites/geeksforgeeks/algorithms/bfs_test.cpp)
 
 add_executable(dfs_test src/sites/geeksforgeeks/algorithms/dfs_test.cpp)
 
+add_executable(binary_search_test src/sites/geeksforgeeks/algorithms/binary_search_test.cpp)
+
 add_subdirectory(modules)
