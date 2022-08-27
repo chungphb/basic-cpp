@@ -211,4 +211,52 @@ BOOST_AUTO_TEST_CASE(search_2d_matrix_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "First Bad Version" problem (LeetCode #278)
+// Problem:
+// - Suppose you have n versions [1, 2, ..., n].
+// - Find out the first bad one.
+// - You are given an API bool isBadVersion(version) which returns whether version is bad.
+// Input: n = 5, bad = 4
+// Output: 4
+
+BOOST_AUTO_TEST_SUITE(first_bad_version_suite)
+
+bool isBadVersion(int version) {
+	return version >= 1;
+}
+
+int firstBadVersion(int n) {
+	int left = 1;
+	int right = n;
+	int res = 0;
+	while (left <= right) {
+		int mid = left + (right - left) / 2;
+		if (isBadVersion(mid)) {
+			right = mid - 1;
+			res = mid;
+		} else {
+			left = mid + 1;
+		}
+	}
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(first_bad_version_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		int n = 5;
+		int res = firstBadVersion(n);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 2
+		int n = 9;
+		int res = firstBadVersion(n);
+		std::cout << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
