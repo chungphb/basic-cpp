@@ -604,4 +604,112 @@ BOOST_AUTO_TEST_CASE(perfect_square_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Find First and Last Position of Element in Sorted Array" problem (LeetCode #34)
+// Problem:
+// - Given an array of integers nums sorted in non-decreasing order.
+// - Find the starting and ending position of a given target value.
+// - If target is not found in the array, return [-1, -1].
+// - You must write an algorithm with O(log n) runtime complexity.
+// Input: nums = [5,7,7,8,8,10], target = 8
+// Output: [3,4]
+
+BOOST_AUTO_TEST_SUITE(first_last_suite)
+
+std::vector<int> searchRange(std::vector<int>& nums, int target) {
+	std::vector<int> res = { -1, -1 };
+
+	// Find the first position
+	int left = 0;
+	int right = nums.size() - 1;
+	while (left <= right) {
+		int mid = left + (right - left) / 2;
+		if (nums[mid] == target) {
+			res[0] = mid;
+			right = mid - 1;
+		} else if (nums[mid] < target) {
+			left = mid + 1;
+		} else {
+			right = mid - 1;
+		}
+	}
+
+	// Return if the element can't be found
+	if (res[0] == -1) {
+		return res;
+	}
+
+	// Find the last position
+	left = 0;
+	right = nums.size() - 1;
+	while (left <= right) {
+		int mid = left + (right - left) / 2;
+		if (nums[mid] == target) {
+			res[1] = mid;
+			left = mid + 1;
+		}
+		else if (nums[mid] < target) {
+			left = mid + 1;
+		}
+		else {
+			right = mid - 1;
+		}
+	}
+
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(first_last_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> nums = { 5, 7, 7, 8, 8, 10 };
+		int target = 8;
+		std::vector<int> res = searchRange(nums, target);
+		std::cout << "Array: ";
+		print(nums);
+		std::cout << "Target: " << target << "\n";
+		std::cout << "Result: ";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 2
+		std::vector<int> nums = { 8, 8, 8, 8, 8, 8, 8, 8 };
+		int target = 8;
+		std::vector<int> res = searchRange(nums, target);
+		std::cout << "Array: ";
+		print(nums);
+		std::cout << "Target: " << target << "\n";
+		std::cout << "Result: ";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 3
+		std::vector<int> nums = { 5, 7, 7, 8, 8, 10 };
+		int target = 6;
+		std::vector<int> res = searchRange(nums, target);
+		std::cout << "Array: ";
+		print(nums);
+		std::cout << "Target: " << target << "\n";
+		std::cout << "Result: ";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 4
+		std::vector<int> nums = {};
+		int target = 0;
+		std::vector<int> res = searchRange(nums, target);
+		std::cout << "Array: ";
+		print(nums);
+		std::cout << "Target: " << target << "\n";
+		std::cout << "Result: ";
+		print(res);
+		std::cout << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
