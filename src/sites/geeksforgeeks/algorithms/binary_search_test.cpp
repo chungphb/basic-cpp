@@ -504,7 +504,7 @@ BOOST_AUTO_TEST_SUITE_END()
 // Input: x = 8
 // Output: 2
 
-BOOST_AUTO_TEST_SUITE(rotate_string_suite)
+BOOST_AUTO_TEST_SUITE(sqrt_suite)
 
 int mySqrt(int x) {
 	if (x == 0) {
@@ -529,7 +529,7 @@ int mySqrt(int x) {
 	return left - 1;
 }
 
-BOOST_AUTO_TEST_CASE(rotate_string_test) {
+BOOST_AUTO_TEST_CASE(sqrt_test) {
 	TEST_MARKER();
 
 	{ // Test 1
@@ -539,13 +539,67 @@ BOOST_AUTO_TEST_CASE(rotate_string_test) {
 		}
 	}
 
-	{ // Test 7
+	{ // Test 2
 		int x = INT_MAX;
 		int res = mySqrt(x);
 		std::cout << "sqrt(" << x << ") = " << res << "\n";
 	}
+}
 
-	
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Valid Perfect Square" problem (LeetCode #367)
+// Problem:
+// - Given a positive integer num.
+// - Write a function which returns True if num is a perfect square else False.
+// Input:
+// Output:
+
+BOOST_AUTO_TEST_SUITE(perfect_square_suite)
+
+bool isPerfectSquare(int num) {
+	int left = 0;
+	int right = num;
+	while (left <= right) {
+		int mid = left + (right - left) / 2;
+		if (mid == 0) {
+			left = mid + 1;
+			continue;
+		}
+		int div = num / mid;
+		int mod = num % mid;
+		if (mid == div && mod == 0) {
+			return true;
+		} else if (mid <= div) {
+			left = mid + 1;
+		} else {
+			right = mid - 1;
+		}
+	}
+	return false;
+}
+
+BOOST_AUTO_TEST_CASE(perfect_square_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		for (int num = 1; num < 36; ++num) {
+			bool res = isPerfectSquare(num);
+			std::cout << std::boolalpha << num << ": " << res << "\n";
+		}
+	}
+
+	{ // Test 2
+		int num = INT_MAX;
+		bool res = isPerfectSquare(num);
+		std::cout << std::boolalpha << num << ": " << res << "\n";
+	}
+
+	{ // Test 3
+		int num = 222784;
+		bool res = isPerfectSquare(num);
+		std::cout << std::boolalpha << num << ": " << res << "\n";
+	}
 }
 
 BOOST_AUTO_TEST_SUITE_END()
