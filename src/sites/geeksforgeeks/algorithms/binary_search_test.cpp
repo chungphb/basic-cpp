@@ -497,4 +497,57 @@ BOOST_AUTO_TEST_CASE(search_rotated_sorted_array_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Sqrt(x)" problem (LeetCode #69)
+// Problem:
+// - Given a non-negative integer x.
+// - Compute and return the square root of x..
+// Input: x = 8
+// Output: 2
+
+BOOST_AUTO_TEST_SUITE(rotate_string_suite)
+
+int mySqrt(int x) {
+	if (x == 0) {
+		return 0;
+	}
+	int left = 0;
+	int right = x;
+	while (left <= right) {
+		int mid = left + (right - left) / 2;
+		if (mid == 0) {
+			left = mid + 1;
+			continue;
+		}
+		if (mid == x / mid) {
+			return mid;
+		} else if (mid < x / mid) {
+			left = mid + 1;
+		} else {
+			right = mid - 1;
+		}
+	}
+	return left - 1;
+}
+
+BOOST_AUTO_TEST_CASE(rotate_string_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		for (int x = 0; x < 36; ++x) {
+			int res = mySqrt(x);
+			std::cout << "sqrt(" << x << ") = " << res << "\n";
+		}
+	}
+
+	{ // Test 7
+		int x = INT_MAX;
+		int res = mySqrt(x);
+		std::cout << "sqrt(" << x << ") = " << res << "\n";
+	}
+
+	
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
