@@ -3,6 +3,8 @@
 
 #include "test_util.h"
 
+// Note: Use a dummy head when needed.
+
 BOOST_AUTO_TEST_SUITE(test_linked_list_leetcode)
 
 struct ListNode {
@@ -369,6 +371,141 @@ BOOST_AUTO_TEST_CASE(reversed_linked_list_2_test) {
 		std::cout << "Original: ";
 		print(head);
 		ListNode* res = reverseBetween(head, left, right);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Sort List" problem (LeetCode #148)
+// Problem:
+// - Given the head of a linked list.
+// - Return the list after sorting it in ascending order.
+// Input: head = [4,2,1,3]
+// Output: [1,2,3,4]
+
+BOOST_AUTO_TEST_SUITE(sort_list_suite)
+
+ListNode* merge(ListNode* list1, ListNode* list2) {
+	if (list1 == nullptr) {
+		return list2;
+	}
+
+	if (list2 == nullptr) {
+		return list1;
+	}
+
+	ListNode* dummyHead = new ListNode();
+	ListNode* curr = dummyHead;
+	while (list1 != nullptr && list2 != nullptr) {
+		if (list1->val < list2->val) {
+			curr->next = list1;
+			list1 = list1->next;
+		} else {
+			curr->next = list2;
+			list2 = list2->next;
+		}
+		curr = curr->next;
+	}
+
+	while (list1 != nullptr) {
+		curr->next = list1;
+		list1 = list1->next;
+		curr = curr->next;
+	}
+
+	while (list2 != nullptr) {
+		curr->next = list2;
+		list2 = list2->next;
+		curr = curr->next;
+	}
+
+	ListNode* head = dummyHead->next;
+	delete dummyHead;
+	return head;
+}
+
+ListNode* mergeSort(ListNode* head) {
+	// Return if invalid
+	if (head == nullptr || head->next == nullptr) {
+		return head;
+	}
+
+	// Find the middle node
+	ListNode* fast = head->next;
+	ListNode* slow = head;
+	while (fast != nullptr && fast->next != nullptr) {
+		fast = fast->next->next;
+		slow = slow->next;
+	}
+	ListNode* midPrev = slow;
+	ListNode* mid = midPrev->next;
+	midPrev->next = nullptr;
+
+	// Sort the left
+	ListNode* left = mergeSort(head);
+
+	// Sort the right
+	ListNode* right = mergeSort(mid);
+
+	// Merge the list
+	return merge(left, right);
+}
+
+ListNode* sortList(ListNode* head) {
+	return mergeSort(head);
+}
+
+BOOST_AUTO_TEST_CASE(sort_list_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		ListNode* head = new ListNode(4);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(1);
+		head->next->next->next = new ListNode(3);
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = mergeSort(head);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 2
+		ListNode* head = new ListNode(9);
+		head->next = new ListNode(4);
+		head->next->next = new ListNode(7);
+		head->next->next->next = new ListNode(3);
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = mergeSort(head);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 3
+		ListNode* head = new ListNode(1);
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = mergeSort(head);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 4
+		ListNode* head = nullptr;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = mergeSort(head);
 		std::cout << "After: ";
 		print(res);
 		std::cout << "\n";
