@@ -634,4 +634,115 @@ BOOST_AUTO_TEST_CASE(reorder_list_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Rotate List" problem (LeetCode #61)
+// Problem:
+// - Given the head of a linked list.
+// - Rotate the list to the right by k places.
+// Input: head = [1,2,3,4,5], k = 2
+// Output: [4,5,1,2,3]
+
+BOOST_AUTO_TEST_SUITE(rotate_list_suite)
+
+ListNode* rotateRight(ListNode* head, int k) {
+	if (head == nullptr || head->next == nullptr) {
+		return head;
+	}
+
+	int size = 0;
+	ListNode* curr = head;
+	ListNode* prev = nullptr;
+	while (curr != nullptr) {
+		prev = curr;
+		curr = curr->next;
+		++size;
+	}
+	prev->next = head;
+	int offset = size - k % size;
+
+	curr = head;
+	prev = nullptr;
+	for (int i = 0; i < offset; ++i) {
+		prev = curr;
+		curr = curr->next;
+	}
+	prev->next = nullptr;
+	return curr;
+}
+
+BOOST_AUTO_TEST_CASE(rotate_list_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		int k = 2;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = rotateRight(head, k);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 2
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		int k = 4;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = rotateRight(head, k);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 3
+		ListNode* head = new ListNode(0);
+		head->next = new ListNode(1);
+		head->next->next = new ListNode(2);
+		int k = 13;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = rotateRight(head, k);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 4
+		ListNode* head = new ListNode(0);
+		int k = 13;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = rotateRight(head, k);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 5
+		ListNode* head = nullptr;
+		int k = 13;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = rotateRight(head, k);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
