@@ -167,4 +167,66 @@ BOOST_AUTO_TEST_CASE(remove_duplicates_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Reverse Linked List" problem (LeetCode #206)
+// Problem:
+// - Given the head of a singly linked list.
+// - Reverse the list, and return the reversed list.
+// Input:
+// Output:
+
+BOOST_AUTO_TEST_SUITE(reversed_linked_list_suite)
+
+ListNode* reverseList(ListNode* head) {
+	ListNode* curr = head;
+	ListNode* prev = nullptr;
+	while (curr != nullptr) {
+		ListNode* oldNext = curr->next;
+		curr->next = prev;
+		prev = curr;
+		curr = oldNext;
+	}
+	return prev;
+}
+
+BOOST_AUTO_TEST_CASE(reversed_linked_list_test) {
+	TEST_MARKER
+
+	{ // Test 1
+		ListNode * head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = reverseList(head);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 2
+		ListNode* head = new ListNode(1);
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = reverseList(head);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 3
+		ListNode* head = nullptr;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = reverseList(head);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
