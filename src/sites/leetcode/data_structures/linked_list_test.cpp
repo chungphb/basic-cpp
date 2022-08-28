@@ -745,4 +745,85 @@ BOOST_AUTO_TEST_CASE(rotate_list_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Remove Linked List Elements" problem (LeetCode #203)
+// Problem:
+// - Given the head of a linked list and an integer val.
+// - Remove all the nodes of the linked list that has Node.val == val.
+// Input: head = [1,2,6,3,4,5,6], val = 6
+// Output: [1,2,3,4,5]
+
+BOOST_AUTO_TEST_SUITE(remove_elements_suite)
+
+ListNode* removeElements(ListNode* head, int val) {
+	ListNode* dummyHead = new ListNode();
+	dummyHead->next = head;
+	ListNode* prev = dummyHead;
+	ListNode* curr = head;
+	while (curr != nullptr) {
+		ListNode* next = curr->next;
+		if (curr->val == val) {
+			delete curr;
+			prev->next = next;
+		}
+		else {
+			prev = curr;
+		}
+		curr = next;
+	}
+	head = dummyHead->next;
+	delete dummyHead;
+	return head;
+}
+
+BOOST_AUTO_TEST_CASE(remove_elements_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(6);
+		head->next->next->next = new ListNode(3);
+		head->next->next->next->next = new ListNode(4);
+		head->next->next->next->next->next = new ListNode(5);
+		head->next->next->next->next->next->next = new ListNode(6);
+		int val = 6;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = removeElements(head, val);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 2
+		ListNode* head = new ListNode(7);
+		head->next = new ListNode(7);
+		head->next->next = new ListNode(7);
+		head->next->next->next = new ListNode(7);
+		int val = 7;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = removeElements(head, val);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 3
+		ListNode* head = nullptr;
+		int val = 1;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = removeElements(head, val);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
