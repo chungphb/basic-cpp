@@ -826,4 +826,86 @@ BOOST_AUTO_TEST_CASE(remove_elements_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Palindrome Linked List" problem (LeetCode #234)
+// Problem:
+// - Given the head of a singly linked list.
+// - Return true if it is a palindrome or false otherwise.
+// Input: head = [1,2,2,1]
+// Output: true
+
+BOOST_AUTO_TEST_SUITE(palindrome_suite)
+
+ListNode* getMid(ListNode* head) {
+	ListNode* fast = head->next;
+	ListNode* slow = head;
+	while (fast != nullptr && fast->next != nullptr) {
+		fast = fast->next->next;
+		slow = slow->next;
+	}
+	return slow;
+}
+
+ListNode* reverse(ListNode* head) {
+	ListNode* curr = head;
+	ListNode* prev = nullptr;
+	while (curr != nullptr) {
+		ListNode* oldNext = curr->next;
+		curr->next = prev;
+		prev = curr;
+		curr = oldNext;
+	}
+	return prev;
+}
+
+
+bool isPalindrome(ListNode* head) {
+	if (head == nullptr) {
+		return true;
+	}
+	ListNode* left = head;
+	ListNode* mid = getMid(head);
+	ListNode* right = reverse(mid->next);
+	ListNode* rightHead = right; // For deallocating
+	mid->next = nullptr;
+
+	while (left != nullptr && right != nullptr) {
+		if (left->val != right->val) {
+			release(rightHead); // For deallocating
+			return false;
+		}
+		left = left->next;
+		right = right->next;
+	}
+	release(rightHead); // For deallocating
+	return true;
+}
+
+BOOST_AUTO_TEST_CASE(palindrome_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(2);
+		head->next->next->next = new ListNode(1);
+		std::cout << "Original: ";
+		print(head);
+		bool res = isPalindrome(head);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+		release(head);
+	}
+
+	{ // Test 2
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		std::cout << "Original: ";
+		print(head);
+		bool res = isPalindrome(head);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+		release(head);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
