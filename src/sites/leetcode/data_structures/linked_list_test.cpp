@@ -171,8 +171,8 @@ BOOST_AUTO_TEST_SUITE_END()
 // Problem:
 // - Given the head of a singly linked list.
 // - Reverse the list, and return the reversed list.
-// Input:
-// Output:
+// Input: head = [1,2,3]
+// Output: [3,2,1]
 
 BOOST_AUTO_TEST_SUITE(reversed_linked_list_suite)
 
@@ -189,7 +189,7 @@ ListNode* reverseList(ListNode* head) {
 }
 
 BOOST_AUTO_TEST_CASE(reversed_linked_list_test) {
-	TEST_MARKER
+	TEST_MARKER();
 
 	{ // Test 1
 		ListNode * head = new ListNode(1);
@@ -220,6 +220,155 @@ BOOST_AUTO_TEST_CASE(reversed_linked_list_test) {
 		std::cout << "Original: ";
 		print(head);
 		ListNode* res = reverseList(head);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Reverse Linked List II" problem (LeetCode #92)
+// Problem:
+// - Given the head of a singly linked list and two integers left and right where left <= right.
+// - Reverse the nodes of the list from position left to position right, and return the reversed list.
+// Input: head = [1,2,3,4,5], left = 2, right = 4
+// Output: [1,4,3,2,5]
+
+BOOST_AUTO_TEST_SUITE(reversed_linked_list_2_suite)
+
+ListNode* reverseBetween(ListNode* head, int left, int right) {
+	if (left == right) {
+		return head;
+	}
+	int id = 0;
+	ListNode* curr = head;
+	ListNode* prev = nullptr;
+	ListNode* leftNode = nullptr;
+	ListNode* prevLeftNode = nullptr;
+	ListNode* rightNode = nullptr;
+	ListNode* nextRightNode = nullptr;
+	while (curr != nullptr) {
+		ListNode* oldNext = curr->next;
+		++id;
+		if (id > left && id < right) {
+			curr->next = prev;
+		} else if (id == left) {
+			leftNode = curr;
+			prevLeftNode = prev;
+		} else if (id == right) {
+			rightNode = curr;
+			nextRightNode = oldNext;
+			curr->next = prev;
+		}
+		prev = curr;
+		curr = oldNext;
+	}
+	leftNode->next = nextRightNode;
+	if (prevLeftNode != nullptr) {
+		prevLeftNode->next = rightNode;
+	} else {
+		head = rightNode;
+	}
+	return head;
+}
+
+BOOST_AUTO_TEST_CASE(reversed_linked_list_2_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		int left = 2;
+		int right = 4;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = reverseBetween(head, left, right);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 2
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		int left = 1;
+		int right = 4;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = reverseBetween(head, left, right);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 3
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		int left = 2;
+		int right = 5;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = reverseBetween(head, left, right);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 4
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		int left = 1;
+		int right = 5;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = reverseBetween(head, left, right);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 5
+		ListNode* head = new ListNode(1);
+		int left = 1;
+		int right = 1;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = reverseBetween(head, left, right);
+		std::cout << "After: ";
+		print(res);
+		std::cout << "\n";
+		release(res);
+	}
+
+	{ // Test 6
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		int left = 2;
+		int right = 2;
+		std::cout << "Original: ";
+		print(head);
+		ListNode* res = reverseBetween(head, left, right);
 		std::cout << "After: ";
 		print(res);
 		std::cout << "\n";
