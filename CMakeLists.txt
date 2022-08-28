@@ -56,14 +56,17 @@ add_executable(circular_linked_list_test src/sites/geeksforgeeks/data_structures
 add_executable(binary_tree_test src/sites/geeksforgeeks/data_structures/binary_tree_test.cpp)
 
 # 3.1.2. ALGORITHMS
-add_executable(two_pointers_test src/sites/geeksforgeeks/algorithms/two_pointers_test.cpp)
-
 add_executable(back_tracking_test src/sites/geeksforgeeks/algorithms/back_tracking_test.cpp)
 
-add_executable(bfs_test src/sites/geeksforgeeks/algorithms/bfs_test.cpp)
+# 3.2. LEETCODE
 
-add_executable(dfs_test src/sites/geeksforgeeks/algorithms/dfs_test.cpp)
+# 3.1.1. DATA STRUCTURES
+add_executable(leetcode_linked_list_test "src/sites/leetcode/data_structures/linked_list_test.cpp")
 
-add_executable(binary_search_test src/sites/geeksforgeeks/algorithms/binary_search_test.cpp)
+# 3.2.2. ALGORITHMS
+add_executable(leetcode_two_pointers_test "src/sites/leetcode/algorithms/two_pointers_test.cpp")
+add_executable(leetcode_bfs_test "src/sites/leetcode/algorithms/bfs_test.cpp")
+add_executable(leetcode_dfs_test "src/sites/leetcode/algorithms/dfs_test.cpp")
+add_executable(leetcode_binary_search_test "src/sites/leetcode/algorithms/binary_search_test.cpp")
 
 add_subdirectory(modules)
