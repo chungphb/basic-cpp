@@ -515,4 +515,123 @@ BOOST_AUTO_TEST_CASE(sort_list_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Reorder List" problem (LeetCode #143)
+// Problem:
+// - You are given the head of a singly linked-list: L0 -> L1 -> ... -> L(n - 1) -> Ln
+// - Reorder the list to be on the following form: L0 -> Ln -> L1 -> L(n - 1) -> ...
+// Input:  head = [1,2,3,4]
+// Output: [1,4,2,3]
+
+BOOST_AUTO_TEST_SUITE(reorder_list_suite)
+
+ListNode* getMid(ListNode* head) {
+	ListNode* fast = head->next;
+	ListNode* slow = head;
+	while (fast != nullptr && fast->next != nullptr) {
+		fast = fast->next->next;
+		slow = slow->next;
+	}
+	return slow;
+}
+
+ListNode* reverse(ListNode* head) {
+	ListNode* curr = head;
+	ListNode* prev = nullptr;
+	while (curr != nullptr) {
+		ListNode* oldNext = curr->next;
+		curr->next = prev;
+		prev = curr;
+		curr = oldNext;
+	}
+	return prev;
+}
+
+void reorderList(ListNode* head) {
+	ListNode* mid = getMid(head);
+	ListNode* list1 = head;
+	ListNode* list2 = reverse(mid->next);
+	mid->next = nullptr;
+
+	ListNode* dummyHead = new ListNode();
+	ListNode* curr = dummyHead;
+	bool flag = true;
+	while (list1 != nullptr && list2 != nullptr) {
+		if (flag) {
+			curr->next = list1;
+			list1 = list1->next;
+		} else {
+			curr->next = list2;
+			list2 = list2->next;
+		}
+		curr = curr->next;
+		flag = !flag;
+	}
+	if (list1 != nullptr) {
+		curr->next = list1;
+	}
+	if (list2 != nullptr) {
+		curr->next = list2;
+	}
+	head = dummyHead->next;
+	delete dummyHead;
+}
+
+BOOST_AUTO_TEST_CASE(reorder_list_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		std::cout << "Original: ";
+		print(head);
+		reorderList(head);
+		std::cout << "After: ";
+		print(head);
+		std::cout << "\n";
+		release(head);
+	}
+
+	{ // Test 2
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		std::cout << "Original: ";
+		print(head);
+		reorderList(head);
+		std::cout << "After: ";
+		print(head);
+		std::cout << "\n";
+		release(head);
+	}
+
+	{ // Test 3
+		ListNode* head = new ListNode(1);
+		std::cout << "Original: ";
+		print(head);
+		reorderList(head);
+		std::cout << "After: ";
+		print(head);
+		std::cout << "\n";
+		release(head);
+	}
+
+	{ // Test 4
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		std::cout << "Original: ";
+		print(head);
+		reorderList(head);
+		std::cout << "After: ";
+		print(head);
+		std::cout << "\n";
+		release(head);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
