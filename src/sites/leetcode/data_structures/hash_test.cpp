@@ -1,10 +1,21 @@
 #define BOOST_TEST_MODULE cpp17 test
 #include <boost/test/included/unit_test.hpp>
 #include <unordered_map>
+#include <vector>
 
 #include "test_util.h"
 
+// Note: Might need to be used with other data structures.
+
 BOOST_AUTO_TEST_SUITE(test_linked_list_leetcode)
+
+template <typename T>
+void print(std::vector<T>& arr) {
+	for (int item : arr) {
+		std::cout << item << " ";
+	}
+	std::cout << "\n";
+}
 
 // "Find the Difference" problem (LeetCode #389)
 // Problem:
@@ -67,6 +78,83 @@ BOOST_AUTO_TEST_CASE(find_the_difference_test) {
 		std::cout << t << "\n";
 		char res = findTheDifference(s, t);
 		std::cout << res << "\n\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Next Greater Element I" problem (LeetCode #496)
+// Problem:
+// - The next greater element of some element x in an array is the first greater element that is to the right of x in the same array.
+// - Given two distinct 0-indexed integer arrays nums1 and nums2, where nums1 is a subset of nums2.
+// - For each 0 <= i < nums1.length, find the index j such that nums1[i] == nums2[j] and determine the next greater element of nums2[j] in nums2.
+// - All integers in nums1 and nums2 are unique.
+// Input: Input: nums1 = [4,1,2], nums2 = [1,3,4,2]
+// Output: Output: [-1,3,-1]
+
+BOOST_AUTO_TEST_SUITE(next_greater_element_suite)
+
+// Note: Could you stack to store unassigned items
+
+std::vector<int> nextGreaterElement(std::vector<int>& nums1, std::vector<int>& nums2) {
+	std::unordered_map<int, int> nextGreaterElements;
+	for (int i = 0; i < nums2.size(); ++i) {
+		nextGreaterElements[nums2[i]] = -1;
+		for (int j = i + 1; j < nums2.size(); ++j) {
+			if (nums2[j] > nums2[i]) {
+				nextGreaterElements[nums2[i]] = nums2[j];
+				break;
+			}
+		}
+	}
+
+	for (int i = 0; i < nums1.size(); ++i) {
+		nums1[i] = nextGreaterElements[nums1[i]];
+	}
+	return nums1;
+}
+
+BOOST_AUTO_TEST_CASE(next_greater_element_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> nums1 = { 4, 1, 2 };
+		std::vector<int> nums2 = { 1, 3, 4, 2 };
+		print(nums1);
+		print(nums2);
+		std::vector<int> res = nextGreaterElement(nums1, nums2);
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 2
+		std::vector<int> nums1 = { 4, 1, 2, 3 };
+		std::vector<int> nums2 = { 1, 3, 4, 2 };
+		print(nums1);
+		print(nums2);
+		std::vector<int> res = nextGreaterElement(nums1, nums2);
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 3
+		std::vector<int> nums1 = { 2, 4 };
+		std::vector<int> nums2 = { 1, 2, 3, 4 };
+		print(nums1);
+		print(nums2);
+		std::vector<int> res = nextGreaterElement(nums1, nums2);
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 4
+		std::vector<int> nums1 = { 1, 3 };
+		std::vector<int> nums2 = { 4, 3, 2, 1 };
+		print(nums1);
+		print(nums2);
+		std::vector<int> res = nextGreaterElement(nums1, nums2);
+		print(res);
+		std::cout << "\n";
 	}
 }
 
