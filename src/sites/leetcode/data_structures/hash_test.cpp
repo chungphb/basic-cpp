@@ -211,4 +211,74 @@ BOOST_AUTO_TEST_CASE(longest_palindrome_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Valid Anagram" problem (LeetCode #242)
+// Problem:
+// - Given two strings s and t.
+// - Return true if t is an anagram of s, and false otherwise.
+// - An Anagram is a word or phrase formed by rearranging the letters of a different word or phrase.
+// Input: s = "anagram", t = "nagaram"
+// Output: true
+
+BOOST_AUTO_TEST_SUITE(valid_anagram_suite)
+
+bool isAnagram(std::string s, std::string t) {
+	if (s.size() != t.size()) {
+		return false;
+	}
+
+	std::unordered_map<char, int> chars;
+	for (char c : s) {
+		++chars[c];
+	}
+	for (char c : t) {
+		--chars[c];
+		if (chars[c] < 0) {
+			return false;
+		}
+	}
+	return true;
+}
+
+BOOST_AUTO_TEST_CASE(valid_anagram_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::string s = "anagram";
+		std::string t = "nagaram";
+		std::cout << s << "\n";
+		std::cout << t << "\n";
+		bool res = isAnagram(s, t);
+		std::cout << std::boolalpha << res << "\n\n";
+	}
+
+	{ // Test 2
+		std::string s = "anagram";
+		std::string t = "nagara";
+		std::cout << s << "\n";
+		std::cout << t << "\n";
+		bool res = isAnagram(s, t);
+		std::cout << std::boolalpha << res << "\n\n";
+	}
+
+	{ // Test 3
+		std::string s = "anagrm";
+		std::string t = "nagaram";
+		std::cout << s << "\n";
+		std::cout << t << "\n";
+		bool res = isAnagram(s, t);
+		std::cout << std::boolalpha << res << "\n\n";
+	}
+
+	{ // Test 4
+		std::string s = "aabbccddee";
+		std::string t = "abcdeabcde";
+		std::cout << s << "\n";
+		std::cout << t << "\n";
+		bool res = isAnagram(s, t);
+		std::cout << std::boolalpha << res << "\n\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
