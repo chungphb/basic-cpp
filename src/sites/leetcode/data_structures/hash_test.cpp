@@ -10,7 +10,7 @@
 
 // Note: Might need to be used with other data structures.
 
-BOOST_AUTO_TEST_SUITE(test_linked_list_leetcode)
+BOOST_AUTO_TEST_SUITE(test_hash_leetcode)
 
 template <typename T>
 void print(std::vector<T>& arr) {
