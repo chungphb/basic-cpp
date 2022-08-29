@@ -475,4 +475,135 @@ BOOST_AUTO_TEST_CASE(group_anagrams_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Valid Sudoku" problem (LeetCode #36)
+// Problem:
+// - Determine if a 9 x 9 Sudoku board is valid.
+// - Only the filled cells need to be validated.
+// - Note: A Sudoku board (partially filled) could be valid but is not necessarily solvable.
+// Input: board = 
+// [["5", "3", ".", ".", "7", ".", ".", ".", "."]
+// , ["6", ".", ".", "1", "9", "5", ".", ".", "."]
+// , [".", "9", "8", ".", ".", ".", ".", "6", "."]
+// , ["8", ".", ".", ".", "6", ".", ".", ".", "3"]
+// , ["4", ".", ".", "8", ".", "3", ".", ".", "1"]
+// , ["7", ".", ".", ".", "2", ".", ".", ".", "6"]
+// , [".", "6", ".", ".", ".", ".", "2", "8", "."]
+// , [".", ".", ".", "4", "1", "9", ".", ".", "5"]
+// , [".", ".", ".", ".", "8", ".", ".", "7", "9"]]
+// Output: true
+
+BOOST_AUTO_TEST_SUITE(valid_sudoku_suite)
+
+bool isValidSudoku(std::vector<std::vector<char>>& board) {
+	std::unordered_set<char> set;
+
+	// Check all the rows
+	for (int r = 0; r < 9; ++r) {
+		set.clear();
+		for (int c = 0; c < 9; ++c) {
+			char ch = board[r][c];
+			if (ch != '.') {
+				if (set.count(ch) > 0) {
+					return false;
+				}
+				set.insert(ch);
+			}
+		}
+	}
+
+	// Check all the columns
+	for (int c = 0; c < 9; ++c) {
+		set.clear();
+		for (int r = 0; r < 9; ++r) {
+			char ch = board[r][c];
+			if (ch != '.') {
+				if (set.count(ch) > 0) {
+					return false;
+				}
+				set.insert(ch);
+			}
+		}
+	}
+
+	// Check all the squares
+	for (int R = 0; R < 3; ++R) {
+		for (int C = 0; C < 3; ++C) {
+			set.clear();
+			for (int r = 0; r < 3; ++r) {
+				for (int c = 0; c < 3; ++c) {
+					char ch = board[R * 3 + r][C * 3 + c];
+					if (ch != '.') {
+						if (set.count(ch) > 0) {
+							return false;
+						}
+						set.insert(ch);
+					}
+				}
+			}
+		}
+	}
+
+	return true;
+}
+
+BOOST_AUTO_TEST_CASE(valid_sudoku_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<std::vector<char>> board = {
+			{ '5', '3', '.', '.', '7', '.', '.', '.', '.' },
+			{ '6', '.', '.', '1', '9', '5', '.', '.', '.' },
+			{ '.', '9', '8', '.', '.', '.', '.', '6', '.' },
+			{ '8', '.', '.', '.', '6', '.', '.', '.', '3' },
+			{ '4', '.', '.', '8', '.', '3', '.', '.', '1' },
+			{ '7', '.', '.', '.', '2', '.', '.', '.', '6' },
+			{ '.', '6', '.', '.', '.', '.', '2', '8', '.' },
+			{ '.', '.', '.', '4', '1', '9', '.', '.', '5' },
+			{ '.', '.', '.', '.', '8', '.', '.', '7', '9' }
+		};
+		std::cout << "Board:\n";
+		print(board);
+		bool res = isValidSudoku(board);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 2
+		std::vector<std::vector<char>> board = {
+			{ '8', '3', '.', '.', '7', '.', '.', '.', '.' },
+			{ '6', '.', '.', '1', '9', '5', '.', '.', '.' },
+			{ '.', '9', '8', '.', '.', '.', '.', '6', '.' },
+			{ '8', '.', '.', '.', '6', '.', '.', '.', '3' },
+			{ '4', '.', '.', '8', '.', '3', '.', '.', '1' },
+			{ '7', '.', '.', '.', '2', '.', '.', '.', '6' },
+			{ '.', '6', '.', '.', '.', '.', '2', '8', '.' },
+			{ '.', '.', '.', '4', '1', '9', '.', '.', '5' },
+			{ '.', '.', '.', '.', '8', '.', '.', '7', '9' }
+		};
+		std::cout << "Board:\n";
+		print(board);
+		bool res = isValidSudoku(board);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 3
+		std::vector<std::vector<char>> board = {
+			{ '5', '3', '.', '.', '7', '.', '.', '.', '.' },
+			{ '6', '.', '.', '1', '9', '5', '.', '.', '.' },
+			{ '.', '9', '8', '.', '.', '.', '.', '6', '.' },
+			{ '8', '.', '.', '.', '6', '.', '.', '.', '3' },
+			{ '4', '.', '.', '8', '.', '3', '.', '.', '1' },
+			{ '7', '.', '.', '.', '2', '.', '.', '.', '6' },
+			{ '.', '6', '.', '.', '.', '.', '2', '8', '.' },
+			{ '.', '.', '.', '4', '1', '9', '.', '.', '5' },
+			{ '.', '.', '.', '.', '8', '.', '.', '7', '2' }
+		};
+		std::cout << "Board:\n";
+		print(board);
+		bool res = isValidSudoku(board);
+		std::cout << std::boolalpha << "Result: " << res << "\n\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
