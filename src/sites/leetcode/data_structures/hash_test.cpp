@@ -1,5 +1,6 @@
 #define BOOST_TEST_MODULE cpp17 test
 #include <boost/test/included/unit_test.hpp>
+#include <iostream>
 #include <unordered_map>
 #include <vector>
 
@@ -16,6 +17,10 @@ void print(std::vector<T>& arr) {
 	}
 	std::cout << "\n";
 }
+
+// ========================================
+// STRINGS
+// ========================================
 
 // "Find the Difference" problem (LeetCode #389)
 // Problem:
@@ -78,83 +83,6 @@ BOOST_AUTO_TEST_CASE(find_the_difference_test) {
 		std::cout << t << "\n";
 		char res = findTheDifference(s, t);
 		std::cout << res << "\n\n";
-	}
-}
-
-BOOST_AUTO_TEST_SUITE_END()
-
-// "Next Greater Element I" problem (LeetCode #496)
-// Problem:
-// - The next greater element of some element x in an array is the first greater element that is to the right of x in the same array.
-// - Given two distinct 0-indexed integer arrays nums1 and nums2, where nums1 is a subset of nums2.
-// - For each 0 <= i < nums1.length, find the index j such that nums1[i] == nums2[j] and determine the next greater element of nums2[j] in nums2.
-// - All integers in nums1 and nums2 are unique.
-// Input: Input: nums1 = [4,1,2], nums2 = [1,3,4,2]
-// Output: Output: [-1,3,-1]
-
-BOOST_AUTO_TEST_SUITE(next_greater_element_suite)
-
-// Note: Could you stack to store unassigned items
-
-std::vector<int> nextGreaterElement(std::vector<int>& nums1, std::vector<int>& nums2) {
-	std::unordered_map<int, int> nextGreaterElements;
-	for (int i = 0; i < nums2.size(); ++i) {
-		nextGreaterElements[nums2[i]] = -1;
-		for (int j = i + 1; j < nums2.size(); ++j) {
-			if (nums2[j] > nums2[i]) {
-				nextGreaterElements[nums2[i]] = nums2[j];
-				break;
-			}
-		}
-	}
-
-	for (int i = 0; i < nums1.size(); ++i) {
-		nums1[i] = nextGreaterElements[nums1[i]];
-	}
-	return nums1;
-}
-
-BOOST_AUTO_TEST_CASE(next_greater_element_test) {
-	TEST_MARKER();
-
-	{ // Test 1
-		std::vector<int> nums1 = { 4, 1, 2 };
-		std::vector<int> nums2 = { 1, 3, 4, 2 };
-		print(nums1);
-		print(nums2);
-		std::vector<int> res = nextGreaterElement(nums1, nums2);
-		print(res);
-		std::cout << "\n";
-	}
-
-	{ // Test 2
-		std::vector<int> nums1 = { 4, 1, 2, 3 };
-		std::vector<int> nums2 = { 1, 3, 4, 2 };
-		print(nums1);
-		print(nums2);
-		std::vector<int> res = nextGreaterElement(nums1, nums2);
-		print(res);
-		std::cout << "\n";
-	}
-
-	{ // Test 3
-		std::vector<int> nums1 = { 2, 4 };
-		std::vector<int> nums2 = { 1, 2, 3, 4 };
-		print(nums1);
-		print(nums2);
-		std::vector<int> res = nextGreaterElement(nums1, nums2);
-		print(res);
-		std::cout << "\n";
-	}
-
-	{ // Test 4
-		std::vector<int> nums1 = { 1, 3 };
-		std::vector<int> nums2 = { 4, 3, 2, 1 };
-		print(nums1);
-		print(nums2);
-		std::vector<int> res = nextGreaterElement(nums1, nums2);
-		print(res);
-		std::cout << "\n";
 	}
 }
 
@@ -276,6 +204,150 @@ BOOST_AUTO_TEST_CASE(valid_anagram_test) {
 		std::cout << t << "\n";
 		bool res = isAnagram(s, t);
 		std::cout << std::boolalpha << res << "\n\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// ========================================
+// ARRAYS
+// ========================================
+
+// "Next Greater Element I" problem (LeetCode #496)
+// Problem:
+// - The next greater element of some element x in an array is the first greater element that is to the right of x in the same array.
+// - Given two distinct 0-indexed integer arrays nums1 and nums2, where nums1 is a subset of nums2.
+// - For each 0 <= i < nums1.length, find the index j such that nums1[i] == nums2[j] and determine the next greater element of nums2[j] in nums2.
+// - All integers in nums1 and nums2 are unique.
+// Input: Input: nums1 = [4,1,2], nums2 = [1,3,4,2]
+// Output: Output: [-1,3,-1]
+
+BOOST_AUTO_TEST_SUITE(next_greater_element_suite)
+
+// Note: Could you stack to store unassigned items
+
+std::vector<int> nextGreaterElement(std::vector<int>& nums1, std::vector<int>& nums2) {
+	std::unordered_map<int, int> nextGreaterElements;
+	for (int i = 0; i < nums2.size(); ++i) {
+		nextGreaterElements[nums2[i]] = -1;
+		for (int j = i + 1; j < nums2.size(); ++j) {
+			if (nums2[j] > nums2[i]) {
+				nextGreaterElements[nums2[i]] = nums2[j];
+				break;
+			}
+		}
+	}
+
+	for (int i = 0; i < nums1.size(); ++i) {
+		nums1[i] = nextGreaterElements[nums1[i]];
+	}
+	return nums1;
+}
+
+BOOST_AUTO_TEST_CASE(next_greater_element_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> nums1 = { 4, 1, 2 };
+		std::vector<int> nums2 = { 1, 3, 4, 2 };
+		print(nums1);
+		print(nums2);
+		std::vector<int> res = nextGreaterElement(nums1, nums2);
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 2
+		std::vector<int> nums1 = { 4, 1, 2, 3 };
+		std::vector<int> nums2 = { 1, 3, 4, 2 };
+		print(nums1);
+		print(nums2);
+		std::vector<int> res = nextGreaterElement(nums1, nums2);
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 3
+		std::vector<int> nums1 = { 2, 4 };
+		std::vector<int> nums2 = { 1, 2, 3, 4 };
+		print(nums1);
+		print(nums2);
+		std::vector<int> res = nextGreaterElement(nums1, nums2);
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 4
+		std::vector<int> nums1 = { 1, 3 };
+		std::vector<int> nums2 = { 4, 3, 2, 1 };
+		print(nums1);
+		print(nums2);
+		std::vector<int> res = nextGreaterElement(nums1, nums2);
+		print(res);
+		std::cout << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Contains Duplicate II" problem (LeetCode #219)
+// Problem:
+// - Given an integer array nums and an integer k.
+// - Return true if there are two distinct indices i and j in the array such that nums[i] == nums[j] and abs(i - j) <= k.
+// Input: nums = [1,2,3,1], k = 3
+// Output: true
+
+BOOST_AUTO_TEST_SUITE(contains_duplicate_suite)
+
+bool containsNearbyDuplicate(std::vector<int>& nums, int k) {
+	std::unordered_map<int, int> map;
+	for (int i = 0; i < nums.size(); ++i) {
+		if (map.find(nums[i]) != map.end()) {
+			if (i - map[nums[i]] <= k) {
+				return true;
+			}
+		}
+		map[nums[i]] = i;
+	}
+	return false;
+}
+
+BOOST_AUTO_TEST_CASE(contains_duplicate_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> nums = { 1, 2, 3, 1 };
+		int k = 3;
+		bool res = containsNearbyDuplicate(nums, k);
+		std::cout << std::boolalpha << res << "\n";
+	}
+
+	{ // Test 2
+		std::vector<int> nums = { 1, 2, 3, 4, 1 };
+		int k = 3;
+		bool res = containsNearbyDuplicate(nums, k);
+		std::cout << std::boolalpha << res << "\n";
+	}
+
+	{ // Test 3
+		std::vector<int> nums = { 1, 2, 3, 4, 2, 1 };
+		int k = 3;
+		bool res = containsNearbyDuplicate(nums, k);
+		std::cout << std::boolalpha << res << "\n";
+	}
+
+	{ // Test 4
+		std::vector<int> nums = { 1, 2, 3, 4, 5, 6 };
+		int k = 0;
+		bool res = containsNearbyDuplicate(nums, k);
+		std::cout << std::boolalpha << res << "\n";
+	}
+
+	{ // Test 5
+		std::vector<int> nums = { 1 };
+		int k = 0;
+		bool res = containsNearbyDuplicate(nums, k);
+		std::cout << std::boolalpha << res << "\n";
 	}
 }
 
