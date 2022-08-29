@@ -5,6 +5,7 @@
 #include <string>
 #include <unordered_map>
 #include <queue>
+#include <algorithm>
 
 #include "test_util.h"
 
@@ -321,6 +322,124 @@ BOOST_AUTO_TEST_CASE(top_k_frequent_elements_test) {
 		std::cout << "Result: ";
 		print(res);
 		std::cout << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Trapping Rain Water" problem (LeetCode #42)
+// Problem:
+// - Given n non-negative integers representing an elevation map where the width of each bar is 1.
+// - Compute how much water it can trap after raining.
+// Input: height = [0,1,0,2,1,0,1,3,2,1,2,1]
+// Output: 6
+
+BOOST_AUTO_TEST_SUITE(trapping_rain_water_suite)
+
+using Pair = std::pair<int, int>;
+
+class PairComparer {
+public:
+	bool operator()(Pair p1, Pair p2) {
+		return p1.second < p2.second;
+	}
+};
+
+int trap(std::vector<int>& height) {
+	std::priority_queue<Pair, std::vector<Pair>, PairComparer> maxHeap;
+	for (int i = 0; i < height.size(); ++i) {
+		maxHeap.emplace(i, height[i]);
+	}
+
+	int res = 0;
+	Pair maxLeft = maxHeap.top();
+	Pair maxRight = maxHeap.top();
+	maxHeap.pop();
+	while (!maxHeap.empty()) {
+		Pair top = maxHeap.top();
+		maxHeap.pop();
+		if (top.second == 0) {
+			continue;
+		}
+		if (top.first < maxLeft.first) {
+			int sum = std::accumulate(height.begin() + top.first + 1, height.begin() + maxLeft.first, 0);
+			res += top.second * (maxLeft.first - top.first - 1) - sum;
+			maxLeft = top;
+		}
+		if (top.first > maxRight.first) {
+			int sum = std::accumulate(height.begin() + maxRight.first + 1, height.begin() + top.first, 0);
+			res += top.second * (top.first - maxRight.first - 1) - sum;
+			maxRight = top;
+		}
+	}
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(trapping_rain_water_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> height = { 0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1 };
+		std::cout << "Heights: ";
+		print(height);
+		int res = trap(height);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 2
+		std::vector<int> height = { 4, 2, 0, 3, 2, 5 };
+		std::cout << "Heights: ";
+		print(height);
+		int res = trap(height);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 3
+		std::vector<int> height = { 0, 0, 1, 0, 1, 1, 2, 5, 2, 1, 0, 1, 0, 0 };
+		std::cout << "Heights: ";
+		print(height);
+		int res = trap(height);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 4
+		std::vector<int> height = { 1 };
+		std::cout << "Heights: ";
+		print(height);
+		int res = trap(height);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 5
+		std::vector<int> height = { 1, 2 };
+		std::cout << "Heights: ";
+		print(height);
+		int res = trap(height);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 6
+		std::vector<int> height = { 2, 1, 3 };
+		std::cout << "Heights: ";
+		print(height);
+		int res = trap(height);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 7
+		std::vector<int> height = { 3, 1, 2 };
+		std::cout << "Heights: ";
+		print(height);
+		int res = trap(height);
+		std::cout << "Result: " << res << "\n\n";
+	}
+
+	{ // Test 8
+		std::vector<int> height = { 2, 1, 1 };
+		std::cout << "Heights: ";
+		print(height);
+		int res = trap(height);
+		std::cout << "Result: " << res << "\n\n";
 	}
 }
 
