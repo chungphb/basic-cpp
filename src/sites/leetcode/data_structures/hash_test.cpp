@@ -160,4 +160,55 @@ BOOST_AUTO_TEST_CASE(next_greater_element_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Longest Palindrome" problem (LeetCode #409)
+// Problem:
+// - Given a string s which consists of lowercase or uppercase letters.
+// - Return the length of the longest palindrome that can be built with those letters.
+// Input: s = "abccccdd"
+// Output: 7
+
+BOOST_AUTO_TEST_SUITE(longest_palindrome_suite)
+
+int longestPalindrome(std::string s) {
+	std::unordered_map<char, int> chars;
+	for (char c : s) {
+		++chars[c];
+	}
+	int res = 0;
+	int offset = 0;
+	for (auto c : chars) {
+		if (c.second % 2 == 0) {
+			res += c.second;
+		} else {
+			res += (c.second - 1);
+			offset = 1;
+		}
+	}
+	return res + offset;
+}
+
+BOOST_AUTO_TEST_CASE(longest_palindrome_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::string s = "abccccdd";
+		int res = longestPalindrome(s);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 2
+		std::string s = "a";
+		int res = longestPalindrome(s);
+		std::cout << res << "\n";
+	}
+
+	{ // Test 3
+		std::string s = "abcabcabc";
+		int res = longestPalindrome(s);
+		std::cout << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
