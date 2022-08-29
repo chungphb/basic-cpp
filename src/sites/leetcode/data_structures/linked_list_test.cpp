@@ -1,5 +1,6 @@
 #define BOOST_TEST_MODULE cpp17 test
 #include <boost/test/included/unit_test.hpp>
+#include <queue>
 
 #include "test_util.h"
 
@@ -1055,6 +1056,180 @@ BOOST_AUTO_TEST_CASE(add_two_numbers_test) {
 		std::cout << "\n";
 		release(l1);
 		release(l2);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Convert Sorted List to Binary Search Tree" problem (LeetCode #109)
+// Problem:
+// - Given the head of a singly linked list where elements are sorted in ascending order.
+// - Convert it to a height balanced BST.
+// Input:
+// Output:
+
+BOOST_AUTO_TEST_SUITE(convert_sorted_list_to_bst_suite)
+
+struct TreeNode {
+	int val;
+	TreeNode* left;
+	TreeNode* right;
+	TreeNode() : val(0), left(nullptr), right(nullptr) {}
+	TreeNode(int x) : val(x), left(nullptr), right(nullptr) {}
+	TreeNode(int x, TreeNode* left, TreeNode* right) : val(x), left(left), right(right) {}
+};
+
+void print(TreeNode* root) {
+	if (root == nullptr) {
+		return;
+	}
+
+	std::queue<TreeNode*> queue;
+	queue.push(root);
+	while (!queue.empty()) {
+		TreeNode* node = queue.front();
+		queue.pop();
+
+		std::cout << node->val << " -> ";
+		if (node->left != nullptr) {
+			std::cout << node->left->val;
+			queue.push(node->left);
+		}
+		else {
+			std::cout << "NULL";
+		}
+
+		std::cout << " + ";
+
+		if (node->right != nullptr) {
+			std::cout << node->right->val;
+			queue.push(node->right);
+		}
+		else {
+			std::cout << "NULL";
+		}
+
+		std::cout << "\n";
+	}
+	std::cout << "\n";
+}
+
+void release(TreeNode* root) {
+	if (root == nullptr) {
+		return;
+	}
+
+	std::queue<TreeNode*> queue;
+	queue.push(root);
+	while (!queue.empty()) {
+		TreeNode* node = queue.front();
+		queue.pop();
+		if (node->left != nullptr) {
+			queue.push(node->left);
+		}
+		if (node->right != nullptr) {
+			queue.push(node->right);
+		}
+		delete node;
+	}
+}
+
+TreeNode* sortedListToBST(ListNode* head) {
+	if (head == nullptr) {
+		return nullptr;
+	}
+
+	ListNode* fast = head->next;
+	ListNode* slow = head;
+	ListNode* prevSlow = nullptr;
+	while (fast != nullptr && fast->next != nullptr) {
+		fast = fast->next->next;
+		prevSlow = slow;
+		slow = slow->next;
+	}
+
+	// Create the root
+	TreeNode* root = new TreeNode(slow->val);
+
+	// Create the left tree
+	TreeNode* left;
+	if (prevSlow != nullptr) {
+		prevSlow->next = nullptr;
+		left = sortedListToBST(head);
+	} else {
+		left = nullptr;
+	}
+
+	// Create the right tree
+	ListNode* oldNext = slow->next;
+	slow->next = nullptr;
+	TreeNode* right = sortedListToBST(oldNext);
+
+	// Delete the current node
+	delete slow;
+
+	// Create the tree
+	root->left = left;
+	root->right = right;
+	return root;
+}
+
+BOOST_AUTO_TEST_CASE(convert_sorted_list_to_bst_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		ListNode* head = new ListNode(-10);
+		head->next = new ListNode(-3);
+		head->next->next = new ListNode(0);
+		head->next->next->next = new ListNode(5);
+		head->next->next->next->next = new ListNode(9);
+		std::cout << "List:\n";
+		print(head);
+		TreeNode* root = sortedListToBST(head);
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "\n";
+		release(root);
+	}
+
+	{ // Test 2
+		ListNode* head = new ListNode(1);
+		head->next = new ListNode(2);
+		head->next->next = new ListNode(3);
+		head->next->next->next = new ListNode(4);
+		head->next->next->next->next = new ListNode(5);
+		head->next->next->next->next->next = new ListNode(6);
+		head->next->next->next->next->next->next = new ListNode(7);
+		head->next->next->next->next->next->next->next = new ListNode(8);
+		std::cout << "List:\n";
+		print(head);
+		TreeNode* root = sortedListToBST(head);
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "\n";
+		release(root);
+	}
+
+	{ // Test 3
+		ListNode* head = new ListNode(1);
+		std::cout << "List:\n";
+		print(head);
+		TreeNode* root = sortedListToBST(head);
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "\n";
+		release(root);
+	}
+
+	{ // Test 4
+		ListNode* head = nullptr;
+		std::cout << "List:\n";
+		print(head);
+		TreeNode* root = sortedListToBST(head);
+		std::cout << "Tree:\n";
+		print(root);
+		std::cout << "\n";
+		release(root);
 	}
 }
 
