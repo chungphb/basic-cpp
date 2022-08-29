@@ -2,6 +2,7 @@
 #include <boost/test/included/unit_test.hpp>
 #include <iostream>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include "test_util.h"
@@ -347,6 +348,58 @@ BOOST_AUTO_TEST_CASE(contains_duplicate_test) {
 		std::vector<int> nums = { 1 };
 		int k = 0;
 		bool res = containsNearbyDuplicate(nums, k);
+		std::cout << std::boolalpha << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Contains Duplicate" problem (LeetCode #217)
+// Problem:
+// - Given an integer array nums.
+// - Return true if any value appears at least twice in the array.
+// Input: nums = [1,2,3,1]
+// Output: true
+
+BOOST_AUTO_TEST_SUITE(contains_deuplicate_suite)
+
+bool containsDuplicate(std::vector<int>& nums) {
+	std::unordered_set<int> set;
+	for (int num : nums) {
+		if (set.count(num) == 0) {
+			set.insert(num);
+		}
+		else {
+			return true;
+		}
+	}
+	return false;
+}
+
+BOOST_AUTO_TEST_CASE(contains_deuplicate_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> nums = { 1, 2, 3, 1 };
+		bool res = containsDuplicate(nums);
+		std::cout << std::boolalpha << res << "\n";
+	}
+
+	{ // Test 2
+		std::vector<int> nums = { 1, 2, 3, 4 };
+		bool res = containsDuplicate(nums);
+		std::cout << std::boolalpha << res << "\n";
+	}
+
+	{ // Test 3
+		std::vector<int> nums = { 1 };
+		bool res = containsDuplicate(nums);
+		std::cout << std::boolalpha << res << "\n";
+	}
+
+	{ // Test 4
+		std::vector<int> nums = { 1, 1, 1, 3, 3, 4, 3, 2, 4, 2 };
+		bool res = containsDuplicate(nums);
 		std::cout << std::boolalpha << res << "\n";
 	}
 }
