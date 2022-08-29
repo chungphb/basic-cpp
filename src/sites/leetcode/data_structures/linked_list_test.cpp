@@ -908,4 +908,156 @@ BOOST_AUTO_TEST_CASE(palindrome_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Add Two Numbers" problem (LeetCode #2)
+// Problem:
+// - You are given two non-empty linked lists representing two non-negative integers.
+// - The digits are stored in reverse order, and each of their nodes contains a single digit.
+// - Add the two numbers and return the sum as a linked list.
+// Input:
+// Output:
+
+BOOST_AUTO_TEST_SUITE(add_two_numbers_suite)
+
+ListNode* addTwoNumbers(ListNode* l1, ListNode* l2) {
+	ListNode* dummyHead = new ListNode();
+	ListNode* prev = dummyHead;
+	ListNode* curr = l1;
+	prev->next = curr;
+
+	// The main loop
+	ListNode* prevL1 = nullptr;
+	ListNode* prevL2 = nullptr;
+	int offset = 0;
+	while (l1 != nullptr && l2 != nullptr) {
+		int sum = l1->val + l2->val + offset;
+		curr->val = sum % 10;
+		offset = sum / 10;
+		prevL1 = l1;
+		l1 = l1->next;
+		prevL2 = l2;
+		l2 = l2->next;
+		prev = curr;
+		curr = curr->next;
+	}
+	prevL2->next = nullptr;
+
+	// If l1 is longer
+	while (l1 != nullptr) {
+		int sum = l1->val + offset;
+		curr->val = sum % 10;
+		offset = sum / 10;
+		l1 = l1->next;
+		prev = curr;
+		curr = curr->next;
+	}
+
+	// If l2 is longer
+	curr = l2;
+	prev->next = curr;
+	while (l2 != nullptr) {
+		int sum = l2->val + offset;
+		curr->val = sum % 10;
+		offset = sum / 10;
+		l2 = l2->next;
+		prev = curr;
+		curr = curr->next;
+	}
+
+	if (offset == 1) {
+		prev->next = new ListNode(1);
+	}
+
+	ListNode* l = dummyHead->next;
+	delete dummyHead;
+	return l;
+}
+
+BOOST_AUTO_TEST_CASE(add_two_numbers_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		ListNode* l1 = new ListNode(2);
+		l1->next = new ListNode(4);
+		l1->next->next = new ListNode(3);
+		ListNode* l2 = new ListNode(5);
+		l2->next = new ListNode(6);
+		l2->next->next = new ListNode(4);
+		std::cout << "List 1: ";
+		print(l1);
+		std::cout << "List 2: ";
+		print(l2);
+		ListNode* l = addTwoNumbers(l1, l2);
+		std::cout << "List: ";
+		print(l);
+		std::cout << "\n";
+		release(l1);
+		release(l2);
+	}
+
+	{ // Test 2
+		ListNode* l1 = new ListNode(0);
+		ListNode* l2 = new ListNode(0);
+		std::cout << "List 1: ";
+		print(l1);
+		std::cout << "List 2: ";
+		print(l2);
+		ListNode* l = addTwoNumbers(l1, l2);
+		std::cout << "List: ";
+		print(l);
+		std::cout << "\n";
+		release(l1);
+		release(l2);
+	}
+
+	{ // Test 3
+		ListNode* l1 = new ListNode(9);
+		l1->next = new ListNode(9);
+		l1->next->next = new ListNode(9);
+		l1->next->next->next = new ListNode(9);
+		l1->next->next->next->next = new ListNode(9);
+		l1->next->next->next->next->next = new ListNode(9);
+		l1->next->next->next->next->next->next = new ListNode(9);
+		ListNode* l2 = new ListNode(9);
+		l2->next = new ListNode(9);
+		l2->next->next = new ListNode(9);
+		l2->next->next->next = new ListNode(9);
+		std::cout << "List 1: ";
+		print(l1);
+		std::cout << "List 2: ";
+		print(l2);
+		ListNode* l = addTwoNumbers(l1, l2);
+		std::cout << "List: ";
+		print(l);
+		std::cout << "\n";
+		release(l1);
+		release(l2);
+	}
+
+	{ // Test 4
+		ListNode* l1 = new ListNode(9);
+		l1->next = new ListNode(9);
+		l1->next->next = new ListNode(9);
+		l1->next->next->next = new ListNode(9);
+		ListNode* l2 = new ListNode(9);
+		l2->next = new ListNode(9);
+		l2->next->next = new ListNode(9);
+		l2->next->next->next = new ListNode(9);
+		l2->next->next->next->next = new ListNode(9);
+		l2->next->next->next->next->next = new ListNode(9);
+		l2->next->next->next->next->next->next = new ListNode(9);
+		std::cout << "List 1: ";
+		print(l1);
+		std::cout << "List 2: ";
+		print(l2);
+		ListNode* l = addTwoNumbers(l1, l2);
+		std::cout << "List: ";
+		print(l);
+		std::cout << "\n";
+		release(l1);
+		release(l2);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
