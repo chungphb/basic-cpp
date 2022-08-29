@@ -62,6 +62,7 @@ add_executable(back_tracking_test src/sites/geeksforgeeks/algorithms/back_tracki
 
 # 3.1.1. DATA STRUCTURES
 add_executable(leetcode_linked_list_test "src/sites/leetcode/data_structures/linked_list_test.cpp")
+add_executable(leetcode_hash_test "src/sites/leetcode/data_structures/hash_test.cpp")
 
 # 3.2.2. ALGORITHMS
 add_executable(leetcode_two_pointers_test "src/sites/leetcode/algorithms/two_pointers_test.cpp")
