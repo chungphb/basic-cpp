@@ -222,4 +222,108 @@ BOOST_AUTO_TEST_CASE(ugly_number_2_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Top K Frequent Elements" problem (LeetCode #347)
+// Problem:
+// - Given an integer array nums and an integer k.
+// - Return the k most frequent elements.
+// Input: nums = [1,1,1,2,2,3], k = 2
+// Output: [1,2]
+
+BOOST_AUTO_TEST_SUITE(top_k_frequent_elements_suite)
+
+using Pair = std::pair<int, int>;
+
+class Compare {
+public:
+	bool operator()(Pair p1, Pair p2) {
+		return p1.second < p2.second;
+	}
+};
+
+std::vector<int> topKFrequent(std::vector<int>& nums, int k) {
+	std::unordered_map<int, int> map;
+	for (int num : nums) {
+		++map[num];
+	}
+	
+	std::priority_queue<Pair, std::vector<Pair>, Compare> maxHeap;
+	for (auto elem : map) {
+		maxHeap.push(elem);
+	}
+
+	std::vector<int> res;
+	for (int i = 0; i < k; ++i) {
+		Pair top = maxHeap.top();
+		res.push_back(top.first);
+		maxHeap.pop();
+	}
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(top_k_frequent_elements_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> nums = { 1, 1, 1, 2, 2, 3 };
+		int k = 2;
+		std::cout << "Nums: ";
+		print(nums);
+		std::cout << "K: " << k << "\n";
+		std::vector<int> res = topKFrequent(nums, k);
+		std::cout << "Result: ";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 2
+		std::vector<int> nums = { 1, 1, 2, 2, 3, 4, 5 };
+		int k = 2;
+		std::cout << "Nums: ";
+		print(nums);
+		std::cout << "K: " << k << "\n";
+		std::vector<int> res = topKFrequent(nums, k);
+		std::cout << "Result: ";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 3
+		std::vector<int> nums = { 1, 2, 3, 3, 4, 4, 5, 5, 6, 7, 8, 8 };
+		int k = 5;
+		std::cout << "Nums: ";
+		print(nums);
+		std::cout << "K: " << k << "\n";
+		std::vector<int> res = topKFrequent(nums, k);
+		std::cout << "Result: ";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 5
+		std::vector<int> nums = { 1, 2, 3, 3, 4, 4, 5, 5, 6, 7, 8, 8 };
+		int k = 8;
+		std::cout << "Nums: ";
+		print(nums);
+		std::cout << "K: " << k << "\n";
+		std::vector<int> res = topKFrequent(nums, k);
+		std::cout << "Result: ";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 6
+		std::vector<int> nums = { 1 };
+		int k = 1;
+		std::cout << "Nums: ";
+		print(nums);
+		std::cout << "K: " << k << "\n";
+		std::vector<int> res = topKFrequent(nums, k);
+		std::cout << "Result: ";
+		print(res);
+		std::cout << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
