@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <algorithm>
 
 #include "test_util.h"
 
@@ -13,8 +14,16 @@ BOOST_AUTO_TEST_SUITE(test_linked_list_leetcode)
 
 template <typename T>
 void print(std::vector<T>& arr) {
-	for (int item : arr) {
+	for (T item : arr) {
 		std::cout << item << " ";
+	}
+	std::cout << "\n";
+}
+
+template <typename T>
+void print(std::vector<std::vector<T>>& arr2d) {
+	for (std::vector<T>& arr : arr2d) {
+		print(arr);
 	}
 	std::cout << "\n";
 }
@@ -401,6 +410,66 @@ BOOST_AUTO_TEST_CASE(contains_deuplicate_test) {
 		std::vector<int> nums = { 1, 1, 1, 3, 3, 4, 3, 2, 4, 2 };
 		bool res = containsDuplicate(nums);
 		std::cout << std::boolalpha << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+
+// "Group Anagrams" problem (LeetCode #49)
+// Problem:
+// - Given an array of strings strs.
+// - Group the anagrams together.
+// Input: strs = ["eat","tea","tan","ate","nat","bat"]
+// Output: [["bat"],["nat","tan"],["ate","eat","tea"]]
+
+BOOST_AUTO_TEST_SUITE(group_anagrams_suite)
+
+std::vector<std::vector<std::string>> groupAnagrams(std::vector<std::string>& strs) {
+	std::unordered_map<std::string, std::vector<std::string>> map;
+	for (std::string& str : strs) {
+		std::string strKey = str;
+		std::sort(strKey.begin(), strKey.end());
+		map[strKey].push_back(std::move(str));
+	}
+	std::vector<std::vector<std::string>> res;
+	for (auto& pair : map) {
+		res.push_back(std::move(pair.second));
+	}
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(group_anagrams_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<std::string> strs = { "eat", "tea", "tan", "ate", "nat", "bat" };
+		std::cout << "Strings:\n";
+		print(strs);
+		std::vector<std::vector<std::string>> res = groupAnagrams(strs);
+		std::cout << "Result:\n";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 2
+		std::vector<std::string> strs = { "" };
+		std::cout << "Strings:\n";
+		print(strs);
+		std::vector<std::vector<std::string>> res = groupAnagrams(strs);
+		std::cout << "Result:\n";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 3
+		std::vector<std::string> strs = { "a", "b", "c", "d" };
+		std::cout << "Strings:\n";
+		print(strs);
+		std::vector<std::vector<std::string>> res = groupAnagrams(strs);
+		std::cout << "Result:\n";
+		print(res);
+		std::cout << "\n";
 	}
 }
 

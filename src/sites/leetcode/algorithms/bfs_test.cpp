@@ -75,7 +75,7 @@ void release(TreeNode* root) {
 
 template <typename T>
 void print(std::vector<T>& arr) {
-	for (int item : arr) {
+	for (T item : arr) {
 		std::cout << item << " ";
 	}
 	std::cout << "\n";
