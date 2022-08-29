@@ -157,4 +157,69 @@ BOOST_AUTO_TEST_CASE(kth_largest_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Ugly Number II" problem (LeetCode #264)
+// Problem:
+// - An ugly number is a positive integer whose prime factors are limited to 2, 3, and 5.
+// - Given an integer n, return the nth ugly number.
+// Input: n = 10
+// Output: 12
+
+BOOST_AUTO_TEST_SUITE(ugly_number_2_suite)
+
+int nthUglyNumber(int n) {
+	int k = 0;
+	std::priority_queue<int, std::vector<int>, std::greater<int>> minHeap;
+	minHeap.push(1);
+	int prev = 0;
+	while (!minHeap.empty()) {
+		int val = minHeap.top();
+		minHeap.pop();
+		if (val == prev) {
+			continue;
+		} else {
+			prev = val;
+		}
+
+		++k;
+		if (k == n) {
+			return val;
+		} else {
+			if (val <= INT_MAX / 2) {
+				minHeap.push(val * 2);
+			}
+			if (val <= INT_MAX / 3) {
+				minHeap.push(val * 3);
+			}
+			if (val <= INT_MAX / 5) {
+				minHeap.push(val * 5);
+			}
+		}
+	}
+	return 1;
+}
+
+BOOST_AUTO_TEST_CASE(ugly_number_2_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		int n = 10;
+		int res = nthUglyNumber(n);
+		std::cout << "n = " << n << ", res = " << res << "\n";
+	}
+
+	{ // Test 2
+		int n = 1;
+		int res = nthUglyNumber(n);
+		std::cout << "n = " << n << ", res = " << res << "\n";
+	}
+
+	{ // Test 3
+		int n = 1690;
+		int res = nthUglyNumber(n);
+		std::cout << "n = " << n << ", res = " << res << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
