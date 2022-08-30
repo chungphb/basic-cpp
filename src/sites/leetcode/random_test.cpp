@@ -282,4 +282,98 @@ BOOST_AUTO_TEST_CASE(multiply_strings_test) {
 
 BOOST_AUTO_TEST_SUITE_END()
 
+// "Permutations II" problem (LeetCode #47)
+// Problem:
+// - Given a collection of numbers, nums, that might contain duplicates.
+// - Return all possible unique permutations in any order.
+// Input: nums = [1,1,2]
+// Output: [[1,1,2],[1,2,1],[2,1,1]]
+
+BOOST_AUTO_TEST_SUITE(permutations_2_suite)
+
+void dfs(std::vector<int>& nums, std::vector<int>& list, std::vector<bool>& visited, std::vector<std::vector<int>>& res) {
+	if (list.size() == nums.size()) {
+		res.push_back(list);
+		return;
+	}
+
+	int prev = INT_MAX;
+	for (int i = 0; i < nums.size(); ++i) {
+		if (visited[i] == true || nums[i] == prev) {
+			continue;
+		}
+		list.push_back(nums[i]);
+		visited[i] = true;
+		dfs(nums, list, visited, res);
+		list.pop_back();
+		visited[i] = false;
+		prev = nums[i];
+	}
+}
+
+std::vector<std::vector<int>> permuteUnique(std::vector<int>& nums) {
+	std::sort(nums.begin(), nums.end());
+	std::vector<int> list;
+	std::vector<bool> visited(nums.size(), false);
+	std::vector<std::vector<int>> res;
+	dfs(nums, list, visited, res);
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(permutations_2_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		std::vector<int> nums = { 1, 1, 2 };
+		std::cout << "Nums:\n";
+		print(nums);
+		std::vector<std::vector<int>> res = permuteUnique(nums);
+		std::cout << "Result:\n";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 2
+		std::vector<int> nums = { 1, 2, 3, 4 };
+		std::cout << "Nums:\n";
+		print(nums);
+		std::vector<std::vector<int>> res = permuteUnique(nums);
+		std::cout << "Result:\n";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 3
+		std::vector<int> nums = { 1, 1, 2, 2, 3, 3 };
+		std::cout << "Nums:\n";
+		print(nums);
+		std::vector<std::vector<int>> res = permuteUnique(nums);
+		std::cout << "Result:\n";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 4
+		std::vector<int> nums = { 1, 1, 1, 1 };
+		std::cout << "Nums:\n";
+		print(nums);
+		std::vector<std::vector<int>> res = permuteUnique(nums);
+		std::cout << "Result:\n";
+		print(res);
+		std::cout << "\n";
+	}
+
+	{ // Test 5
+		std::vector<int> nums = { 1 };
+		std::cout << "Nums:\n";
+		print(nums);
+		std::vector<std::vector<int>> res = permuteUnique(nums);
+		std::cout << "Result:\n";
+		print(res);
+		std::cout << "\n";
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
 BOOST_AUTO_TEST_SUITE_END()
