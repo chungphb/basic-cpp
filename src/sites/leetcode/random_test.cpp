@@ -3,6 +3,7 @@
 #include <vector>
 #include <queue>
 #include <deque>
+#include <string>
 #include <unordered_set>
 
 #include "test_util.h"
@@ -105,6 +106,59 @@ BOOST_AUTO_TEST_CASE(next_permutation_test) {
 		print(nums);
 		nextPermutation(nums);
 		print(nums);
+	}
+}
+
+BOOST_AUTO_TEST_SUITE_END()
+
+// "Count and Say" problem (LeetCode #38)
+// Problem:
+// - The count-and-say sequence is a sequence of digit strings defined by the recursive formula:
+//   + countAndSay(1) = "1"
+//   + countAndSay(n) is the way you would "say" the digit string from countAndSay(n-1)
+// - For example, the saying and conversion for digit string "3322251" is "23321511".
+// - Given a positive integer n, return the nth term of the count-and-say sequence.
+// Input: n = 4
+// Output: "1211"
+// countAndSay(1) = "1"
+// countAndSay(2) = say "1" = one 1 = "11"
+// countAndSay(3) = say "11" = two 1's = "21"
+// countAndSay(4) = say "21" = one 2 + one 1 = "12" + "11" = "1211"
+
+BOOST_AUTO_TEST_SUITE(count_and_say_suite)
+
+std::string countAndSay(int n) {
+	if (n == 1) {
+		return "1";
+	}
+	std::string s = countAndSay(n - 1);
+	std::string res = "";
+	char prev = '0';
+	int count;
+	for (char c : s) {
+		if (c == prev) {
+			++count;
+		} else {
+			if (prev != '0') {
+				res += std::to_string(count);
+				res += prev;
+			}
+			count = 1;
+			prev = c;
+		}
+	}
+	res += std::to_string(count);
+	res += prev;
+	return res;
+}
+
+BOOST_AUTO_TEST_CASE(count_and_say_test) {
+	TEST_MARKER();
+
+	{ // Test 1
+		for (int n = 1; n <= 10; ++n) {
+			std::cout << "n = " << n << ": " << countAndSay(n) << "\n";
+		}
 	}
 }
 
