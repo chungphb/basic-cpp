@@ -71,4 +71,7 @@ add_executable(leetcode_bfs_test "src/sites/leetcode/algorithms/bfs_test.cpp")
 add_executable(leetcode_dfs_test "src/sites/leetcode/algorithms/dfs_test.cpp")
 add_executable(leetcode_binary_search_test "src/sites/leetcode/algorithms/binary_search_test.cpp")
 
+# 3.2.3. RANDOM
+add_executable(leetcode_random_test "src/sites/leetcode/random_test.cpp")
+
 add_subdirectory(modules)
