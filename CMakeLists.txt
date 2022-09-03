@@ -19,6 +19,16 @@ include_directories("${CMAKE_SOURCE_DIR}/include")
 
 add_executable(from_modern_cpp_design src/books/from_modern_cpp_design.cpp)
 
+# 1.2. MULTI-THREADING
+
+# 1.2.1. CONCURRENCY WITH MODERN C++
+add_executable(concurrency_atomic_flag "src/books/concurrency_with_modern_cpp/memory_model/atomic_flag.cpp")
+add_executable(concurrency_atomic "src/books/concurrency_with_modern_cpp/memory_model/atomic.cpp")
+add_executable(concurrency_memory_order_sequential_consistency "src/books/concurrency_with_modern_cpp/memory_model/memory_order_sequential_consistency.cpp")
+add_executable(concurrency_memory_order_acquire_release "src/books/concurrency_with_modern_cpp/memory_model/memory_order_acquire_release.cpp")
+add_executable(concurrency_memory_order_consume_release "src/books/concurrency_with_modern_cpp/memory_model/memory_order_consume_release.cpp")
+add_executable(concurrency_memory_order_relaxed "src/books/concurrency_with_modern_cpp/memory_model/memory_order_relaxed.cpp")
+
 # 2. LIBS
 
 # 2.1. STL
