@@ -133,5 +133,6 @@ add_executable(refactoring_guru_singleton "src/sites/refactoring_guru/creational
 add_executable(refactoring_guru_adapter "src/sites/refactoring_guru/structural/adapter.cpp")
 add_executable(refactoring_guru_bridge "src/sites/refactoring_guru/structural/bridge.cpp")
 add_executable(refactoring_guru_composite "src/sites/refactoring_guru/structural/composite.cpp")
+add_executable(refactoring_guru_decorator "src/sites/refactoring_guru/structural/decorator.cpp")
 
 add_subdirectory(modules)
