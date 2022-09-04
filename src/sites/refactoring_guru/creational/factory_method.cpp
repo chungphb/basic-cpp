@@ -9,19 +9,19 @@ BOOST_AUTO_TEST_SUITE(factory_method_suite)
 class Product {
 public:
 	virtual ~Product() = default;
-	virtual std::string operation() const = 0;
+	virtual std::string function() const = 0;
 };
 
 class ConcreteProduct1 : public Product {
 public:
-	std::string operation() const override {
+	std::string function() const override {
 		return "Product 1";
 	}
 };
 
 class ConcreteProduct2 : public Product {
 public:
-	std::string operation() const override {
+	std::string function() const override {
 		return "Product 2";
 	}
 };
@@ -48,7 +48,7 @@ public:
 
 void clientRequest(const Creator& creator) {
 	Product* product = creator.factoryMethod();
-	std::string result = product->operation();
+	std::string result = product->function();
 	std::cout << result << "\n";
 	delete product;
 }

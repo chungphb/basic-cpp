@@ -127,5 +127,6 @@ add_executable(leetcode_random_test "src/sites/leetcode/random_test.cpp")
 add_executable(refactoring_guru_abstract_factory "src/sites/refactoring_guru/creational/abstract_factory.cpp")
 add_executable(refactoring_guru_builder "src/sites/refactoring_guru/creational/builder.cpp")
 add_executable(refactoring_guru_factory_method "src/sites/refactoring_guru/creational/factory_method.cpp")
+add_executable(refactoring_guru_prototype "src/sites/refactoring_guru/creational/prototype.cpp")
 
 add_subdirectory(modules)
