@@ -81,7 +81,7 @@ void clientRequest(const AbstractFactory& factory) {
 	delete productB;
 }
 
-BOOST_AUTO_TEST_CASE(bstract_factory_test) {
+BOOST_AUTO_TEST_CASE(abstract_factory_test) {
 	TEST_MARKER();
 	std::cout << "Family 1\n";
 	ConcreteFactory1* factory1 = new ConcreteFactory1();
@@ -91,7 +91,6 @@ BOOST_AUTO_TEST_CASE(bstract_factory_test) {
 	ConcreteFactory2* factory2 = new ConcreteFactory2();
 	clientRequest(*factory2);
 	delete factory2;
-
 }
 
 BOOST_AUTO_TEST_SUITE_END()
