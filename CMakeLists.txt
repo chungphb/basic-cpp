@@ -16,7 +16,6 @@ include_directories("${CMAKE_SOURCE_DIR}/include")
 
 # 1.1.1. MODERN C++ DESIGN: GENERIC PROGRAMMING AND DESIGN PATTERNS APPLIED
 # Link: https://g.co/kgs/NaxxkE
-
 add_executable(from_modern_cpp_design src/books/from_modern_cpp_design.cpp)
 
 # 1.2. MULTI-THREADING
@@ -29,18 +28,22 @@ add_executable(concurrency_memory_order_acquire_release "src/books/concurrency_w
 add_executable(concurrency_memory_order_consume_release "src/books/concurrency_with_modern_cpp/memory_model/memory_order_consume_release.cpp")
 add_executable(concurrency_memory_order_relaxed "src/books/concurrency_with_modern_cpp/memory_model/memory_order_relaxed.cpp")
 
+add_executable(concurrency_thread "src/books/concurrency_with_modern_cpp/multithreading/thread.cpp")
+add_executable(concurrency_mutex "src/books/concurrency_with_modern_cpp/multithreading/mutex.cpp")
+add_executable(concurrency_lock "src/books/concurrency_with_modern_cpp/multithreading/lock.cpp")
+add_executable(concurrency_thread_safe_initialisation "src/books/concurrency_with_modern_cpp/multithreading/thread_safe_initialisation.cpp")
+add_executable(concurrency_thread_local "src/books/concurrency_with_modern_cpp/multithreading/thread_local.cpp")
+add_executable(concurrency_condition_variable "src/books/concurrency_with_modern_cpp/multithreading/condition_variable.cpp")
+add_executable(concurrency_task "src/books/concurrency_with_modern_cpp/multithreading/task.cpp")
+
 # 2. LIBS
 
 # 2.1. STL
-
 add_executable(stl_algorithms_test src/libs/stl/stl_algorithms_test.cpp)
-
 add_executable(cpp17_test src/libs/stl/cpp17_test.cpp)
-
 add_executable(cpp11_concurrency_test src/libs/stl/cpp11_concurrency_test.cpp)
 
 # 2.2. BOOST
-
 add_executable(boost_intrusive_test src/libs/boost/boost_intrusive_test.cpp)
 
 # 2.3. OTHERS
