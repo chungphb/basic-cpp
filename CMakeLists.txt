@@ -36,6 +36,17 @@ add_executable(concurrency_thread_local "src/books/concurrency_with_modern_cpp/m
 add_executable(concurrency_condition_variable "src/books/concurrency_with_modern_cpp/multithreading/condition_variable.cpp")
 add_executable(concurrency_task "src/books/concurrency_with_modern_cpp/multithreading/task.cpp")
 
+add_executable(concurrency_parallel_stl "src/books/concurrency_with_modern_cpp/parallel_stl/parallel_stl.cpp")
+
+add_executable(concurrency_scoped_lock "src/books/concurrency_with_modern_cpp/synchronisation_patterns/scoped_lock.cpp")
+add_executable(concurrency_strategized_lock "src/books/concurrency_with_modern_cpp/synchronisation_patterns/strategized_lock.cpp")
+add_executable(concurrency_thread_safe_interface "src/books/concurrency_with_modern_cpp/synchronisation_patterns/thread_safe_interface.cpp")
+
+add_executable(concurrency_active_object "src/books/concurrency_with_modern_cpp/concurrent_architecture/active_object.cpp")
+add_executable(concurrency_monitor_object "src/books/concurrency_with_modern_cpp/concurrent_architecture/monitor_object.cpp")
+
+add_executable(concurrency_sum_of_vector "src/books/concurrency_with_modern_cpp/sum_of_vector.cpp")
+
 # 2. LIBS
 
 # 2.1. STL
