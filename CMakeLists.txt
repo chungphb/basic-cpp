@@ -135,5 +135,6 @@ add_executable(refactoring_guru_bridge "src/sites/refactoring_guru/structural/br
 add_executable(refactoring_guru_composite "src/sites/refactoring_guru/structural/composite.cpp")
 add_executable(refactoring_guru_decorator "src/sites/refactoring_guru/structural/decorator.cpp")
 add_executable(refactoring_guru_facade "src/sites/refactoring_guru/structural/facade.cpp")
+add_executable(refactoring_guru_flyweight "src/sites/refactoring_guru/structural/flyweight.cpp")
 
 add_subdirectory(modules)
