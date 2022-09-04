@@ -10,15 +10,21 @@ include_directories(${Boost_INCLUDE_DIR})
 
 include_directories("${CMAKE_SOURCE_DIR}/include")
 
+# ================================================================================
 # 1. TECHNIQUES
+# ================================================================================
 
+# ========================================
 # 1.1. TEMPLATE METAPROGRAMMING (TMP)
+# ========================================
 
 # 1.1.1. MODERN C++ DESIGN: GENERIC PROGRAMMING AND DESIGN PATTERNS APPLIED
 # Link: https://g.co/kgs/NaxxkE
 add_executable(from_modern_cpp_design src/books/from_modern_cpp_design.cpp)
 
+# ========================================
 # 1.2. MULTI-THREADING
+# ========================================
 
 # 1.2.1. CONCURRENCY WITH MODERN C++
 add_executable(concurrency_atomic_flag "src/books/concurrency_with_modern_cpp/memory_model/atomic_flag.cpp")
@@ -47,17 +53,27 @@ add_executable(concurrency_monitor_object "src/books/concurrency_with_modern_cpp
 
 add_executable(concurrency_sum_of_vector "src/books/concurrency_with_modern_cpp/sum_of_vector.cpp")
 
+# ================================================================================
 # 2. LIBS
+# ================================================================================
 
+# ========================================
 # 2.1. STL
+# ========================================
+
 add_executable(stl_algorithms_test src/libs/stl/stl_algorithms_test.cpp)
 add_executable(cpp17_test src/libs/stl/cpp17_test.cpp)
 add_executable(cpp11_concurrency_test src/libs/stl/cpp11_concurrency_test.cpp)
 
+# ========================================
 # 2.2. BOOST
+# ========================================
+
 add_executable(boost_intrusive_test src/libs/boost/boost_intrusive_test.cpp)
 
+# ========================================
 # 2.3. OTHERS
+# ========================================
 
 # 2.3.1. RANGE-V3
 add_executable(ranges_test src/libs/others/ranges_test.cpp)
@@ -68,9 +84,13 @@ target_link_directories(ranges_test INTERFACE range-v3)
 add_executable(toml_test src/libs/others/toml_test.cpp)
 target_include_directories(toml_test PRIVATE "${CMAKE_SOURCE_DIR}/modules/tinytoml/include")
 
+# ================================================================================
 # 3. SITES
+# ================================================================================
 
+# ========================================
 # 3.1. GEEKSFORGEEKS
+# ========================================
 
 # 3.1.1. DATA STRUCTURES
 add_executable(array_test src/sites/geeksforgeeks/data_structures/array_test.cpp)
@@ -82,7 +102,9 @@ add_executable(binary_tree_test src/sites/geeksforgeeks/data_structures/binary_t
 # 3.1.2. ALGORITHMS
 add_executable(back_tracking_test src/sites/geeksforgeeks/algorithms/back_tracking_test.cpp)
 
+# ========================================
 # 3.2. LEETCODE
+# ========================================
 
 # 3.1.1. DATA STRUCTURES
 add_executable(leetcode_linked_list_test "src/sites/leetcode/data_structures/linked_list_test.cpp")
@@ -97,5 +119,11 @@ add_executable(leetcode_binary_search_test "src/sites/leetcode/algorithms/binary
 
 # 3.2.3. RANDOM
 add_executable(leetcode_random_test "src/sites/leetcode/random_test.cpp")
+
+# ========================================
+# 3.3. REFACTORING.GURU
+# ========================================
+
+add_executable(refactoring_guru_abstract_factory "src/sites/refactoring_guru/creational/abstract_factory.cpp")
 
 add_subdirectory(modules)
