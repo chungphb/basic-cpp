@@ -23,6 +23,7 @@ Singleton::Singleton() = default;
 Singleton::~Singleton() = default;
 
 BOOST_AUTO_TEST_CASE(singleton_test) {
+	TEST_MARKER();
 	auto lambda = [] {
 		std::cout << &Singleton::getInstance() << "\n";
 	};

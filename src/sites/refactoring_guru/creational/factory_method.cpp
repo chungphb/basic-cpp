@@ -55,9 +55,11 @@ void clientRequest(const Creator& creator) {
 
 BOOST_AUTO_TEST_CASE(factory_method_test) {
 	TEST_MARKER();
+	
 	Creator* creator1 = new ConcreteCreator1();
 	clientRequest(*creator1);
 	delete creator1;
+	
 	Creator* creator2 = new ConcreteCreator2();
 	clientRequest(*creator2);
 	delete creator2;

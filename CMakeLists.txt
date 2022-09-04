@@ -130,4 +130,6 @@ add_executable(refactoring_guru_factory_method "src/sites/refactoring_guru/creat
 add_executable(refactoring_guru_prototype "src/sites/refactoring_guru/creational/prototype.cpp")
 add_executable(refactoring_guru_singleton "src/sites/refactoring_guru/creational/singleton.cpp")
 
+add_executable(refactoring_guru_adapter "src/sites/refactoring_guru/structural/adapter.cpp")
+
 add_subdirectory(modules)

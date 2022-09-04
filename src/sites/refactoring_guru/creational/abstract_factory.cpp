@@ -83,10 +83,12 @@ void clientRequest(const AbstractFactory& factory) {
 
 BOOST_AUTO_TEST_CASE(abstract_factory_test) {
 	TEST_MARKER();
+
 	std::cout << "Family 1\n";
 	ConcreteFactory1* factory1 = new ConcreteFactory1();
 	clientRequest(*factory1);
 	delete factory1;
+	
 	std::cout << "Family 2\n";
 	ConcreteFactory2* factory2 = new ConcreteFactory2();
 	clientRequest(*factory2);
