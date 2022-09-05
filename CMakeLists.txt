@@ -145,5 +145,6 @@ add_executable(refactoring_guru_mediator "src/sites/refactoring_guru/behavioral/
 add_executable(refactoring_guru_memento "src/sites/refactoring_guru/behavioral/memento.cpp")
 add_executable(refactoring_guru_observer "src/sites/refactoring_guru/behavioral/observer.cpp")
 add_executable(refactoring_guru_state "src/sites/refactoring_guru/behavioral/state.cpp")
+add_executable(refactoring_guru_strategy "src/sites/refactoring_guru/behavioral/strategy.cpp")
 
 add_subdirectory(modules)
