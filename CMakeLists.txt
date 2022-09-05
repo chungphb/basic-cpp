@@ -138,5 +138,6 @@ add_executable(refactoring_guru_facade "src/sites/refactoring_guru/structural/fa
 add_executable(refactoring_guru_flyweight "src/sites/refactoring_guru/structural/flyweight.cpp")
 add_executable(refactoring_guru_proxy "src/sites/refactoring_guru/structural/proxy.cpp")
 
+add_executable(refactoring_guru_chain_of_responsibility "src/sites/refactoring_guru/behavioral/chain_of_responsibility.cpp")
 
 add_subdirectory(modules)
